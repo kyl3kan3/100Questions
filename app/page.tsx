@@ -210,6 +210,22 @@ export default function Home() {
           <p>
             API-grounded benchmark; results may differ from consumer chat products.
           </p>
+          <a
+            href="https://verifieddr.com/website/100questionsai-com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View the verified domain rating for 100questionsai.com"
+            className="shrink-0 opacity-80 transition-opacity hover:opacity-100"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://verifieddr.com/badge/100questionsai-com.svg?metric=truedr"
+              alt="Verified DR - Verified Domain Rating for 100questionsai.com"
+              width="220"
+              height="68"
+              loading="lazy"
+            />
+          </a>
         </div>
       </footer>
     </main>

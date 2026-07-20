@@ -1,0 +1,46 @@
+# 100 Questions: product and methodology reference
+
+Canonical site: https://100questionsai.com/
+Methodology: https://100questionsai.com/methodology
+FAQ: https://100questionsai.com/faq
+
+## What the product does
+
+100 Questions is an authenticated, paid web application for directional AI visibility benchmarking. A user supplies a subject name, canonical domain, aliases, category and use-case description, market, locale, and optional competitors. The system freezes a test and compares web-grounded answers from OpenAI, Anthropic, Google, and xAI through Vercel AI Gateway.
+
+It is an API-grounded benchmark. It does not claim that its responses are identical to the providers' consumer chat interfaces, which can differ in prompts, personalization, routing, model selection, and search behavior.
+
+## Frozen question set
+
+Every benchmark v2 run freezes exactly 25 questions, the model IDs, locale, timestamp, prompt versions, cohort mix, grounding mode, and scoring version.
+
+- 20 discovery questions are neutral category or use-case questions. They must not contain the target name, its aliases, or its canonical domain.
+- 5 diagnostic questions explicitly name the target to examine trust, comparisons, pricing, support, implementation, and factual knowledge.
+
+The exact frozen set is sent to each of four providers, creating 100 planned provider answers: 25 from each provider.
+
+## Grounding and scoring eligibility
+
+Provider requests use provider-native web search. There is no plain-text fallback. A result is score-eligible only when the provider call succeeds and returns valid HTTP or HTTPS sources. Failed calls, unsupported search, and answers without valid sources remain visible in coverage but do not enter eligible-score denominators.
+
+## Metrics
+
+- Discovery visibility: target-mentioned eligible discovery answers divided by eligible discovery answers.
+- Conservative visibility floor: target-mentioned discovery answers divided by all planned discovery answers.
+- Coverage: eligible answers divided by planned answers.
+- Prominence: mean of lead = 1, shortlist = 0.67, incidental = 0.33, and absent = 0 across eligible discovery answers.
+- Share of voice: target answer-entity mention events divided by all target and selected-competitor answer-entity mention events, counting an entity at most once per answer.
+- Claimed-domain citation rate: eligible answers citing the canonical domain or one of its subdomains divided by eligible answers.
+- Sentiment: positive, neutral, and negative distribution among target-mentioned answers. It is not labeled as factual accuracy.
+
+Coverage is displayed beside visibility. Metrics are provisional below 90% coverage.
+
+## Interpretation limits
+
+A run is a time-stamped directional snapshot because web search and model responses vary. The generated question set is not claimed to be random or statistically representative. With 25 questions, a simple worst-case interval is roughly plus or minus 20 percentage points. That interval is a scale cue, not a precision or representativeness claim.
+
+## Privacy, evidence, and billing
+
+Runs are private to their authenticated owner. The product retains the frozen questions, normalized answers and sources, relevant model and prompt versions, metric labels, usage, and exclusion reasons. Complete raw provider payloads are not retained. The default answer-retention window is 30 days.
+
+The billing model sells prepaid benchmark credits through Stripe-hosted Checkout. It is not a subscription. Stripe owns and displays the configured price before payment.

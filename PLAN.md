@@ -6,7 +6,7 @@
 appears in web-grounded answers from OpenAI, Anthropic, Google, and xAI. A user defines a brand,
 canonical domain, aliases, category/use-case description, market, locale, and optional
 competitors. The system freezes exactly 25 shared questions, sends every question to all four
-providers through Vercel AI Gateway, and reports across 100 grounded answers:
+providers through Vercel AI Gateway, and reports across 100 planned provider answers:
 
 - Discovery mention rate and prominence
 - Provider coverage and grounded-answer rate
@@ -68,7 +68,7 @@ Question generation is two-stage:
 Discovery questions are normalized, deduplicated, and rejected or regenerated if they
 contain a target alias or domain. The exact frozen question and a neutral system prompt are
 sent to all four providers without hidden target context. This produces 25 OpenAI, 25 Claude,
-25 Gemini, and 25 Grok answers: 100 grounded provider answers per fixed run.
+25 Gemini, and 25 Grok answers: 100 planned provider answers per fixed run.
 
 A result is score-eligible only when the provider call succeeds and returns valid grounding
 sources. `no_sources`, `unsupported`, and failed results are excluded from eligible-score
@@ -294,7 +294,7 @@ Pages:
 
 ## Cost, security, and privacy guardrails
 
-- Exactly 25 shared questions and four providers, producing 100 grounded answers
+- Exactly 25 shared questions and four providers, producing 100 planned provider answers
 - One active run per user by default
 - Configurable per-user daily run and cost ceilings
 - Per-provider concurrency limits, maximum output tokens, and native-search-use limits
@@ -349,7 +349,7 @@ configuration is a deployment prerequisite.
 - Paid provider canary: one shared question across all four providers, each returning text and
   sources
 - Five-question Workflow smoke test with retry and partial-result injection
-- Full fixed run (25 shared questions and 100 grounded answers) only after an explicit budget
+- Full fixed run (25 shared questions and 100 planned provider answers) only after an explicit budget
   confirmation
 - Verify the Vercel preview, authenticated navigation, progress polling, source rendering,
   payment return flow, and absence of secrets in client bundles and logs

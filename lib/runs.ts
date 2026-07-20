@@ -29,13 +29,19 @@ export type CreateReservedRunResult =
   | { state: "created" | "existing"; run: RunSummary }
   | { state: "no_credit" | "active_run" | "daily_limit" };
 
+type CreateReservedRunOptions = {
+  unlimitedAccess?: boolean;
+};
+
 export async function createReservedRun(
   userId: string,
   clientRequestId: string,
   input: CreateRunInput,
+  options: CreateReservedRunOptions = {},
 ): Promise<CreateReservedRunResult> {
   const db = getDb();
   const config = getBenchmarkConfig();
+  const unlimitedAccess = options.unlimitedAccess === true;
   const id = randomUUID();
   const discoveryCount = Math.round(
     input.questionCount * config.benchmark.discoveryRatio,
@@ -99,10 +105,16 @@ export async function createReservedRun(
         ${retentionExpiresAt.toISOString()}::timestamptz
       FROM credit
       LEFT JOIN usage ON true
-      WHERE credit.balance >= 1
-        AND COALESCE(usage.runs_reserved, 0) < ${config.budget.dailyRunLimit}
-        AND COALESCE(usage.cost_reserved_micros, 0) + ${budgetCeiling}::bigint
-          <= ${config.budget.dailyCostLimitMicros}::bigint
+      WHERE (${unlimitedAccess} OR credit.balance >= 1)
+        AND (
+          ${unlimitedAccess}
+          OR COALESCE(usage.runs_reserved, 0) < ${config.budget.dailyRunLimit}
+        )
+        AND (
+          ${unlimitedAccess}
+          OR COALESCE(usage.cost_reserved_micros, 0) + ${budgetCeiling}::bigint
+            <= ${config.budget.dailyCostLimitMicros}::bigint
+        )
         AND NOT EXISTS (SELECT 1 FROM existing)
       RETURNING id
     ),
@@ -110,9 +122,14 @@ export async function createReservedRun(
       INSERT INTO credit_ledger (
         user_id, amount, type, run_id, external_reference, metadata
       )
-      SELECT ${userId}, -1, 'reserve'::credit_ledger_type, id,
+      SELECT ${userId},
+        CASE WHEN ${unlimitedAccess} THEN 0 ELSE -1 END,
+        'reserve'::credit_ledger_type, id,
         'run:' || id::text || ':reserve',
-        ${JSON.stringify({ benchmarkVersion: config.prompts.benchmarkVersion })}::jsonb
+        ${JSON.stringify({
+          benchmarkVersion: config.prompts.benchmarkVersion,
+          funding: unlimitedAccess ? "internal_unlimited" : "prepaid_credit",
+        })}::jsonb
       FROM created_run
       RETURNING run_id
     ),
@@ -224,7 +241,7 @@ export async function createReservedRun(
     )?.cost_reserved_micros ?? 0,
   );
 
-  if (balance < 1) {
+  if (!unlimitedAccess && balance < 1) {
     return { state: "no_credit" };
   }
 
@@ -233,8 +250,9 @@ export async function createReservedRun(
   }
 
   if (
-    usedToday >= config.budget.dailyRunLimit ||
-    costReservedToday + budgetCeiling > config.budget.dailyCostLimitMicros
+    !unlimitedAccess &&
+    (usedToday >= config.budget.dailyRunLimit ||
+      costReservedToday + budgetCeiling > config.budget.dailyCostLimitMicros)
   ) {
     return { state: "daily_limit" };
   }

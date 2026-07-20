@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
 import { GlobalFooter } from "@/components/global-footer";
+import { JsonLd } from "@/components/json-ld";
+import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
 
 import "./globals.css";
 
@@ -16,17 +18,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://100-questions-psi.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "100 Questions — AI Visibility Benchmark",
     template: "%s · 100 Questions",
   },
   description:
-    "Compare 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok—with transparent, directional results.",
+    "Compare 100 planned web-grounded provider answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok—with transparent, directional results.",
   applicationName: "100 Questions",
   authors: [{ name: "100 Questions" }],
   creator: "100 Questions",
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
     "LLM benchmark",
     "AI citations",
   ],
-  alternates: { canonical: "/" },
+  alternates: { canonical: absoluteUrl() },
   formatDetection: { email: false, address: false, telephone: false },
   icons: {
     icon: [{ url: "/logo-mark.svg", type: "image/svg+xml" }],
@@ -62,9 +61,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "100 Questions — AI Visibility Benchmark",
     description:
-      "Compare 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
-    url: "/",
-    siteName: "100 Questions",
+      "Compare 100 planned web-grounded provider answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
+    url: absoluteUrl(),
+    siteName: SITE_NAME,
     type: "website",
     locale: "en_US",
   },
@@ -72,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "100 Questions — AI Visibility Benchmark",
     description:
-      "25 shared questions, four AI models, and 100 grounded answers for a directional visibility benchmark.",
+      "25 shared questions, four AI models, and 100 planned provider answers for a directional visibility benchmark.",
   },
 };
 
@@ -88,13 +87,23 @@ export default function RootLayout({
 }>) {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "100 Questions",
-    applicationCategory: "BusinessApplication",
-    operatingSystem: "Web",
-    description:
-      "A directional AI visibility benchmark comparing 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
-    url: siteUrl,
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${absoluteUrl()}#organization`,
+        name: SITE_NAME,
+        url: absoluteUrl(),
+        logo: absoluteUrl("/logo-mark.svg"),
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${absoluteUrl()}#website`,
+        name: SITE_NAME,
+        url: absoluteUrl(),
+        publisher: { "@id": `${absoluteUrl()}#organization` },
+        inLanguage: "en-US",
+      },
+    ],
   };
 
   return (
@@ -113,12 +122,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         {children}
         <GlobalFooter />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
-          }}
-        />
+        <JsonLd data={structuredData} />
       </body>
     </html>
   );

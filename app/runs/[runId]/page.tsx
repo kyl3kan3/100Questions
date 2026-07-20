@@ -10,7 +10,11 @@ import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 import { getRunForUser } from "@/lib/runs";
 
-export const metadata: Metadata = { title: "Benchmark run" };
+export const metadata: Metadata = {
+  title: "Benchmark run",
+  alternates: { canonical: null },
+  robots: { index: false, follow: false },
+};
 export const dynamic = "force-dynamic";
 
 export default async function RunPage({ params }: { params: Promise<{ runId: string }> }) {

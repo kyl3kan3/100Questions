@@ -3,7 +3,6 @@ import "server-only";
 import { createHash } from "node:crypto";
 
 import { generateText, Output } from "ai";
-import { z } from "zod";
 
 import {
   matchBrand,
@@ -18,6 +17,12 @@ import {
   type CostProvenance,
   type GenerationAccounting,
 } from "./providers";
+import {
+  gatewayBriefOutputSchema,
+  gatewayQuestionSetOutputSchema,
+  parseGeneratedBrief,
+  parseGeneratedQuestionSet,
+} from "./question-output-schemas";
 import { validateDiscoveryQuestion } from "./question-validation";
 
 export interface QuestionGenerationInput {
@@ -55,16 +60,6 @@ export interface GeneratedQuestionSet {
   gatewayGenerationIds: string[];
 }
 
-const briefSchema = z.object({
-  neutralBrief: z.string().trim().min(40).max(1_500),
-  themes: z.array(z.string().trim().min(2).max(100)).min(3).max(12),
-});
-
-const questionSchema = z.object({
-  category: z.string().trim().min(2).max(80),
-  text: z.string().trim().min(12).max(280),
-});
-
 const QUESTION_TIMEOUT_MS = 90_000;
 const MAX_GENERATION_PASSES = 3;
 
@@ -96,7 +91,7 @@ export async function generateBenchmarkQuestions(
   const briefResult = await generateText({
     model,
     system: QUESTION_SYSTEM_PROMPT,
-    output: Output.object({ schema: briefSchema }),
+    output: Output.object({ schema: gatewayBriefOutputSchema }),
     prompt: `Create a category/use-case brief that does not name or identify the subject.
 
 Subject description: ${input.description}
@@ -114,7 +109,7 @@ general category, audience needs, decision criteria, and use cases.`,
   const briefAccounting = getGenerationAccounting(briefResult);
   accounting = mergeAccounting(accounting, briefAccounting);
   collectGenerationId(gatewayGenerationIds, briefAccounting.gatewayGenerationId);
-  const brief = briefResult.output;
+  const brief = parseGeneratedBrief(briefResult.output);
 
   if (matchBrand(brief.neutralBrief, identity).mentioned) {
     throw new Error("The generated neutral brief exposed the benchmark subject");
@@ -212,9 +207,7 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
       model: options.model,
       system: QUESTION_SYSTEM_PROMPT,
       output: Output.object({
-        schema: z.object({
-          questions: z.array(questionSchema).length(needed),
-        }),
+        schema: gatewayQuestionSetOutputSchema,
       }),
       prompt: buildCohortPrompt(options, needed, accepted, pass),
       maxOutputTokens: Math.min(12_000, Math.max(1_500, needed * 105)),
@@ -231,7 +224,9 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
       generationAccounting.gatewayGenerationId,
     );
 
-    for (const candidate of result.output.questions) {
+    const output = parseGeneratedQuestionSet(result.output, needed);
+
+    for (const candidate of output.questions) {
       const text = candidate.text.replace(/\s+/gu, " ").trim();
       const key = normalizeMatchText(text);
 

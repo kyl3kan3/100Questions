@@ -329,7 +329,7 @@ export async function releaseReservedCreditForRun({
         'release'::credit_ledger_type,
         ${runId}::uuid,
         ${reference},
-        jsonb_build_object('state', 'released', 'reason', ${normalizedReason})
+        jsonb_build_object('state', 'released', 'reason', ${normalizedReason}::text)
       FROM reservation
       WHERE EXISTS (SELECT 1 FROM reservation)
         AND NOT EXISTS (SELECT 1 FROM consumption)

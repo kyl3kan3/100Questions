@@ -30,6 +30,7 @@ import {
   combineUsage,
   getGatewayGenerationCostMicros,
   queryGroundedProvider,
+  type ClassifiedProviderError,
   type CostProvenance,
   type NormalizedProviderAnswer,
 } from "@/lib/ai/providers";
@@ -48,6 +49,7 @@ import {
   workflowDispatches,
   type FrozenModels,
 } from "@/lib/db/schema";
+import { workflowErrorMessage } from "@/lib/workflow-errors";
 
 type TerminalRunStatus = "complete" | "partial" | "failed" | "cancelled";
 
@@ -427,10 +429,11 @@ async function generateQuestionsStep(
         Math.max(0, metadata.attempt - 1) * MAX_QUESTION_GENERATION_CALLS,
     };
   } catch (error) {
+    const failure = classifyProviderError(error);
     console.error(
-      `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt}`,
+      `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
     );
-    throwRetriableAiError(error, context.maxAttempts, "question generation");
+    throwRetriableAiError(failure, context.maxAttempts, "question generation");
   }
 }
 generateQuestionsStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
@@ -782,11 +785,18 @@ async function releaseCreditStep(
   "use step";
 
   console.log(`[releaseCredit] START runId=${context.id}`);
-  await releaseReservedCreditForRun({
-    userId: context.userId,
-    runId: context.id,
-    reason,
-  });
+  try {
+    await releaseReservedCreditForRun({
+      userId: context.userId,
+      runId: context.id,
+      reason,
+    });
+  } catch (error) {
+    console.error(
+      `[releaseCredit] FAIL runId=${context.id} reason=${reason}`,
+    );
+    throw error;
+  }
   console.log(`[releaseCredit] DONE runId=${context.id}`);
 }
 releaseCreditStep.maxRetries = 3;
@@ -831,10 +841,11 @@ async function queryProviderStep(
         updatedAt: new Date(),
       })
       .where(eq(providerJobs.id, job.id));
+    const failure = classifyProviderError(error);
     console.error(
-      `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt}`,
+      `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
     );
-    throwRetriableAiError(error, context.maxAttempts, "grounded provider query");
+    throwRetriableAiError(failure, context.maxAttempts, "grounded provider query");
   }
 }
 queryProviderStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
@@ -957,10 +968,11 @@ async function analyzeAnswerStep(
       .where(
         and(eq(providerJobs.id, job.id), eq(providerJobs.status, "running")),
       );
+    const failure = classifyProviderError(error);
     console.error(
-      `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt}`,
+      `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
     );
-    throwRetriableAiError(error, context.maxAttempts, "answer analysis");
+    throwRetriableAiError(failure, context.maxAttempts, "answer analysis");
   }
 }
 analyzeAnswerStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
@@ -1661,11 +1673,10 @@ function providersForFrozenModels(models: FrozenModels): readonly ProviderKey[] 
 }
 
 function throwRetriableAiError(
-  error: unknown,
+  failure: ClassifiedProviderError,
   maxAttempts: number,
   operation: string,
 ): never {
-  const failure = classifyProviderError(error);
   const { attempt } = getStepMetadata();
 
   if (!failure.retryable || attempt >= maxAttempts) {
@@ -1675,10 +1686,4 @@ function throwRetriableAiError(
   const retryAfter =
     failure.retryAfterMs ?? Math.min(60_000, 2_000 * 2 ** (attempt - 1));
   throw new RetryableError(`${operation}: ${failure.message}`, { retryAfter });
-}
-
-function workflowErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message.slice(0, 500)
-    : "Workflow step failed without a structured error.";
 }

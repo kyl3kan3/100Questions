@@ -1,7 +1,6 @@
 import "server-only";
 
 import { generateText, Output } from "ai";
-import { z } from "zod";
 
 import type {
   CompetitorMention,
@@ -9,6 +8,10 @@ import type {
   NormalizedUsage,
 } from "@/lib/db/schema";
 
+import {
+  gatewayAnalysisOutputSchema,
+  parseGeneratedAnalysis,
+} from "./analysis-output-schemas";
 import {
   isOwnedDomainCitation,
   matchBrand,
@@ -48,19 +51,6 @@ export interface AnswerAnalysis {
   providerRequestId: string | null;
   latencyMs: number;
 }
-
-const analysisSchema = z.object({
-  prominence: z.enum(["lead", "shortlist", "incidental", "absent"]),
-  sentiment: z.enum(["positive", "neutral", "negative"]).nullable(),
-  competitors: z
-    .array(
-      z.object({
-        name: z.string().trim().min(1).max(150),
-        sentiment: z.enum(["positive", "neutral", "negative"]).nullable(),
-      }),
-    )
-    .max(30),
-});
 
 const ANALYSIS_TIMEOUT_MS = 55_000;
 const ANALYSIS_SYSTEM_PROMPT = `You analyze a single AI answer using only the text provided.
@@ -110,7 +100,7 @@ export async function analyzeAnswer(
   const result = await generateText({
     model,
     system: ANALYSIS_SYSTEM_PROMPT,
-    output: Output.object({ schema: analysisSchema }),
+    output: Output.object({ schema: gatewayAnalysisOutputSchema }),
     prompt: `Target: ${input.subjectName}
 Known target aliases: ${input.aliases.join(", ") || "none"}
 Deterministically detected competitors: ${
@@ -134,8 +124,9 @@ ${input.answerText}`,
   });
   const latencyMs = Math.max(0, Math.round(performance.now() - startedAt));
   const accounting = getGenerationAccounting(result);
+  const analysis = parseGeneratedAnalysis(result.output);
   const modelCompetitors = new Map(
-    result.output.competitors.map((competitor) => [
+    analysis.competitors.map((competitor) => [
       normalizeMatchText(competitor.name),
       competitor,
     ]),
@@ -155,8 +146,8 @@ ${input.answerText}`,
     targetMentioned: targetMatch.mentioned,
     matchedAliases: [...targetMatch.matchedAliases],
     ownedDomainCited,
-    prominence: targetMatch.mentioned ? result.output.prominence : "absent",
-    sentiment: targetMatch.mentioned ? result.output.sentiment : null,
+    prominence: targetMatch.mentioned ? analysis.prominence : "absent",
+    sentiment: targetMatch.mentioned ? analysis.sentiment : null,
     competitorMentions,
     usage: accounting.usage,
     costMicros: accounting.costMicros,

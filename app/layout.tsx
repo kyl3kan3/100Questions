@@ -102,13 +102,15 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <head>
         <Script
           src="https://datafa.st/js/script.js"
           data-website-id="dfid_WIXXIARdwVFPbyM6Mib8P"
           data-domain="100questionsai.com"
           strategy="afterInteractive"
         />
+      </head>
+      <body className="flex min-h-full flex-col">
         {children}
         <GlobalFooter />
         <script

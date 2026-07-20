@@ -37,6 +37,7 @@ export const providerEnum = pgEnum("provider", [
   "openai",
   "anthropic",
   "google",
+  "xai",
 ]);
 
 export const groundingModeEnum = pgEnum("grounding_mode", ["web_grounded"]);
@@ -100,6 +101,7 @@ export type FrozenModels = {
   openai: string;
   anthropic: string;
   google: string;
+  xai?: string;
   analysis: string;
 };
 
@@ -159,17 +161,17 @@ export const runs = pgTable(
     status: runStatusEnum("status").notNull().default("queued"),
     questionCountPlanned: integer("question_count_planned")
       .notNull()
-      .default(100),
+      .default(25),
     discoveryCountPlanned: integer("discovery_count_planned")
       .notNull()
-      .default(80),
+      .default(20),
     diagnosticCountPlanned: integer("diagnostic_count_planned")
       .notNull()
-      .default(20),
+      .default(5),
     questionsGenerated: integer("questions_generated").notNull().default(0),
     providerCallsPlanned: integer("provider_calls_planned")
       .notNull()
-      .default(300),
+      .default(100),
     eligibleProviderCalls: integer("eligible_provider_calls")
       .notNull()
       .default(0),
@@ -181,19 +183,19 @@ export const runs = pgTable(
       .default(0),
     benchmarkVersion: varchar("benchmark_version", { length: 64 })
       .notNull()
-      .default("v1"),
+      .default("benchmark-v2"),
     questionPromptVersion: varchar("question_prompt_version", { length: 64 })
       .notNull()
-      .default("v1"),
+      .default("question-v2"),
     providerPromptVersion: varchar("provider_prompt_version", { length: 64 })
       .notNull()
-      .default("v1"),
+      .default("provider-v2"),
     analysisVersion: varchar("analysis_version", { length: 64 })
       .notNull()
-      .default("v1"),
+      .default("analysis-v2"),
     scoringVersion: varchar("scoring_version", { length: 64 })
       .notNull()
-      .default("v1"),
+      .default("scoring-v1"),
     frozenModels: jsonb("frozen_models").$type<FrozenModels>().notNull(),
     groundingMode: groundingModeEnum("grounding_mode")
       .notNull()

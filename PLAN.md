@@ -3,10 +3,10 @@
 ## Product contract
 
 100Questions is an authenticated, paid web application that measures how often a brand
-appears in web-grounded answers from OpenAI, Anthropic, and Google. A user defines a brand,
+appears in web-grounded answers from OpenAI, Anthropic, Google, and xAI. A user defines a brand,
 canonical domain, aliases, category/use-case description, market, locale, and optional
-competitors. The system freezes a 100-question benchmark, sends the same questions to all
-three providers through Vercel AI Gateway, and reports:
+competitors. The system freezes exactly 25 shared questions, sends every question to all four
+providers through Vercel AI Gateway, and reports across 100 grounded answers:
 
 - Discovery mention rate and prominence
 - Provider coverage and grounded-answer rate
@@ -26,7 +26,7 @@ and search behavior can differ.
 |---|---|
 | Application | Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4 |
 | AI routing | AI SDK 6 through Vercel AI Gateway |
-| Providers | OpenAI, Anthropic, and Google |
+| Providers | OpenAI, Anthropic, Google, and xAI (Grok) |
 | Grounding | Provider-native web-search tools; no plain-completion fallback |
 | Orchestration | Vercel Workflow, with bounded durable batches |
 | Database | Neon Postgres, Drizzle ORM, and the Neon serverless driver |
@@ -40,21 +40,24 @@ Model IDs remain environment-configurable and are frozen per run:
 - `AI_GATEWAY_OPENAI_MODEL`
 - `AI_GATEWAY_ANTHROPIC_MODEL`
 - `AI_GATEWAY_GOOGLE_MODEL`
+- `AI_GATEWAY_XAI_MODEL`
 - `AI_GATEWAY_ANALYSIS_MODEL`
 
-Vercel deployments authenticate to AI Gateway with OIDC. No direct OpenAI, Anthropic, or
-Google API keys are used.
+Vercel deployments authenticate to AI Gateway with OIDC. No direct OpenAI, Anthropic,
+Google, or xAI API keys are used.
 
 ## Benchmark methodology
 
 Every run freezes its benchmark version, question set, model IDs, locale, timestamp,
-prompt versions, cohort mix, grounding mode, and scoring version.
+prompt versions, cohort mix, grounding mode, and scoring version. Benchmark v2 is the fixed
+25-question, four-provider contract described below. Historical v1 runs retain their frozen
+provider/model set and remain readable under their original denominators.
 
-The default 100-question split is:
+The fixed 25-question split is:
 
-- **80 discovery questions:** neutral category and use-case questions that must not contain
+- **20 discovery questions:** neutral category and use-case questions that must not contain
   the brand, aliases, or canonical domain.
-- **20 diagnostic questions:** explicitly name the target to examine trust, comparisons,
+- **5 diagnostic questions:** explicitly name the target to examine trust, comparisons,
   support, pricing, and factual knowledge.
 
 Question generation is two-stage:
@@ -64,14 +67,18 @@ Question generation is two-stage:
 
 Discovery questions are normalized, deduplicated, and rejected or regenerated if they
 contain a target alias or domain. The exact frozen question and a neutral system prompt are
-sent to all three providers without hidden target context.
+sent to all four providers without hidden target context. This produces 25 OpenAI, 25 Claude,
+25 Gemini, and 25 Grok answers: 100 grounded provider answers per fixed run.
 
 A result is score-eligible only when the provider call succeeds and returns valid grounding
 sources. `no_sources`, `unsupported`, and failed results are excluded from eligible-score
 denominators and remain visible in coverage. The system never silently downgrades a grounded
 query to an ungrounded completion.
 
-A single run is a directional snapshot because search results and model responses vary.
+A single run is a directional snapshot because search results and model responses vary. With
+only 25 shared questions, a simple worst-case sampling interval is roughly +/-20 percentage
+points (and the 20-question discovery cohort is slightly wider). This is a scale cue, not a
+claim that the generated question set is a random or representative statistical sample.
 Repeated sampling and longitudinal trend claims remain Phase 2.
 
 ## Metrics
@@ -184,7 +191,9 @@ stored.
 - Stripe-hosted Checkout runs in one-time `payment` mode against server-configured
   `STRIPE_PRICE_ID`; the browser cannot choose an arbitrary price.
 - A completed, paid Checkout Session grants `STRIPE_CREDITS_PER_PURCHASE` credits, initially
-  one, through a signed webhook.
+  one, through a signed webhook. One credit starts one fixed v2 benchmark run.
+- Billing is fail-closed: Checkout is unavailable unless the Stripe secret, webhook signing
+  secret, Price, and positive credit quantity are all configured.
 - One idempotently-created Stripe Customer is persisted before Checkout so concurrent sessions
   cannot split a user's billing history across customers.
 - Checkout metadata contains only stable internal IDs needed for reconciliation.
@@ -219,7 +228,7 @@ Required Stripe configuration:
 5. Generate, validate, and persist the frozen discovery and diagnostic questions.
 6. Create provider job slots with `ON CONFLICT DO NOTHING`.
 7. Process question/provider work in bounded batches with provider-aware concurrency and
-   durable pacing. Never fan out all 300 calls at once.
+   durable pacing. Never fan out all 100 provider calls at once.
 8. Separate Gateway calls from persistence steps so a database retry does not repeat a
    successfully recorded model-step return value.
 9. Retry transient throttling and 5xx failures with capped backoff; do not retry auth,
@@ -253,9 +262,9 @@ Each provider adapter returns a normalized object:
 ```
 
 Adapters use Gateway model strings while supplying native tools from `@ai-sdk/openai`,
-`@ai-sdk/anthropic`, and `@ai-sdk/google`. Prompts require web search and citations. A
-provider canary fails instead of downgrading when a selected model does not support its
-native search tool.
+`@ai-sdk/anthropic`, `@ai-sdk/google`, and `@ai-sdk/xai`. The default Grok route is
+`xai/grok-4.5`. Prompts require web search and citations. A provider canary fails instead of
+downgrading when a selected model does not support its native search tool.
 
 ## API and UI
 
@@ -285,13 +294,19 @@ Pages:
 
 ## Cost, security, and privacy guardrails
 
-- Maximum 100 questions and three providers
+- Exactly 25 shared questions and four providers, producing 100 grounded answers
 - One active run per user by default
 - Configurable per-user daily run and cost ceilings
 - Per-provider concurrency limits, maximum output tokens, and native-search-use limits
 - Pre-run upper-bound estimate and explicit confirmation
 - Pre-run cost planning includes grounded provider queries, worst-case structured analysis,
   and the bounded question-generation allowance; progress still reports provider jobs.
+- The default planning estimate is 12,000 micros per AI call. For 100 provider calls, up to
+  100 analysis calls, and the bounded 7-call question-generation allowance, the displayed
+  estimate is about $2.48 per fixed run.
+- The hard scheduling guard uses 19,000 micros per AI call across the same 207-call planning
+  envelope, or about $3.93. Actual spend can vary with model usage and ambiguous retries.
+- The default per-user daily reserved-cost ceiling is 12,000,000 micros ($12).
 - Stop scheduling remaining calls when the conservative per-run scheduling estimate reaches
   its ceiling. Successful calls use Gateway actual cost when available; failed or retried calls
   use conservative estimates. This guard is not a provider billing guarantee because an
@@ -304,7 +319,7 @@ Pages:
 - Never log secrets, cookies, full descriptions, prompts, answer bodies, or raw Stripe events
 - Runs are owner-only and deletable. A signed daily maintenance job deletes expired terminal
   runs so the default 30-day answer-retention promise is enforced rather than merely labeled.
-- Disclose that inputs and questions pass through Vercel to three third-party AI providers
+- Disclose that inputs and questions pass through Vercel to four third-party AI providers
 
 Production Neon Auth requires trusted production domains, a 32+ character cookie secret,
 custom SMTP, and email verification. Managed Neon Auth is currently Beta and its production
@@ -315,7 +330,7 @@ configuration is a deployment prerequisite.
 1. Methodology, schema, payment, and provider contracts
 2. Next.js/Vercel linkage, Neon database, Drizzle migrations, and Neon Auth
 3. Stripe Checkout, signed webhooks, credit ledger, and billing portal
-4. AI Gateway provider canary with one shared question across three providers
+4. AI Gateway provider canary with one shared question across four providers
 5. Cohort-aware question generation and discovery-question validation
 6. Vercel Workflow with idempotent jobs, bounded fan-out, quotas, and reconciliation
 7. Analysis and versioned metric functions
@@ -331,10 +346,11 @@ configuration is a deployment prerequisite.
 - Credit reservation, webhook idempotency, quota, and provider-job idempotency tests
 - Seeded fixture end-to-end path requiring no paid model calls
 - Stripe test-mode Checkout and signed webhook smoke test
-- Paid provider canary: one shared question across all three providers, each returning text and
+- Paid provider canary: one shared question across all four providers, each returning text and
   sources
 - Five-question Workflow smoke test with retry and partial-result injection
-- Full 100-question run only after an explicit budget confirmation
+- Full fixed run (25 shared questions and 100 grounded answers) only after an explicit budget
+  confirmation
 - Verify the Vercel preview, authenticated navigation, progress polling, source rendering,
   payment return flow, and absence of secrets in client bundles and logs
 

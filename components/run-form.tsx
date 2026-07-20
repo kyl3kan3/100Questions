@@ -23,6 +23,8 @@ type RunFormProps = {
   aiCallsPerProviderJob: number;
   questionGenerationCallAllowance: number;
   creditBalance: number;
+  providerCount: number;
+  questionCount: number;
 };
 
 export function RunForm({
@@ -31,16 +33,17 @@ export function RunForm({
   aiCallsPerProviderJob,
   questionGenerationCallAllowance,
   creditBalance,
+  providerCount,
+  questionCount,
 }: RunFormProps) {
   const router = useRouter();
-  const [questionCount, setQuestionCount] = useState(100);
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
     crypto.randomUUID(),
   );
-  const providerCalls = questionCount * 3;
+  const providerCalls = questionCount * providerCount;
   const plannedAiCalls =
     providerCalls * aiCallsPerProviderJob + questionGenerationCallAllowance;
   const estimate = useMemo(
@@ -171,7 +174,7 @@ export function RunForm({
             </Field>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Market" htmlFor="market">
               <Input
                 id="market"
@@ -191,35 +194,22 @@ export function RunForm({
                 maxLength={32}
               />
             </Field>
-            <Field label="Question set" htmlFor="questionCount">
-              <select
-                id="questionCount"
-                name="questionCount"
-                value={questionCount}
-                onChange={(event) => {
-                  setQuestionCount(Number(event.target.value));
-                  setConfirmed(false);
-                }}
-                className="h-11 w-full rounded-xl bg-white/[0.055] px-3.5 text-sm text-zinc-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] outline-none focus-visible:shadow-[inset_0_0_0_1px_rgba(110,231,183,0.8),0_0_0_3px_rgba(110,231,183,0.12)]"
-              >
-                <option value={5}>5 questions · canary</option>
-                <option value={25}>25 questions · pulse</option>
-                <option value={100}>100 questions · benchmark</option>
-              </select>
-            </Field>
           </div>
 
           <div className="rounded-2xl bg-white/[0.035] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-medium text-zinc-200">
-                  {questionCount} questions × 3 providers
+                  {questionCount} shared questions × {providerCount} models ={" "}
+                  {providerCalls} grounded answers
                 </p>
                 <p className="mt-1 text-xs leading-5 text-zinc-400">
-                  {providerCalls} grounded queries, up to {providerCalls} contextual
-                  analyses, and up to {questionGenerationCallAllowance} generation
-                  calls. Estimated {estimate}; conservative scheduling guard {ceiling}.
-                  One prepaid run credit is reserved.
+                  Every model receives the same 20 discovery and 5 diagnostic
+                  questions. Up to {providerCalls} contextual analyses and{" "}
+                  {questionGenerationCallAllowance} question-generation calls are
+                  budgeted. Estimated {estimate}; hard scheduling guard {ceiling}.
+                  One prepaid run credit is reserved. Results are directional at
+                  this sample size.
                 </p>
               </div>
               <span className="shrink-0 font-mono text-xs text-zinc-400 tabular-nums">
@@ -237,7 +227,7 @@ export function RunForm({
                 I approve this run&apos;s provider-processing plan and understand
                 that retries and ambiguous provider timeouts can vary from the
                 {` ${ceiling}`} scheduling estimate. Inputs pass through Vercel to
-                OpenAI, Anthropic, and Google.
+                OpenAI, Claude, Gemini, and Grok.
               </span>
             </label>
           </div>

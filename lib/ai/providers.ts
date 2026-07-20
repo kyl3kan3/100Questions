@@ -4,6 +4,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { gateway, GatewayError } from "@ai-sdk/gateway";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
+import { xai } from "@ai-sdk/xai";
 import { APICallError, generateText } from "ai";
 
 import type {
@@ -72,7 +73,7 @@ export interface ClassifiedProviderError {
 }
 
 const PROVIDER_TIMEOUT_MS = 55_000;
-const MAX_ANSWER_TOKENS = 900;
+const MAX_ANSWER_TOKENS = 600;
 const MAX_SOURCES = 100;
 const MAX_SEARCH_QUERIES = 20;
 
@@ -203,8 +204,31 @@ async function executeNativeSearch(input: ProviderQueryInput) {
     case "google":
       return generateText({
         ...common,
+        providerOptions: {
+          ...common.providerOptions,
+          google: {
+            thinkingConfig: { thinkingLevel: "minimal" },
+          },
+        },
         tools: {
           google_search: google.tools.googleSearch({}),
+        },
+      });
+    case "xai":
+      return generateText({
+        ...common,
+        providerOptions: {
+          gateway: {
+            ...common.providerOptions.gateway,
+            only: ["xai"],
+          },
+          xai: {
+            reasoningEffort: "low",
+            store: false,
+          },
+        },
+        tools: {
+          web_search: xai.tools.webSearch(),
         },
       });
   }
@@ -520,6 +544,7 @@ function collectSourceCandidates(
     "google",
     "openai",
     "anthropic",
+    "xai",
   ]) {
     if (key in record) collectSourceCandidates(record[key], output, depth + 1);
   }
@@ -563,6 +588,7 @@ function collectSearchQueries(value: unknown, output: string[], depth = 0): void
     "google",
     "openai",
     "anthropic",
+    "xai",
   ]) {
     if (key in record) collectSearchQueries(record[key], output, depth + 1);
   }

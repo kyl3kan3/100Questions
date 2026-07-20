@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
 import { BillingActions } from "@/components/billing-actions";
+import { CheckoutReturnStatus } from "@/components/checkout-return-status";
 import { RunForm } from "@/components/run-form";
 import { RunHistory } from "@/components/run-history";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
   getCreditsPerPurchase,
   isStripeCheckoutConfigured,
 } from "@/lib/billing/credits";
-import { getBenchmarkConfig } from "@/lib/config";
+import { getBenchmarkConfig, PROVIDERS } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import { billingCustomers } from "@/lib/db/schema";
 import { listRunsForUser } from "@/lib/runs";
@@ -23,14 +24,21 @@ import { listRunsForUser } from "@/lib/runs";
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams: Promise<{
+    checkout?: string | string[];
+    session_id?: string | string[];
+  }>;
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await getAuthenticatedUser();
 
   if (!user) {
     redirect("/auth/sign-in?next=/dashboard");
   }
 
-  const [creditBalance, runs, customer] = await Promise.all([
+  const [creditBalance, runs, customer, query] = await Promise.all([
     getCreditBalance(user.id),
     listRunsForUser(user.id),
     getDb()
@@ -38,6 +46,7 @@ export default async function DashboardPage() {
       .from(billingCustomers)
       .where(eq(billingCustomers.userId, user.id))
       .limit(1),
+    searchParams,
   ]);
   const config = getBenchmarkConfig();
   const completed = runs.filter((run) => ["complete", "partial"].includes(run.status)).length;
@@ -46,6 +55,13 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-[#070908] text-zinc-100">
       <AppHeader email={user.email} />
       <div className="page-shell py-10 md:py-14">
+        <CheckoutReturnStatus
+          state={typeof query.checkout === "string" ? query.checkout : null}
+          hasSessionId={
+            typeof query.session_id === "string" &&
+            query.session_id.startsWith("cs_")
+          }
+        />
         <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="eyebrow">Workspace</p>
@@ -85,6 +101,8 @@ export default async function DashboardPage() {
             ceilingMicrosPerProviderCall={config.budget.ceilingMicrosPerProviderCall}
             aiCallsPerProviderJob={config.budget.aiCallsPerProviderJob}
             questionGenerationCallAllowance={config.budget.questionGenerationCallAllowance}
+            providerCount={PROVIDERS.length}
+            questionCount={config.benchmark.defaultQuestionCount}
           />
           <RunHistory runs={runs} />
         </div>

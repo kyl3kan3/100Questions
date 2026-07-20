@@ -20,6 +20,7 @@ import {
 } from "@/lib/ai/generate-questions";
 import {
   getProviderModel,
+  PROVIDERS,
   type FrozenModelSet,
   type ProviderKey,
 } from "@/lib/ai/models";
@@ -177,29 +178,22 @@ export async function runVisibilityWorkflow(
     console.log(
       `[visibility] JOBS runId=${runId} outstanding=${jobs.length}`,
     );
-    const queues: Record<ProviderKey, ProviderJobWork[]> = {
-      openai: jobs.filter(({ provider }) => provider === "openai"),
-      anthropic: jobs.filter(({ provider }) => provider === "anthropic"),
-      google: jobs.filter(({ provider }) => provider === "google"),
-    };
+    const queues = Object.fromEntries(
+      PROVIDERS.map((provider) => [
+        provider,
+        jobs.filter((job) => job.provider === provider),
+      ]),
+    ) as Record<ProviderKey, ProviderJobWork[]>;
     let creditConsumed = false;
 
     try {
-      while (
-        queues.openai.length > 0 ||
-        queues.anthropic.length > 0 ||
-        queues.google.length > 0
-      ) {
+      while (PROVIDERS.some((provider) => queues[provider].length > 0)) {
         const batch: ProviderJobWork[] = [];
 
         while (batch.length < context.batchSize) {
           let added = false;
 
-          for (const provider of [
-            "openai",
-            "anthropic",
-            "google",
-          ] as const) {
+          for (const provider of PROVIDERS) {
             const job = queues[provider].shift();
             if (job) {
               batch.push(job);
@@ -216,9 +210,7 @@ export async function runVisibilityWorkflow(
         if (!budget.allowed) {
           const remainingIds = [
             ...batch,
-            ...queues.openai,
-            ...queues.anthropic,
-            ...queues.google,
+            ...PROVIDERS.flatMap((provider) => queues[provider]),
           ].map(({ id }) => id);
           await markBudgetBlockedJobsStep(context.id, remainingIds);
 
@@ -593,12 +585,13 @@ async function ensureProviderJobsStep(runId: string): Promise<number> {
   if (!run) throw new FatalError("RUN_NOT_FOUND: Benchmark run does not exist.");
 
   const frozenModels = normalizeFrozenModels(run.frozenModels);
+  const providers = providersForFrozenModels(run.frozenModels);
   const storedQuestions = await db
     .select({ id: questions.id })
     .from(questions)
     .where(eq(questions.runId, runId));
   const values = storedQuestions.flatMap(({ id: questionId }) =>
-    (["openai", "anthropic", "google"] as const).map((provider) => ({
+    providers.map((provider) => ({
       runId,
       questionId,
       provider,
@@ -1644,14 +1637,27 @@ function estimatedMicrosPerCall(run: {
 }
 
 function normalizeFrozenModels(models: FrozenModels): FrozenModelSet {
-  const normalized = {
-    openai: getProviderModel("openai", models),
-    anthropic: getProviderModel("anthropic", models),
-    google: getProviderModel("google", models),
+  const candidates: FrozenModelSet = {
+    openai: models.openai,
+    anthropic: models.anthropic,
+    google: models.google,
+    xai: models.xai ?? getBenchmarkConfig().models.xai,
     analysis: models.analysis,
   };
 
-  return normalized;
+  return {
+    openai: getProviderModel("openai", candidates),
+    anthropic: getProviderModel("anthropic", candidates),
+    google: getProviderModel("google", candidates),
+    xai: getProviderModel("xai", candidates),
+    analysis: candidates.analysis,
+  };
+}
+
+function providersForFrozenModels(models: FrozenModels): readonly ProviderKey[] {
+  return models.xai
+    ? PROVIDERS
+    : PROVIDERS.filter((provider) => provider !== "xai");
 }
 
 function throwRetriableAiError(

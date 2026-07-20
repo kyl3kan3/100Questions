@@ -35,7 +35,7 @@ export const createRunSchema = z.object({
   competitors: shortList,
   market: trimmed(2, 120),
   locale: trimmed(2, 32).default("en-US"),
-  questionCount: z.coerce.number().int().min(5).max(100).default(100),
+  questionCount: z.coerce.number().int().min(25).max(25).default(25),
   confirmedBudget: z.literal(true, {
     error: "Confirm the displayed budget ceiling before starting.",
   }),

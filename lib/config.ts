@@ -20,7 +20,7 @@ function envInteger(name: string, fallback: number): number {
   return parsed.data;
 }
 
-export const PROVIDERS = ["openai", "anthropic", "google"] as const;
+export const PROVIDERS = ["openai", "anthropic", "google", "xai"] as const;
 export type BenchmarkProvider = (typeof PROVIDERS)[number];
 
 export function getBenchmarkConfig() {
@@ -34,23 +34,24 @@ export function getBenchmarkConfig() {
       google:
         process.env.AI_GATEWAY_GOOGLE_MODEL ??
         "google/gemini-3.1-flash-lite",
+      xai: process.env.AI_GATEWAY_XAI_MODEL ?? "xai/grok-4.5",
       analysis:
-        process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-mini",
+        process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
     },
     workflow: {
       batchSize: envInteger("WORKFLOW_BATCH_SIZE", 5),
       maxAttempts: envInteger("WORKFLOW_MAX_ATTEMPTS", 2),
     },
     prompts: {
-      questionVersion: "question-v1",
-      providerVersion: "provider-v1",
-      analysisVersion: "analysis-v1",
+      questionVersion: "question-v2",
+      providerVersion: "provider-v2",
+      analysisVersion: "analysis-v2",
       scoringVersion: "scoring-v1",
-      benchmarkVersion: "benchmark-v1",
+      benchmarkVersion: "benchmark-v2",
     },
     benchmark: {
-      defaultQuestionCount: 100,
-      maximumQuestionCount: 100,
+      defaultQuestionCount: 25,
+      maximumQuestionCount: 25,
       discoveryRatio: 0.8,
       coverageThreshold: 0.9,
       retentionDays: envInteger("RUN_RETENTION_DAYS", 30),
@@ -63,16 +64,16 @@ export function getBenchmarkConfig() {
       questionGenerationCallAllowance: 7,
       estimatedMicrosPerProviderCall: envInteger(
         "ESTIMATED_MICROS_PER_PROVIDER_CALL",
-        75_000,
+        12_000,
       ),
       ceilingMicrosPerProviderCall: envInteger(
         "BUDGET_MICROS_PER_PROVIDER_CALL",
-        150_000,
+        19_000,
       ),
       dailyRunLimit: envInteger("DAILY_RUN_LIMIT", 3),
       dailyCostLimitMicros: envInteger(
         "DAILY_COST_LIMIT_MICROS",
-        300_000_000,
+        12_000_000,
       ),
     },
   } as const;

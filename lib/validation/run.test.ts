@@ -11,7 +11,7 @@ const validRun = {
   competitors: ["Example One", "Example Two"],
   market: "United States",
   locale: "en-US",
-  questionCount: 100,
+  questionCount: 25,
   confirmedBudget: true,
 };
 
@@ -32,7 +32,7 @@ describe("createRunSchema", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("rejects non-HTTP domains, credentials, and excessive question counts", () => {
+  it("rejects non-HTTP domains, credentials, and non-standard question counts", () => {
     expect(
       createRunSchema.safeParse({
         ...validRun,
@@ -46,7 +46,10 @@ describe("createRunSchema", () => {
       }).success,
     ).toBe(false);
     expect(
-      createRunSchema.safeParse({ ...validRun, questionCount: 101 }).success,
+      createRunSchema.safeParse({ ...validRun, questionCount: 24 }).success,
+    ).toBe(false);
+    expect(
+      createRunSchema.safeParse({ ...validRun, questionCount: 26 }).success,
     ).toBe(false);
   });
 

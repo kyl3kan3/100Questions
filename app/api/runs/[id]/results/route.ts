@@ -2,7 +2,6 @@ import { getAuthenticatedUser } from "@/lib/auth/session";
 import { jsonError } from "@/lib/http";
 import { computeBenchmarkMetrics, type MetricObservation } from "@/lib/metrics";
 import { getRunResultsForUser } from "@/lib/runs";
-import { PROVIDERS } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,12 +35,25 @@ export async function GET(_request: Request, context: RouteContext) {
         (mention) => mention.name,
       ),
     }));
+  const providers = [
+    ...new Set(
+      payload.rows.flatMap((row) => (row.job ? [row.job.provider] : [])),
+    ),
+  ];
+  const providerCount = Math.max(
+    providers.length,
+    Math.round(
+      payload.run.providerCallsPlanned /
+        Math.max(payload.run.questionCountPlanned, 1),
+    ),
+    1,
+  );
   const metrics = computeBenchmarkMetrics(observations, {
-    discovery: payload.run.discoveryCountPlanned * 3,
-    diagnostic: payload.run.diagnosticCountPlanned * 3,
+    discovery: payload.run.discoveryCountPlanned * providerCount,
+    diagnostic: payload.run.diagnosticCountPlanned * providerCount,
   });
   const providerMetrics = Object.fromEntries(
-    PROVIDERS.map((provider) => {
+    providers.map((provider) => {
       const providerObservations: MetricObservation[] = payload.rows
         .filter((row) => row.job?.provider === provider && row.result)
         .map((row) => ({
@@ -69,5 +81,11 @@ export async function GET(_request: Request, context: RouteContext) {
     ...new Set(payload.rows.map((row) => row.question.category)),
   ].sort((left, right) => left.localeCompare(right));
 
-  return Response.json({ ...payload, metrics, providerMetrics, categories });
+  return Response.json({
+    ...payload,
+    metrics,
+    providerMetrics,
+    providers,
+    categories,
+  });
 }

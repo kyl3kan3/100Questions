@@ -1,6 +1,6 @@
 # 100Questions
 
-100Questions is a private, paid AI-visibility benchmark. It freezes a neutral question set, asks the same questions across OpenAI, Anthropic, and Google with native web search, and keeps the normalized answers and sources behind transparent metrics.
+100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions, asks every question across OpenAI, Claude, Gemini, and Grok with native web search, and keeps the resulting 100 grounded answers and sources behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
 
 The product is an API-grounded benchmark, not a claim of parity with the providers' consumer chat interfaces.
 
@@ -10,9 +10,9 @@ The product is an API-grounded benchmark, not a claim of parity with the provide
 - Managed Neon Auth with server-validated sessions
 - Neon Postgres and Drizzle schema/migration
 - Stripe-hosted one-time Checkout, signed idempotent webhooks, prepaid run credits, and Customer Portal
-- AI SDK 6 through Vercel AI Gateway with native OpenAI, Anthropic, and Google search tools
+- AI SDK 6 through Vercel AI Gateway with native OpenAI, Anthropic, Google, and xAI search tools (including `@ai-sdk/xai` and the default `xai/grok-4.5` route)
 - Vercel Workflow orchestration with bounded batches and retry classification
-- 80% neutral discovery / 20% target-named diagnostic question cohorts
+- A fixed 20-question neutral discovery / 5-question target-named diagnostic split
 - Versioned visibility, prominence, share-of-voice, citation, sentiment, and coverage calculations
 - Owner-only dashboard, progress, evidence, and deletion routes
 
@@ -40,7 +40,7 @@ Vercel deployments authenticate to AI Gateway using Vercel OIDC. Local Gateway d
 3. Forward these Stripe events to `/api/stripe/webhook` and set the resulting signing secret as `STRIPE_WEBHOOK_SECRET`: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`.
 4. Enable the Stripe Customer Portal if billing-history access is desired.
 
-The browser never submits a price ID. The server owns the configured Price and grants credits only after a signed Checkout event reports a paid session. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and reinstatements restore exactly the frozen amount.
+The browser never submits a price ID. The server owns the configured Price and grants one credit per fixed run only after a signed Checkout event reports a paid session. Billing is fail-closed: Checkout stays unavailable unless the server secret, signing secret, Price, and credit quantity are all configured. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and reinstatements restore exactly the frozen amount. The Price amount and currency remain owned by Stripe and are not hard-coded here.
 
 For local webhook testing:
 
@@ -57,14 +57,14 @@ npm test
 npm run build
 ```
 
-Do not run a paid provider canary or full 100-question benchmark until the displayed run budget has been reviewed and explicitly confirmed. The pure metric and question-validation test suites do not make paid model calls.
+Do not run a paid provider canary or a full fixed benchmark until the displayed run budget has been reviewed and explicitly confirmed. A run contains 25 shared questions and 100 grounded provider answers (20 discovery and 5 diagnostic questions per provider). With the default guardrails, the planning estimate is about $2.48 and the hard scheduling guard is about $3.93. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
 
 ## Required production checks
 
 - Configure the Neon Auth trusted production domain, custom SMTP, and email verification.
 - Keep `NEON_AUTH_COOKIE_SECRET` at least 32 random characters.
 - Configure Stripe webhook delivery for the production domain and verify test mode before live mode.
-- Confirm AI Gateway credit/payment settings and the four frozen model IDs.
+- Confirm AI Gateway credit/payment settings and the five frozen model IDs (four answer models plus the analysis model).
 - Set a random `CRON_SECRET` for dispatch reconciliation.
-- Verify a three-provider, one-question grounded canary before expanding batch size.
+- Verify a four-provider, one-question grounded canary before expanding batch size.
 - Inspect Vercel logs for failures without logging prompts, answers, cookies, or secrets.

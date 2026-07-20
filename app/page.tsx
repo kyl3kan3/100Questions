@@ -22,8 +22,9 @@ import {
 
 const providerRows = [
   ["OpenAI", "GPT-5.4 mini", "Native web search"],
-  ["Anthropic", "Claude Sonnet 4.6", "Native web search"],
-  ["Google", "Gemini 3.1 Flash Lite", "Google Search"],
+  ["Claude", "Claude Sonnet 4.6", "Native web search"],
+  ["Gemini", "Gemini 3.1 Flash Lite", "Google Search"],
+  ["Grok", "Grok 4.5", "Native web search"],
 ] as const;
 
 const scoreCards = [
@@ -61,8 +62,9 @@ export default function Home() {
             See whether AI puts your brand in the answer.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            Ask the same frozen questions across OpenAI, Anthropic, and Google.
-            Get the answers, sources, coverage, and methodology—not a mystery score.
+            Run 25 identical questions across OpenAI, Claude, Gemini, and Grok.
+            Compare 100 grounded answers with sources and transparent, directional
+            results—not a mystery score.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
@@ -83,7 +85,7 @@ export default function Home() {
           <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
             <Image
               src="/hero-ai-visibility.png"
-              alt="Three streams of evidence converging into one measured AI visibility result"
+              alt="Four streams of evidence converging into one measured AI visibility result"
               fill
               priority
               sizes="(min-width: 768px) 42vw, 100vw"
@@ -95,7 +97,9 @@ export default function Home() {
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-200">
                   Evidence in. Signal out.
                 </p>
-                <p className="mt-1 text-xs text-zinc-300">One frozen test. Three grounded providers.</p>
+                <p className="mt-1 text-xs text-zinc-300">
+                  25 shared questions. 100 grounded answers.
+                </p>
               </div>
               <Badge variant="success" className="shrink-0">Live evidence</Badge>
             </figcaption>
@@ -116,13 +120,14 @@ export default function Home() {
             </div>
             <div>
               <div className="mb-3 flex items-center justify-between text-xs text-zinc-400">
-                <span>Provider visibility</span>
+                <span>Model visibility</span>
                 <span className="font-mono tabular-nums">0–100%</span>
               </div>
               <div className="space-y-3">
                 <ProviderBar label="OpenAI" width="46%" value="46%" />
-                <ProviderBar label="Anthropic" width="34%" value="34%" />
-                <ProviderBar label="Google" width="31%" value="31%" />
+                <ProviderBar label="Claude" width="34%" value="34%" />
+                <ProviderBar label="Gemini" width="31%" value="31%" />
+                <ProviderBar label="Grok" width="39%" value="39%" />
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] px-3.5 py-3 text-xs leading-5 text-zinc-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
@@ -134,7 +139,7 @@ export default function Home() {
       </section>
 
       <section className="border-y border-white/[0.07] bg-white/[0.018]">
-        <div className="page-shell grid divide-y divide-white/[0.07] md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div className="page-shell grid divide-y divide-white/[0.07] md:grid-cols-4 md:divide-x md:divide-y-0">
           {providerRows.map(([provider, model, grounding]) => (
             <div key={provider} className="px-1 py-7 md:px-7 first:md:pl-0 last:md:pr-0">
               <p className="text-sm font-semibold text-zinc-100">{provider}</p>
@@ -152,7 +157,10 @@ export default function Home() {
               A defensible answer to “are we visible?”
             </h2>
             <p className="mt-5 max-w-md text-pretty text-base leading-7 text-zinc-400">
-              Eighty neutral discovery questions prevent your name from being planted in the prompt. Twenty diagnostic questions inspect what each model says when asked directly.
+              The shared test uses 20 neutral discovery questions that avoid planting
+              your name in the prompt, plus 5 diagnostic questions that ask directly.
+              Each model receives the identical 25-question set, making the 100
+              grounded answers a directional comparison.
             </p>
           </div>
           <div className="grid gap-px overflow-hidden rounded-[24px] bg-white/[0.08] sm:grid-cols-2">
@@ -180,7 +188,7 @@ export default function Home() {
             Inspect normalized answers, source URLs, model versions, usage, and exclusion reasons.
           </FeatureCard>
           <FeatureCard icon={<Check />} title="Same frozen test">
-            Every provider receives the same question set, locale, prompt version, and run timestamp.
+            All four models receive the same 25 questions, locale, prompt version, and run timestamp.
           </FeatureCard>
         </div>
       </section>
@@ -208,8 +216,24 @@ export default function Home() {
         <div className="page-shell flex flex-col gap-3 py-7 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
           <BrandMark showName={false} />
           <p>
-            API-grounded benchmark; results may differ from consumer chat products.
+            Directional, API-grounded benchmark; results may differ from consumer chat products.
           </p>
+          <a
+            href="https://verifieddr.com/website/100questionsai-com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View the verified domain rating for 100questionsai.com"
+            className="shrink-0 opacity-80 transition-opacity hover:opacity-100"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://verifieddr.com/badge/100questionsai-com.svg?metric=truedr"
+              alt="Verified DR - Verified Domain Rating for 100questionsai.com"
+              width="220"
+              height="68"
+              loading="lazy"
+            />
+          </a>
         </div>
       </footer>
     </main>

@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "100 Questions — AI visibility, measured";
+export const alt =
+  "100 Questions — 25 shared questions, four AI models, 100 grounded answers";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -56,7 +57,10 @@ export default function OpenGraphImage() {
             See whether AI puts your brand in the answer.
           </div>
           <div style={{ color: "#a1a1aa", fontSize: 25 }}>
-            OpenAI · Anthropic · Google
+            OpenAI · Claude · Gemini · Grok
+          </div>
+          <div style={{ color: "#a1a1aa", fontSize: 21 }}>
+            25 shared questions · 100 grounded answers · directional results
           </div>
         </div>
       </div>

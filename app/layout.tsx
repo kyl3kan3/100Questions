@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s · 100 Questions",
   },
   description:
-    "Measure how often your brand appears in web-grounded answers from OpenAI, Anthropic, and Google—with transparent scores, sources, and methodology.",
+    "Compare 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok—with transparent, directional results.",
   applicationName: "100 Questions",
   authors: [{ name: "100 Questions" }],
   creator: "100 Questions",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "100 Questions — AI Visibility Benchmark",
     description:
-      "See whether AI puts your brand in the answer. Compare grounded visibility across OpenAI, Anthropic, and Google.",
+      "Compare 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
     url: "/",
     siteName: "100 Questions",
     type: "website",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "100 Questions — AI Visibility Benchmark",
     description:
-      "See whether AI puts your brand in the answer across OpenAI, Anthropic, and Google.",
+      "25 shared questions, four AI models, and 100 grounded answers for a directional visibility benchmark.",
   },
 };
 
@@ -89,7 +89,7 @@ export default function RootLayout({
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "A web-grounded AI visibility benchmark across OpenAI, Anthropic, and Google.",
+      "A directional AI visibility benchmark comparing 100 grounded answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
     url: siteUrl,
   };
 

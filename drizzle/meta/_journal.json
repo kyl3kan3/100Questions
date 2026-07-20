@@ -15,6 +15,13 @@
       "when": 1784567332858,
       "tag": "0001_nasty_peter_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784575705149,
+      "tag": "0002_nasty_hemingway",
+      "breakpoints": true
     }
   ]
 }

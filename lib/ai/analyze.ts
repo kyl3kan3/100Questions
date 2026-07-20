@@ -119,7 +119,7 @@ Deterministically detected competitors: ${
 
 Answer to label:
 ${input.answerText}`,
-    maxOutputTokens: 1_000,
+    maxOutputTokens: 500,
     maxRetries: 0,
     abortSignal: AbortSignal.timeout(ANALYSIS_TIMEOUT_MS),
     providerOptions: {

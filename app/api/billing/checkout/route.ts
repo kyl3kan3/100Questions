@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           creditGrantVersion: "v1",
         },
         invoice_creation: { enabled: true },
-        success_url: `${origin}/dashboard?checkout=success`,
+        success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard?checkout=cancelled`,
       },
       {
@@ -105,10 +105,13 @@ export async function POST(request: Request) {
       );
     }
 
-    return Response.json({
-      url: checkoutSession.url,
-      credits,
-    });
+    return Response.json(
+      {
+        url: checkoutSession.url,
+        credits,
+      },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   } catch (error) {
     if (error instanceof BillingConfigurationError) {
       return Response.json(

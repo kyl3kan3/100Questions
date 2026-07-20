@@ -13,6 +13,16 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
+type Provider = "openai" | "anthropic" | "google" | "xai";
+
+const providerOrder: Provider[] = ["openai", "anthropic", "google", "xai"];
+const providerLabels: Record<Provider, string> = {
+  openai: "OpenAI",
+  anthropic: "Claude",
+  google: "Gemini",
+  xai: "Grok",
+};
+
 type RunState = {
   id: string;
   subjectName: string;
@@ -43,7 +53,7 @@ type ResultRow = {
   };
   job: null | {
     id: string;
-    provider: "openai" | "anthropic" | "google";
+    provider: Provider;
     status: string;
     errorMessage: string | null;
   };
@@ -88,10 +98,8 @@ type ResultsPayload = {
   run: RunState;
   rows: ResultRow[];
   metrics: MetricsPayload;
-  providerMetrics: Record<
-    "openai" | "anthropic" | "google",
-    MetricsPayload
-  >;
+  providerMetrics: Partial<Record<Provider, MetricsPayload>>;
+  providers?: Provider[];
   categories: string[];
 };
 
@@ -102,7 +110,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   const [run, setRun] = useState(initialRun);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [cohort, setCohort] = useState<"all" | "discovery" | "diagnostic">("all");
-  const [provider, setProvider] = useState<"all" | "openai" | "anthropic" | "google">("all");
+  const [provider, setProvider] = useState<"all" | Provider>("all");
   const [category, setCategory] = useState("all");
 
   useEffect(() => {
@@ -223,15 +231,36 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
 
   const completedCalls = run.succeededProviderCalls + run.failedProviderCalls;
   const progress = Math.round((completedCalls / Math.max(run.providerCallsPlanned, 1)) * 100);
+  const availableProviders = useMemo(() => {
+    const declaredProviders = payload?.providers ?? [];
+    const metricProviders = Object.keys(payload?.providerMetrics ?? {});
+    const rowProviders = (payload?.rows ?? []).flatMap((row) =>
+      row.job ? [row.job.provider] : [],
+    );
+    const frozenProviders = Object.keys(payload?.run.frozenModels ?? run.frozenModels);
+    const candidates = declaredProviders.length
+      ? declaredProviders
+      : metricProviders.length
+        ? metricProviders
+        : rowProviders.length
+          ? rowProviders
+          : frozenProviders;
+
+    return providerOrder.filter((candidate) => candidates.includes(candidate));
+  }, [payload, run.frozenModels]);
+
+  const effectiveProvider =
+    provider === "all" || availableProviders.includes(provider) ? provider : "all";
+
   const filteredRows = useMemo(
     () =>
       (payload?.rows ?? []).filter(
         (row) =>
           (cohort === "all" || row.question.cohort === cohort) &&
-          (provider === "all" || row.job?.provider === provider) &&
+          (effectiveProvider === "all" || row.job?.provider === effectiveProvider) &&
           (category === "all" || row.question.category === category),
       ),
-    [category, cohort, payload?.rows, provider],
+    [category, cohort, effectiveProvider, payload?.rows],
   );
 
   return (
@@ -276,7 +305,11 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         </CardContent>
       </Card>
 
-      {payload ? <MetricGrid payload={payload} /> : <LoadingCard terminal={terminalStatuses.has(run.status)} />}
+      {payload ? (
+        <MetricGrid payload={payload} providers={availableProviders} />
+      ) : (
+        <LoadingCard terminal={terminalStatuses.has(run.status)} />
+      )}
 
       <Card className="bg-[#0b0e0c]">
         <CardHeader className="border-b border-white/[0.07] pb-5">
@@ -289,7 +322,17 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
             </div>
             <div className="flex gap-2">
               <Filter value={cohort} onChange={(value) => setCohort(value as typeof cohort)} options={["all", "discovery", "diagnostic"]} label="Cohort" />
-              <Filter value={provider} onChange={(value) => setProvider(value as typeof provider)} options={["all", "openai", "anthropic", "google"]} label="Provider" />
+              <Filter
+                value={effectiveProvider}
+                onChange={(value) =>
+                  setProvider(value === "all" || isProvider(value) ? value : "all")
+                }
+                options={["all", ...availableProviders]}
+                label="Provider"
+                formatOption={(option) =>
+                  option === "all" ? "All providers" : providerLabels[option as Provider]
+                }
+              />
               <Filter value={category} onChange={setCategory} options={["all", ...(payload?.categories ?? [])]} label="Category" />
             </div>
           </div>
@@ -310,8 +353,18 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   );
 }
 
-function MetricGrid({ payload }: { payload: ResultsPayload }) {
+function MetricGrid({
+  payload,
+  providers,
+}: {
+  payload: ResultsPayload;
+  providers: Provider[];
+}) {
   const metrics = payload.metrics;
+  const providerEntries = providers.flatMap((provider) => {
+    const metrics = payload.providerMetrics[provider];
+    return metrics ? [{ provider, metrics }] : [];
+  });
   return (
     <section aria-labelledby="metrics-heading">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -329,13 +382,20 @@ function MetricGrid({ payload }: { payload: ResultsPayload }) {
       <p className="mt-3 text-xs leading-5 text-zinc-400">
         Coverage {percent(metrics.coverage.value)} ({metrics.coverage.numerator}/{metrics.coverage.denominator}). Failed or ungrounded calls remain in coverage and do not enter eligible-score denominators.
       </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        {(["openai", "anthropic", "google"] as const).map((provider) => {
-          const providerMetric = payload.providerMetrics[provider];
+      <div
+        className={
+          providerEntries.length >= 4
+            ? "mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+            : "mt-5 grid gap-3 sm:grid-cols-3"
+        }
+      >
+        {providerEntries.map(({ provider, metrics: providerMetric }) => {
           return (
             <Card key={provider} className="bg-[#0a0d0b]">
               <CardContent className="p-5">
-                <p className="text-xs font-medium capitalize text-zinc-300">{provider}</p>
+                <p className="text-xs font-medium text-zinc-300">
+                  {providerLabels[provider]}
+                </p>
                 <div className="mt-3 flex items-end justify-between gap-3">
                   <div>
                     <p className="text-2xl font-semibold text-white tabular-nums">{percent(providerMetric.discoveryVisibility.value)}</p>
@@ -372,7 +432,9 @@ function AnswerRow({ row }: { row: ResultRow }) {
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
             <Badge variant="secondary">{row.question.cohort}</Badge>
-            {row.job ? <Badge variant="outline">{row.job.provider}</Badge> : null}
+            {row.job ? (
+              <Badge variant="outline">{providerLabels[row.job.provider]}</Badge>
+            ) : null}
             {answer?.scoreEligible ? <Badge variant="success">grounded</Badge> : answer ? <Badge variant="warning">excluded</Badge> : <Badge variant="secondary">pending</Badge>}
           </div>
           <p className="text-pretty text-sm font-medium leading-6 text-zinc-200">{row.question.text}</p>
@@ -438,12 +500,31 @@ function AnswerRow({ row }: { row: ResultRow }) {
   );
 }
 
-function Filter({ value, onChange, options, label }: { value: string; onChange: (value: string) => void; options: string[]; label: string }) {
+function Filter({
+  value,
+  onChange,
+  options,
+  label,
+  formatOption,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  label: string;
+  formatOption?: (option: string) => string;
+}) {
   return (
     <label>
       <span className="sr-only">{label}</span>
       <select value={value} onChange={(event) => onChange(event.target.value)} className="ml-2 h-9 rounded-xl bg-white/[0.06] px-3 text-xs capitalize text-zinc-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)] outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60">
-        {options.map((option) => <option key={option} value={option}>{option === "all" ? `All ${label.toLocaleLowerCase("en-US")}s` : option}</option>)}
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {formatOption?.(option) ??
+              (option === "all"
+                ? `All ${label.toLocaleLowerCase("en-US")}s`
+                : option)}
+          </option>
+        ))}
       </select>
     </label>
   );
@@ -510,4 +591,8 @@ function isSafeUrl(value: string) {
   } catch {
     return false;
   }
+}
+
+function isProvider(value: string): value is Provider {
+  return providerOrder.includes(value as Provider);
 }

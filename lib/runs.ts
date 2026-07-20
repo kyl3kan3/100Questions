@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 
-import { getBenchmarkConfig } from "@/lib/config";
+import { getBenchmarkConfig, PROVIDERS } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import {
   providerJobs,
@@ -41,7 +41,7 @@ export async function createReservedRun(
     input.questionCount * config.benchmark.discoveryRatio,
   );
   const diagnosticCount = input.questionCount - discoveryCount;
-  const providerCalls = input.questionCount * 3;
+  const providerCalls = input.questionCount * PROVIDERS.length;
   const plannedAiCalls =
     providerCalls * config.budget.aiCallsPerProviderJob +
     config.budget.questionGenerationCallAllowance;

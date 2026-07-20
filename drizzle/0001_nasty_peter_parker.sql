@@ -1,0 +1,2 @@
+ALTER TABLE "credit_ledger" ADD COLUMN "stripe_payment_intent_id" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "credit_ledger_payment_intent_unique" ON "credit_ledger" USING btree ("stripe_payment_intent_id") WHERE "credit_ledger"."stripe_payment_intent_id" IS NOT NULL;

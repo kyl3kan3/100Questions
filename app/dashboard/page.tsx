@@ -1,0 +1,109 @@
+import { eq } from "drizzle-orm";
+import { CreditCard, Gauge, ShieldCheck } from "lucide-react";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+
+import { AppHeader } from "@/components/app-header";
+import { BillingActions } from "@/components/billing-actions";
+import { RunForm } from "@/components/run-form";
+import { RunHistory } from "@/components/run-history";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { getAuthenticatedUser } from "@/lib/auth/session";
+import {
+  getCreditBalance,
+  getCreditsPerPurchase,
+  isStripeCheckoutConfigured,
+} from "@/lib/billing/credits";
+import { getBenchmarkConfig } from "@/lib/config";
+import { getDb } from "@/lib/db";
+import { billingCustomers } from "@/lib/db/schema";
+import { listRunsForUser } from "@/lib/runs";
+
+export const metadata: Metadata = { title: "Dashboard" };
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const user = await getAuthenticatedUser();
+
+  if (!user) {
+    redirect("/auth/sign-in?next=/dashboard");
+  }
+
+  const [creditBalance, runs, customer] = await Promise.all([
+    getCreditBalance(user.id),
+    listRunsForUser(user.id),
+    getDb()
+      .select({ id: billingCustomers.id })
+      .from(billingCustomers)
+      .where(eq(billingCustomers.userId, user.id))
+      .limit(1),
+  ]);
+  const config = getBenchmarkConfig();
+  const completed = runs.filter((run) => ["complete", "partial"].includes(run.status)).length;
+
+  return (
+    <main className="min-h-screen bg-[#070908] text-zinc-100">
+      <AppHeader email={user.email} />
+      <div className="page-shell py-10 md:py-14">
+        <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="eyebrow">Workspace</p>
+            <h1 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+              AI visibility, with the evidence attached.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+              Benchmarks use provider-native web search through Vercel AI Gateway. No result without sources enters the score.
+            </p>
+          </div>
+          <BillingActions
+            billingConfigured={isStripeCheckoutConfigured()}
+            hasCustomer={customer.length > 0}
+            creditsPerPurchase={getCreditsPerPurchase()}
+          />
+        </div>
+
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          <Summary icon={<CreditCard />} label="Available credits" value={String(creditBalance)} detail="One credit reserves one run" />
+          <Summary icon={<Gauge />} label="Completed runs" value={String(completed)} detail={`${runs.length} total benchmarks`} />
+          <Summary icon={<ShieldCheck />} label="Coverage threshold" value="90%" detail="Below this, metrics are provisional" />
+        </div>
+
+        {!isStripeCheckoutConfigured() ? (
+          <Card className="mb-6 border border-amber-300/15 bg-amber-300/[0.035]">
+            <CardContent className="flex flex-col gap-3 py-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+              <span>Stripe Checkout is ready in code but needs the connected Stripe account and server environment values.</span>
+              <Badge variant="warning">Configuration required</Badge>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        <div className="space-y-6">
+          <RunForm
+            creditBalance={creditBalance}
+            estimatedMicrosPerProviderCall={config.budget.estimatedMicrosPerProviderCall}
+            ceilingMicrosPerProviderCall={config.budget.ceilingMicrosPerProviderCall}
+            aiCallsPerProviderJob={config.budget.aiCallsPerProviderJob}
+            questionGenerationCallAllowance={config.budget.questionGenerationCallAllowance}
+          />
+          <RunHistory runs={runs} />
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Summary({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
+  return (
+    <Card className="bg-[#0a0d0b]">
+      <CardContent className="flex items-start gap-4 p-5">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-emerald-300 [&>svg]:size-4">{icon}</div>
+        <div>
+          <p className="text-xs text-zinc-400">{label}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-[-0.03em] text-zinc-100 tabular-nums">{value}</p>
+          <p className="mt-1 text-[11px] leading-4 text-zinc-400">{detail}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

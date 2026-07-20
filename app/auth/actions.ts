@@ -3,6 +3,11 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import {
+  getAuthFailureLogContext,
+  getSignInFailureMessage,
+  getSignUpFailureMessage,
+} from "@/lib/auth/errors";
 import { auth } from "@/lib/auth/server";
 
 const emailSchema = z
@@ -56,10 +61,6 @@ function validationFailure(
   };
 }
 
-function isNetworkError(code: string | undefined): boolean {
-  return Boolean(code?.startsWith("NETWORK_"));
-}
-
 export async function signInWithEmail(
   _previousState: AuthActionState,
   formData: FormData,
@@ -76,10 +77,13 @@ export async function signInWithEmail(
   const { error } = await auth.signIn.email(parsed.data);
 
   if (error) {
+    console.warn(
+      "[auth] request failed",
+      getAuthFailureLogContext("sign-in", error),
+    );
+
     return {
-      error: isNetworkError(error.code)
-        ? "Authentication is temporarily unavailable. Try again shortly."
-        : "The email or password did not match an account.",
+      error: getSignInFailureMessage(error),
     };
   }
 
@@ -103,10 +107,13 @@ export async function signUpWithEmail(
   const { error } = await auth.signUp.email(parsed.data);
 
   if (error) {
+    console.warn(
+      "[auth] request failed",
+      getAuthFailureLogContext("sign-up", error),
+    );
+
     return {
-      error: isNetworkError(error.code)
-        ? "Authentication is temporarily unavailable. Try again shortly."
-        : "We could not create that account. Try signing in instead.",
+      error: getSignUpFailureMessage(error),
     };
   }
 

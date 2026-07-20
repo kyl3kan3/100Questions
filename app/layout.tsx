@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+
+import { GlobalFooter } from "@/components/global-footer";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -99,7 +103,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <Script
+          src="https://datafa.st/js/script.js"
+          data-website-id="dfid_WIXXIARdwVFPbyM6Mib8P"
+          data-domain="100questionsai.com"
+          strategy="afterInteractive"
+        />
         {children}
+        <GlobalFooter />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -299,7 +299,7 @@ export async function releaseReservedCreditForRun({
       LIMIT 1
     ),
     reservation AS MATERIALIZED (
-      SELECT 1
+      SELECT ledger.amount
       FROM credit_ledger AS ledger
       WHERE ledger.user_id = ${userId}
         AND ledger.run_id = ${runId}::uuid
@@ -325,11 +325,12 @@ export async function releaseReservedCreditForRun({
       )
       SELECT
         ${userId},
-        1,
+        -reservation.amount,
         'release'::credit_ledger_type,
         ${runId}::uuid,
         ${reference},
         jsonb_build_object('state', 'released', 'reason', ${normalizedReason})
+      FROM reservation
       WHERE EXISTS (SELECT 1 FROM reservation)
         AND NOT EXISTS (SELECT 1 FROM consumption)
         AND NOT EXISTS (SELECT 1 FROM existing_action)

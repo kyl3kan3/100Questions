@@ -10,6 +10,7 @@ import { RunForm } from "@/components/run-form";
 import { RunHistory } from "@/components/run-history";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { hasUnlimitedAccess } from "@/lib/access";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 import {
   getCreditBalance,
@@ -21,7 +22,11 @@ import { getDb } from "@/lib/db";
 import { billingCustomers } from "@/lib/db/schema";
 import { listRunsForUser } from "@/lib/runs";
 
-export const metadata: Metadata = { title: "Dashboard" };
+export const metadata: Metadata = {
+  title: "Dashboard",
+  alternates: { canonical: null },
+  robots: { index: false, follow: false },
+};
 export const dynamic = "force-dynamic";
 
 type DashboardPageProps = {
@@ -37,6 +42,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   if (!user) {
     redirect("/auth/sign-in?next=/dashboard");
   }
+
+  const unlimitedAccess = hasUnlimitedAccess(user.id);
 
   const [creditBalance, runs, customer, query] = await Promise.all([
     getCreditBalance(user.id),
@@ -72,20 +79,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Benchmarks use provider-native web search through Vercel AI Gateway. No result without sources enters the score.
             </p>
           </div>
-          <BillingActions
-            billingConfigured={isStripeCheckoutConfigured()}
-            hasCustomer={customer.length > 0}
-            creditsPerPurchase={getCreditsPerPurchase()}
-          />
+          {unlimitedAccess ? (
+            <Badge variant="success">Unlimited test access</Badge>
+          ) : (
+            <BillingActions
+              billingConfigured={isStripeCheckoutConfigured()}
+              hasCustomer={customer.length > 0}
+              creditsPerPurchase={getCreditsPerPurchase()}
+            />
+          )}
         </div>
 
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
-          <Summary icon={<CreditCard />} label="Available credits" value={String(creditBalance)} detail="One credit reserves one run" />
+          <Summary
+            icon={<CreditCard />}
+            label="Available credits"
+            value={unlimitedAccess ? "Unlimited" : String(creditBalance)}
+            detail={
+              unlimitedAccess
+                ? "Internal testing access"
+                : "One credit reserves one run"
+            }
+          />
           <Summary icon={<Gauge />} label="Completed runs" value={String(completed)} detail={`${runs.length} total benchmarks`} />
           <Summary icon={<ShieldCheck />} label="Coverage threshold" value="90%" detail="Below this, metrics are provisional" />
         </div>
 
-        {!isStripeCheckoutConfigured() ? (
+        {!unlimitedAccess && !isStripeCheckoutConfigured() ? (
           <Card className="mb-6 border border-amber-300/15 bg-amber-300/[0.035]">
             <CardContent className="flex flex-col gap-3 py-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
               <span>Stripe Checkout is ready in code but needs the connected Stripe account and server environment values.</span>
@@ -97,6 +117,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <div className="space-y-6">
           <RunForm
             creditBalance={creditBalance}
+            unlimitedAccess={unlimitedAccess}
             estimatedMicrosPerProviderCall={config.budget.estimatedMicrosPerProviderCall}
             ceilingMicrosPerProviderCall={config.budget.ceilingMicrosPerProviderCall}
             aiCallsPerProviderJob={config.budget.aiCallsPerProviderJob}

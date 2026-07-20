@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthForm } from "@/components/auth-form";
 import { BrandMark } from "@/components/brand-mark";
+import { absoluteUrl } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to your private 100 Questions benchmark workspace.",
+  alternates: { canonical: absoluteUrl("/auth/sign-in") },
+  robots: { index: false, follow: false },
+};
 
 export default function SignInPage() {
   return (

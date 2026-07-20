@@ -6,10 +6,11 @@ import {
   Globe2,
   LockKeyhole,
 } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-import { BrandMark } from "@/components/brand-mark";
+import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { absoluteUrl } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
+  description:
+    "Measure whether AI assistants mention and cite your brand across 25 shared questions, four providers, and 100 planned web-grounded answers.",
+  alternates: { canonical: absoluteUrl() },
+  openGraph: {
+    title: "100 Questions — AI Visibility Benchmark",
+    description:
+      "Compare your brand's visibility across OpenAI, Claude, Gemini, and Grok with shared questions, source evidence, and transparent metrics.",
+    url: absoluteUrl(),
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "100 Questions — AI Visibility Benchmark",
+    description:
+      "25 shared questions, four AI providers, and 100 planned web-grounded answers.",
+  },
+};
 
 const providerRows = [
   ["OpenAI", "GPT-5.4 mini", "Native web search"],
@@ -37,21 +59,7 @@ const scoreCards = [
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#070908] text-zinc-100">
-      <header className="border-b border-white/[0.07]">
-        <div className="page-shell flex h-16 items-center justify-between">
-          <BrandMark />
-          <nav className="flex items-center gap-1" aria-label="Primary navigation">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/auth/sign-in">Sign in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/auth/sign-up">
-                Start a benchmark <ArrowRight />
-              </Link>
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <MarketingHeader />
 
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
@@ -63,8 +71,8 @@ export default function Home() {
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
             Run 25 identical questions across OpenAI, Claude, Gemini, and Grok.
-            Compare 100 grounded answers with sources and transparent, directional
-            results—not a mystery score.
+            Compare up to 100 web-grounded provider answers with sources and
+            transparent, directional results—not a mystery score.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
@@ -73,7 +81,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="#methodology">Read the methodology</Link>
+              <Link href="/methodology">Read the methodology</Link>
             </Button>
           </div>
           <p className="mt-5 flex items-center gap-2 text-xs text-zinc-400">
@@ -98,7 +106,7 @@ export default function Home() {
                   Evidence in. Signal out.
                 </p>
                 <p className="mt-1 text-xs text-zinc-300">
-                  25 shared questions. 100 grounded answers.
+                  25 shared questions. 100 planned provider answers.
                 </p>
               </div>
               <Badge variant="success" className="shrink-0">Live evidence</Badge>
@@ -160,8 +168,11 @@ export default function Home() {
               The shared test uses 20 neutral discovery questions that avoid planting
               your name in the prompt, plus 5 diagnostic questions that ask directly.
               Each model receives the identical 25-question set, making the 100
-              grounded answers a directional comparison.
+              planned provider answers a directional comparison.
             </p>
+            <Button asChild variant="link" className="mt-5">
+              <Link href="/methodology">See definitions, eligibility, and limitations</Link>
+            </Button>
           </div>
           <div className="grid gap-px overflow-hidden rounded-[24px] bg-white/[0.08] sm:grid-cols-2">
             {scoreCards.map(([title, description], index) => (
@@ -188,7 +199,8 @@ export default function Home() {
             Inspect normalized answers, source URLs, model versions, usage, and exclusion reasons.
           </FeatureCard>
           <FeatureCard icon={<Check />} title="Same frozen test">
-            All four models receive the same 25 questions, locale, prompt version, and run timestamp.
+            All four models receive the same 25 questions, locale, and prompt
+            version; the run freezes its timestamp with the results.
           </FeatureCard>
         </div>
       </section>
@@ -198,10 +210,17 @@ export default function Home() {
           <div>
             <p className="eyebrow">Prepaid, not a subscription</p>
             <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
-              Buy one run. Keep the evidence.
+              Buy one run. Review 30 days of evidence.
             </h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
               Stripe shows the live price before payment. Provider processing is disclosed before every run.
+            </p>
+            <p className="mt-2 text-sm text-zinc-500">
+              Need details first?{" "}
+              <Link className="text-emerald-300 hover:text-emerald-200" href="/faq">
+                Read the FAQ
+              </Link>
+              .
             </p>
           </div>
           <Button asChild size="lg">
@@ -212,30 +231,6 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/[0.07]">
-        <div className="page-shell flex flex-col gap-3 py-7 text-xs text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
-          <BrandMark showName={false} />
-          <p>
-            Directional, API-grounded benchmark; results may differ from consumer chat products.
-          </p>
-          <a
-            href="https://verifieddr.com/website/100questionsai-com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="View the verified domain rating for 100questionsai.com"
-            className="shrink-0 opacity-80 transition-opacity hover:opacity-100"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://verifieddr.com/badge/100questionsai-com.svg?metric=truedr"
-              alt="Verified DR - Verified Domain Rating for 100questionsai.com"
-              width="220"
-              height="68"
-              loading="lazy"
-            />
-          </a>
-        </div>
-      </footer>
     </main>
   );
 }

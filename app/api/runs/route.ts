@@ -1,5 +1,6 @@
 import { start } from "workflow/api";
 
+import { hasUnlimitedAccess } from "@/lib/access";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 import { isSameOrigin, jsonError } from "@/lib/http";
 import {
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
     user.id,
     idempotencyKey,
     parsed.data,
+    { unlimitedAccess: hasUnlimitedAccess(user.id) },
   );
 
   if (reservation.state === "no_credit") {

@@ -23,6 +23,7 @@ type RunFormProps = {
   aiCallsPerProviderJob: number;
   questionGenerationCallAllowance: number;
   creditBalance: number;
+  unlimitedAccess?: boolean;
   providerCount: number;
   questionCount: number;
 };
@@ -33,6 +34,7 @@ export function RunForm({
   aiCallsPerProviderJob,
   questionGenerationCallAllowance,
   creditBalance,
+  unlimitedAccess = false,
   providerCount,
   questionCount,
 }: RunFormProps) {
@@ -201,19 +203,23 @@ export function RunForm({
               <div>
                 <p className="text-sm font-medium text-zinc-200">
                   {questionCount} shared questions × {providerCount} models ={" "}
-                  {providerCalls} grounded answers
+                  {providerCalls} planned web-grounded answers
                 </p>
                 <p className="mt-1 text-xs leading-5 text-zinc-400">
                   Every model receives the same 20 discovery and 5 diagnostic
                   questions. Up to {providerCalls} contextual analyses and{" "}
                   {questionGenerationCallAllowance} question-generation calls are
                   budgeted. Estimated {estimate}; hard scheduling guard {ceiling}.
-                  One prepaid run credit is reserved. Results are directional at
-                  this sample size.
+                  {unlimitedAccess
+                    ? "This test account does not consume prepaid credits."
+                    : "One prepaid run credit is reserved."}{" "}
+                  Results are directional at this sample size.
                 </p>
               </div>
               <span className="shrink-0 font-mono text-xs text-zinc-400 tabular-nums">
-                {creditBalance} {creditBalance === 1 ? "credit" : "credits"}
+                {unlimitedAccess
+                  ? "Unlimited access"
+                  : `${creditBalance} ${creditBalance === 1 ? "credit" : "credits"}`}
               </span>
             </div>
             <label className="mt-4 flex cursor-pointer items-start gap-3 border-t border-white/[0.07] pt-4 text-sm leading-6 text-zinc-400">
@@ -244,7 +250,11 @@ export function RunForm({
           </p>
           <Button
             type="submit"
-            disabled={pending || !confirmed || creditBalance < 1}
+            disabled={
+              pending ||
+              !confirmed ||
+              (!unlimitedAccess && creditBalance < 1)
+            }
             className="sm:min-w-40"
           >
             {pending ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}

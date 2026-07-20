@@ -1,16 +1,15 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://100-questions-psi.vercel.app";
+import { absoluteUrl, SITE_URL } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/runs/", "/api/"],
+      disallow: ["/api/", "/.well-known/workflow/"],
     },
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: absoluteUrl("/sitemap.xml"),
+    host: SITE_URL,
   };
 }

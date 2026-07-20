@@ -1,6 +1,6 @@
 # 100Questions
 
-100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions, asks every question across OpenAI, Claude, Gemini, and Grok with native web search, and keeps the resulting 100 grounded answers and sources behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
+100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions and plans 100 provider answers across OpenAI, Claude, Gemini, and Grok with native web search. Successful sourced answers and coverage gaps remain visible behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
 
 The product is an API-grounded benchmark, not a claim of parity with the providers' consumer chat interfaces.
 
@@ -33,6 +33,12 @@ On Windows PowerShell, copy the environment file with `Copy-Item .env.example .e
 
 Vercel deployments authenticate to AI Gateway using Vercel OIDC. Local Gateway development may require `vercel env pull` or the local credentials documented by Vercel.
 
+Internal test accounts can bypass prepaid credits and per-user daily quotas by
+setting `UNLIMITED_ACCESS_USER_IDS` to a comma-separated list of trusted Neon
+Auth user IDs. This policy is evaluated only from the authenticated server
+session. Unlimited runs still keep one active run at a time, per-run budget
+confirmation, workflow accounting, and Gateway-level spending controls.
+
 ## Stripe setup
 
 1. Create a one-time Stripe Price for one benchmark purchase.
@@ -57,7 +63,7 @@ npm test
 npm run build
 ```
 
-Do not run a paid provider canary or a full fixed benchmark until the displayed run budget has been reviewed and explicitly confirmed. A run contains 25 shared questions and 100 grounded provider answers (20 discovery and 5 diagnostic questions per provider). With the default guardrails, the planning estimate is about $2.48 and the hard scheduling guard is about $3.93. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
+Do not run a paid provider canary or a full fixed benchmark until the displayed run budget has been reviewed and explicitly confirmed. A run contains 25 shared questions and plans 100 provider answers (20 discovery and 5 diagnostic questions per provider). With the default guardrails, the planning estimate is about $2.48 and the hard scheduling guard is about $3.93. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
 
 ## Required production checks
 

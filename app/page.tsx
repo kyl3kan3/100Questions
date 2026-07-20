@@ -7,6 +7,7 @@ import {
   LockKeyhole,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { BrandMark } from "@/components/brand-mark";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,26 @@ export default function Home() {
         </div>
 
         <Card className="animate-enter relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d] [animation-delay:120ms]">
+          <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
+            <Image
+              src="/hero-ai-visibility.png"
+              alt="Three streams of evidence converging into one measured AI visibility result"
+              fill
+              priority
+              sizes="(min-width: 768px) 42vw, 100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_42%,rgba(7,9,8,0.88)_100%)]" />
+            <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-200">
+                  Evidence in. Signal out.
+                </p>
+                <p className="mt-1 text-xs text-zinc-300">One frozen test. Three grounded providers.</p>
+              </div>
+              <Badge variant="success" className="shrink-0">Live evidence</Badge>
+            </figcaption>
+          </figure>
           <CardHeader className="border-b border-white/[0.07] pb-5">
             <div className="flex items-center justify-between gap-4">
               <div>

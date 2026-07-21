@@ -10,6 +10,7 @@ import {
   createHook,
   FatalError,
   getStepMetadata,
+  RetryableError,
   sleep,
 } from "workflow";
 
@@ -31,6 +32,7 @@ import {
   getGatewayGenerationCostMicros,
   providerErrorDiagnostic,
   queryGroundedProvider,
+  type ClassifiedProviderError,
   type CostProvenance,
   type NormalizedProviderAnswer,
 } from "@/lib/ai/providers";
@@ -572,10 +574,12 @@ async function generateQuestionsStep(
     console.error(
       `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throw new FatalError(`${failure.code}: ${failure.message}`);
+    throw providerStepError(failure, metadata.attempt);
   }
 }
-generateQuestionsStep.maxRetries = 0;
+// Question generation may make several bounded calls internally, so allow one
+// outer retry for a transient Gateway failure while keeping permanent errors fatal.
+generateQuestionsStep.maxRetries = 1;
 
 async function reconcileQuestionGenerationCostStep(
   context: WorkflowRunContext,
@@ -1014,10 +1018,10 @@ async function queryProviderStep(
     console.error(
       `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throw new FatalError(`${failure.code}: ${failure.message}`);
+    throw providerStepError(failure, metadata.attempt);
   }
 }
-queryProviderStep.maxRetries = 0;
+queryProviderStep.maxRetries = 2;
 
 async function reconcileProviderAnswerCostStep(
   answer: DurableProviderAnswer,
@@ -1142,10 +1146,10 @@ async function analyzeAnswerStep(
     console.error(
       `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throw new FatalError(`${failure.code}: ${failure.message}`);
+    throw providerStepError(failure, metadata.attempt);
   }
 }
-analyzeAnswerStep.maxRetries = 0;
+analyzeAnswerStep.maxRetries = 2;
 
 async function reconcileAnalysisCostStep(
   analysis: DurableAnswerAnalysis,
@@ -1851,4 +1855,21 @@ function providersForFrozenModels(models: FrozenModels): readonly ProviderKey[] 
   return models.xai
     ? PROVIDERS
     : PROVIDERS.filter((provider) => provider !== "xai");
+}
+
+function providerStepError(
+  failure: ClassifiedProviderError,
+  attempt: number,
+): FatalError | RetryableError {
+  const message = `${failure.code}: ${failure.message}`;
+
+  if (!failure.retryable) return new FatalError(message);
+
+  const exponentialBackoffMs = Math.min(
+    2_000 * 2 ** Math.max(0, attempt - 1),
+    15_000,
+  );
+  return new RetryableError(message, {
+    retryAfter: Math.max(failure.retryAfterMs ?? 0, exponentialBackoffMs),
+  });
 }

@@ -29,6 +29,8 @@ export type CostProvenance =
   | "mixed"
   | "unavailable";
 
+export { getGatewayGenerationCostMicros } from "./gateway-cost";
+
 export interface ProviderQueryInput {
   provider: ProviderKey;
   model: string;
@@ -77,6 +79,8 @@ const GROUNDED_SYSTEM_PROMPT = `You are a neutral research assistant answering o
 standalone question. You must use the configured web-search tool before answering.
 Base recommendations and factual claims on the pages you retrieve. Answer directly and
 concisely. Do not mention this benchmark, its subject, hidden criteria, or evaluation logic.
+Use the web-search tool exactly once with one focused query. Do not issue parallel or
+follow-up searches. Prefer the most relevant evidence from the returned results.
 Never invent citations. If web search is unavailable, state that you could not complete a
 grounded answer instead of answering from memory.`;
 
@@ -177,10 +181,10 @@ async function executeGroundedSearch(input: ProviderQueryInput) {
     tools: {
       web_search: gateway.tools.exaSearch({
         type: "fast",
-        numResults: 8,
+        numResults: 5,
         userLocation: input.locale.split(/[-_]/u)[1]?.toUpperCase(),
         contents: {
-          highlights: { maxCharacters: 1_200 },
+          highlights: { maxCharacters: 700 },
         },
       }),
     },
@@ -282,20 +286,6 @@ export function getGenerationAccounting(
       readString(gatewayMetadata?.requestId) ??
       null,
   };
-}
-
-/**
- * Resolves authoritative Gateway billing data for a completed generation.
- * The lookup is intentionally separate from generation because inline Gateway
- * metadata commonly contains only the generation ID.
- */
-export async function getGatewayGenerationCostMicros(
-  generationId: string | null | undefined,
-): Promise<number | null> {
-  if (!generationId || !/^gen_[0-9A-Za-z]+$/u.test(generationId)) return null;
-
-  const info = await gateway.getGenerationInfo({ id: generationId });
-  return dollarsToMicros(info.totalCost);
 }
 
 export function combineUsage(

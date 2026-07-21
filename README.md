@@ -12,6 +12,7 @@ The product is an API-grounded benchmark, not a claim of parity with the provide
 - Stripe-hosted one-time Checkout, signed idempotent webhooks, prepaid run credits, and Customer Portal
 - AI SDK 6 through Vercel AI Gateway with a bounded, provider-independent Exa search harness and separate OpenAI, Anthropic, Google, and xAI answer models
 - Vercel Workflow orchestration with bounded batches and retry classification
+- Transactional completion, partial-result, failure, and cancellation email notifications through Resend
 - A fixed 20-question neutral discovery / 5-question target-named diagnostic split
 - Versioned visibility, prominence, share-of-voice, citation, sentiment, and coverage calculations
 - Owner-only dashboard, progress, evidence, and deletion routes
@@ -32,6 +33,15 @@ npm run dev
 On Windows PowerShell, copy the environment file with `Copy-Item .env.example .env.local`.
 
 Vercel deployments authenticate to AI Gateway using Vercel OIDC. Local Gateway development may require `vercel env pull` or the local credentials documented by Vercel.
+
+Run notifications require a verified sender domain plus `RESEND_API_KEY` and
+`RUN_NOTIFICATION_FROM_EMAIL`. If either value is missing, benchmark execution
+continues normally and the notification step is skipped.
+
+Provider jobs run in bounded batches. `WORKFLOW_MAX_CONCURRENT_JOBS` is capped
+at the four configured providers, and `WORKFLOW_AI_CALL_DELAY_MS` adds a short
+cooldown between query and analysis stages. Per-run duration, budget, credit,
+and cancellation guards still apply before new model calls are scheduled.
 
 Internal test accounts can bypass prepaid credits and per-user daily quotas by
 setting `UNLIMITED_ACCESS_USER_IDS` to a comma-separated list of trusted Neon

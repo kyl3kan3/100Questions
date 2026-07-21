@@ -39,13 +39,19 @@ export function getBenchmarkConfig() {
         process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
     },
     workflow: {
-      // Keep one call in flight so a run has deterministic cost and ordering.
-      // The shared search harness removes provider-native search throttles;
-      // this delay is operational pacing, not a retry strategy.
-      aiCallDelayMs: envInteger("WORKFLOW_AI_CALL_DELAY_MS", 15_000),
-      // A normal 100-job serial run currently completes in roughly 90–105
-      // minutes. This ceiling leaves recovery headroom without permitting an
-      // abandoned workflow to spend indefinitely.
+      // Run one shared question across the four providers concurrently. The
+      // hard cap prevents a configuration mistake from creating an unbounded
+      // fan-out, while batch-level guard checks preserve the cost ceiling.
+      maxConcurrentJobs: Math.min(
+        envInteger("WORKFLOW_MAX_CONCURRENT_JOBS", PROVIDERS.length),
+        PROVIDERS.length,
+      ),
+      // A short cooldown separates the query and analysis stages of each
+      // batch. Provider timeouts and bounded fan-out are the primary pacing.
+      aiCallDelayMs: envInteger("WORKFLOW_AI_CALL_DELAY_MS", 2_000),
+      // Keep a hard ceiling even though bounded batching should normally finish
+      // well inside it. This prevents an abandoned workflow from spending
+      // indefinitely when an upstream provider stalls.
       maxRunDurationMs:
         envInteger("WORKFLOW_MAX_RUN_DURATION_MINUTES", 120) * 60_000,
     },

@@ -49,6 +49,7 @@ import {
   workflowDispatches,
   type FrozenModels,
 } from "@/lib/db/schema";
+import { sendRunNotificationEmail } from "@/lib/email/send-run-notification";
 import { workflowErrorMessage } from "@/lib/workflow-errors";
 
 type TerminalRunStatus = "complete" | "partial" | "failed" | "cancelled";
@@ -81,6 +82,7 @@ interface WorkflowRunContext {
   analysisVersion: string;
   budgetCeilingMicros: number;
   aiCallDelayMs: number;
+  maxConcurrentJobs: number;
   maxRunDurationMs: number;
   estimatedMicrosPerProviderCall: number;
   ceilingMicrosPerProviderCall: number;
@@ -156,6 +158,8 @@ export async function runVisibilityWorkflow(
     };
   }
 
+  let notificationRunId: string | null = null;
+
   try {
     const claim = await claimRunStep(runId);
 
@@ -167,6 +171,7 @@ export async function runVisibilityWorkflow(
     }
 
     const context = claim.context;
+    notificationRunId = context.id;
     await syncDailyUsageStep(context.userId, context.usageDate);
     let jobs: ProviderJobWork[];
 
@@ -191,16 +196,19 @@ export async function runVisibilityWorkflow(
     let creditConsumed = false;
 
     try {
-      if (jobs.length > 0) {
-        console.log(
-          `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=question_to_provider`,
-        );
-        await sleep(context.aiCallDelayMs);
-      }
+      const batchCount = Math.ceil(jobs.length / context.maxConcurrentJobs);
 
-      for (let index = 0; index < jobs.length; index += 1) {
-        const job = jobs[index];
-        const budget = await checkRunGuardStep(context, 2);
+      for (
+        let batchStart = 0;
+        batchStart < jobs.length;
+        batchStart += context.maxConcurrentJobs
+      ) {
+        const batch = jobs.slice(
+          batchStart,
+          batchStart + context.maxConcurrentJobs,
+        );
+        const batchNumber = Math.floor(batchStart / context.maxConcurrentJobs) + 1;
+        const budget = await checkRunGuardStep(context, batch.length * 2);
 
         if (!budget.allowed) {
           if (budget.reason === "cancelled" || budget.reason === "terminal") {
@@ -239,7 +247,10 @@ export async function runVisibilityWorkflow(
           creditConsumed = true;
         }
 
-        const jobStarted = await markBatchRunningStep(context.id, [job.id]);
+        const jobStarted = await markBatchRunningStep(
+          context.id,
+          batch.map((job) => job.id),
+        );
 
         if (!jobStarted) {
           await syncDailyUsageStep(context.userId, context.usageDate);
@@ -247,19 +258,56 @@ export async function runVisibilityWorkflow(
         }
 
         console.log(
-          `[visibility] JOB runId=${runId} index=${index + 1}/${jobs.length} provider=${job.provider} spentMicros=${budget.spentMicros}`,
+          `[visibility] BATCH runId=${runId} batch=${batchNumber}/${batchCount} jobs=${batch.length} spentMicros=${budget.spentMicros}`,
         );
-        try {
-          let answer = await queryProviderStep(context, job);
-          answer = await reconcileProviderAnswerCostStep(answer);
-          await persistProviderAnswerStep(context, job, answer);
+
+        const queryOutcomes = await Promise.allSettled(
+          batch.map((job) => queryProviderStep(context, job)),
+        );
+
+        for (let index = 0; index < queryOutcomes.length; index += 1) {
+          const outcome = queryOutcomes[index];
+
+          if (outcome.status === "rejected") {
+            await markJobFailedStep(
+              batch[index].id,
+              "PROVIDER_JOB_FAILED",
+              workflowErrorMessage(outcome.reason),
+            );
+          }
+        }
+
+        const queriedJobs = queryOutcomes.flatMap((outcome, index) =>
+          outcome.status === "fulfilled"
+            ? [{ job: batch[index], answer: outcome.value }]
+            : [],
+        );
+
+        if (queriedJobs.length > 0) {
+          const reconciledAnswers = await Promise.all(
+            queriedJobs.map(({ answer }) =>
+              reconcileProviderAnswerCostStep(answer),
+            ),
+          );
+          await Promise.all(
+            queriedJobs.map(({ job }, index) =>
+              persistProviderAnswerStep(
+                context,
+                job,
+                reconciledAnswers[index],
+              ),
+            ),
+          );
 
           console.log(
-            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=provider_to_analysis`,
+            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=batch_query_to_analysis`,
           );
           await sleep(context.aiCallDelayMs);
 
-          const analysisGuard = await checkRunGuardStep(context, 1);
+          const analysisGuard = await checkRunGuardStep(
+            context,
+            queriedJobs.length,
+          );
 
           if (!analysisGuard.allowed) {
             if (
@@ -283,20 +331,55 @@ export async function runVisibilityWorkflow(
             );
           }
 
-          let analysis = await analyzeAnswerStep(context, job, answer);
-          analysis = await reconcileAnalysisCostStep(analysis);
-          await persistProviderResultStep(context, job, answer, analysis);
-        } catch (error) {
-          await markJobFailedStep(
-            job.id,
-            "PROVIDER_JOB_FAILED",
-            workflowErrorMessage(error),
+          const analysisOutcomes = await Promise.allSettled(
+            queriedJobs.map(({ job }, index) =>
+              analyzeAnswerStep(context, job, reconciledAnswers[index]),
+            ),
+          );
+
+          for (let index = 0; index < analysisOutcomes.length; index += 1) {
+            const outcome = analysisOutcomes[index];
+
+            if (outcome.status === "rejected") {
+              await markJobFailedStep(
+                queriedJobs[index].job.id,
+                "PROVIDER_JOB_FAILED",
+                workflowErrorMessage(outcome.reason),
+              );
+            }
+          }
+
+          const analyzedJobs = analysisOutcomes.flatMap((outcome, index) =>
+            outcome.status === "fulfilled"
+              ? [
+                  {
+                    job: queriedJobs[index].job,
+                    answer: reconciledAnswers[index],
+                    analysis: outcome.value,
+                  },
+                ]
+              : [],
+          );
+          const reconciledAnalyses = await Promise.all(
+            analyzedJobs.map(({ analysis }) =>
+              reconcileAnalysisCostStep(analysis),
+            ),
+          );
+          await Promise.all(
+            analyzedJobs.map(({ job, answer }, index) =>
+              persistProviderResultStep(
+                context,
+                job,
+                answer,
+                reconciledAnalyses[index],
+              ),
+            ),
           );
         }
 
-        if (index + 1 < jobs.length) {
+        if (batchStart + batch.length < jobs.length) {
           console.log(
-            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=job_to_job`,
+            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=batch_to_batch`,
           );
           await sleep(context.aiCallDelayMs);
         }
@@ -319,6 +402,15 @@ export async function runVisibilityWorkflow(
       throw error;
     }
   } finally {
+    if (notificationRunId) {
+      try {
+        await notifyRunFinishedStep(notificationRunId);
+      } catch (error) {
+        console.error(
+          `[visibility] NOTIFICATION_FAILED runId=${notificationRunId} message=${JSON.stringify(workflowErrorMessage(error))}`,
+        );
+      }
+    }
     runGuard.dispose();
   }
 }
@@ -420,6 +512,7 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
     analysisVersion: run.analysisVersion,
     budgetCeilingMicros: run.budgetCeilingMicros,
     aiCallDelayMs: config.workflow.aiCallDelayMs,
+    maxConcurrentJobs: config.workflow.maxConcurrentJobs,
     maxRunDurationMs: config.workflow.maxRunDurationMs,
     estimatedMicrosPerProviderCall: estimatedMicrosPerCall(run),
     ceilingMicrosPerProviderCall:
@@ -1344,6 +1437,52 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
   };
 }
 finalizeRunStep.maxRetries = 3;
+
+async function notifyRunFinishedStep(runId: string): Promise<void> {
+  "use step";
+
+  console.log(`[notifyRunFinished] START runId=${runId}`);
+  const db = getDb();
+  const [run] = await db
+    .select({
+      userId: runs.userId,
+      subjectName: runs.subjectName,
+      status: runs.status,
+    })
+    .from(runs)
+    .where(eq(runs.id, runId))
+    .limit(1);
+
+  if (!run || !TERMINAL_STATUSES.includes(run.status as TerminalRunStatus)) {
+    console.log(`[notifyRunFinished] SKIP runId=${runId} reason=not_terminal`);
+    return;
+  }
+
+  const users = await db.execute<{ email: string }>(sql`
+    SELECT email
+    FROM neon_auth."user"
+    WHERE id = ${run.userId}
+    LIMIT 1
+  `);
+  const recipientEmail = users.rows[0]?.email?.trim();
+
+  if (!recipientEmail) {
+    console.log(`[notifyRunFinished] SKIP runId=${runId} reason=no_recipient`);
+    return;
+  }
+
+  const result = await sendRunNotificationEmail({
+    runId,
+    recipientEmail,
+    subjectName: run.subjectName,
+    status: run.status as TerminalRunStatus,
+  });
+
+  console.log(
+    `[notifyRunFinished] DONE runId=${runId} sent=${result.sent}`,
+  );
+}
+notifyRunFinishedStep.maxRetries = 3;
 
 async function failRunStep(
   runId: string,

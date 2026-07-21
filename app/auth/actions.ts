@@ -9,6 +9,10 @@ import {
   getSignUpFailureMessage,
 } from "@/lib/auth/errors";
 import { auth } from "@/lib/auth/server";
+import {
+  isSignupEmailAllowed,
+  signupRestrictedMessage,
+} from "@/lib/auth/signup";
 
 const emailSchema = z
   .string()
@@ -102,6 +106,12 @@ export async function signUpWithEmail(
 
   if (!parsed.success) {
     return validationFailure(parsed.error);
+  }
+
+  if (!isSignupEmailAllowed(parsed.data.email)) {
+    return {
+      error: signupRestrictedMessage(),
+    };
   }
 
   const { error } = await auth.signUp.email(parsed.data);

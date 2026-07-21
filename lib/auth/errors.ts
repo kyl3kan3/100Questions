@@ -21,6 +21,15 @@ export function getAuthFailureLogContext(
   };
 }
 
+export function isTransientAuthFailure(error: AuthFailure): boolean {
+  return (
+    isNetworkError(error) ||
+    error.code === "INTERNAL_ERROR" ||
+    error.status === 429 ||
+    (typeof error.status === "number" && error.status >= 500)
+  );
+}
+
 function isNetworkError(error: AuthFailure): boolean {
   return Boolean(error.code?.startsWith("NETWORK_"));
 }

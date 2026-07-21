@@ -4,6 +4,7 @@ import {
   getAuthFailureLogContext,
   getSignInFailureMessage,
   getSignUpFailureMessage,
+  isTransientAuthFailure,
 } from "./errors";
 
 describe("auth failure messages", () => {
@@ -35,5 +36,14 @@ describe("auth failure messages", () => {
       code: "feature_not_supported",
       status: 403,
     });
+  });
+
+  it("distinguishes temporary auth service failures from invalid sessions", () => {
+    expect(isTransientAuthFailure({ code: "NETWORK_TIMEOUT", status: 502 })).toBe(true);
+    expect(isTransientAuthFailure({ code: "INTERNAL_ERROR", status: 500 })).toBe(true);
+    expect(isTransientAuthFailure({ status: 429 })).toBe(true);
+    expect(isTransientAuthFailure({ status: 503 })).toBe(true);
+    expect(isTransientAuthFailure({ status: 401 })).toBe(false);
+    expect(isTransientAuthFailure({ status: 403 })).toBe(false);
   });
 });

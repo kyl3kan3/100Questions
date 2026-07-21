@@ -115,6 +115,7 @@ type ResultsPayload = {
 };
 
 const terminalStatuses = new Set(["complete", "partial", "failed", "cancelled"]);
+const MAX_CONSECUTIVE_AUTHENTICATION_FAILURES = 3;
 
 export function RunProgress({ initialRun }: { initialRun: RunState }) {
   const [payload, setPayload] = useState<ResultsPayload | null>(null);
@@ -130,6 +131,8 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let failures = 0;
+    let resultAuthenticationFailures = 0;
+    let statusAuthenticationFailures = 0;
     let lastDispatchRetryAt = 0;
     const controller = new AbortController();
 
@@ -156,6 +159,29 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       setUpdateNeedsSignIn(false);
     }
 
+    function registerAuthenticationFailure(
+      source: "results" | "status",
+    ): "retry" | "stop" {
+      if (source === "results") {
+        resultAuthenticationFailures += 1;
+      } else {
+        statusAuthenticationFailures += 1;
+      }
+
+      const count =
+        source === "results"
+          ? resultAuthenticationFailures
+          : statusAuthenticationFailures;
+
+      if (count >= MAX_CONSECUTIVE_AUTHENTICATION_FAILURES) {
+        setPollingIssue("Your sign-in session expired.", { needsSignIn: true });
+        return "stop";
+      }
+
+      setPollingIssue("Checking your sign-in session.", { retrying: true });
+      return "retry";
+    }
+
     async function loadResults(): Promise<"success" | "retry" | "stop"> {
       try {
         const response = await fetch(`/api/runs/${initialRun.id}/results`, {
@@ -164,8 +190,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         });
 
         if (response.status === 401) {
-          setPollingIssue("Your sign-in session expired.", { needsSignIn: true });
-          return "stop";
+          return registerAuthenticationFailure("results");
         }
 
         if (response.status === 404) {
@@ -176,6 +201,8 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         if (!response.ok) {
           throw new Error("Result evidence is temporarily unavailable.");
         }
+
+        resultAuthenticationFailures = 0;
 
         if (!cancelled) {
           const next = (await response.json()) as ResultsPayload;
@@ -209,7 +236,10 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         });
 
         if (response.status === 401) {
-          setPollingIssue("Your sign-in session expired.", { needsSignIn: true });
+          if (registerAuthenticationFailure("status") === "retry") {
+            failures += 1;
+            schedule(refreshStatus);
+          }
           return;
         }
 
@@ -226,6 +256,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
 
         if (cancelled) return;
         failures = 0;
+        statusAuthenticationFailures = 0;
         setRun(next.run);
         clearPollingIssue();
 
@@ -323,9 +354,9 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           </div>
         </CardHeader>
         <CardContent>
-          <div aria-live="polite" className="mb-3 flex items-center justify-between text-xs text-zinc-400">
-            <span>{statusMessage(run.status)}</span>
-            <span className="font-mono tabular-nums">{completedCalls}/{run.providerCallsPlanned} calls</span>
+          <div aria-live="polite" className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
+            <span className="min-w-0">{statusMessage(run.status)}</span>
+            <span className="shrink-0 font-mono tabular-nums">{completedCalls}/{run.providerCallsPlanned} calls</span>
           </div>
           <Progress value={progress} aria-label="Benchmark progress" />
           <div className="mt-5 grid gap-3 text-xs text-zinc-400 sm:grid-cols-3">
@@ -365,13 +396,13 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       <Card className="bg-[#0b0e0c]">
         <CardHeader className="border-b border-white/[0.07] pb-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <CardTitle>Every search and answer</CardTitle>
               <CardDescription className="mt-1">
                 Open any question to see the complete AI answer and its sources.
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="grid w-full min-w-0 gap-2 sm:grid-cols-3 md:w-auto">
               <Filter
                 value={cohort}
                 onChange={(value) => setCohort(value as typeof cohort)}
@@ -713,7 +744,7 @@ function CompetitorComparison({
           return (
             <div key={`${entry.subject ? "subject" : "competitor"}:${entry.name}`}>
               <div className="mb-1.5 flex items-center justify-between gap-4 text-xs">
-                <span className={entry.subject ? "font-medium text-emerald-300" : "text-zinc-300"}>
+                <span className={`min-w-0 break-words ${entry.subject ? "font-medium text-emerald-300" : "text-zinc-300"}`}>
                   {entry.name}{entry.subject ? " (you)" : ""}
                 </span>
                 <span className="shrink-0 font-mono text-zinc-400 tabular-nums">
@@ -835,7 +866,7 @@ function AnswerRow({ row }: { row: ResultRow }) {
   return (
     <details className="group rounded-2xl bg-white/[0.025] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)] open:bg-white/[0.04]">
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 marker:hidden">
-        <div>
+        <div className="min-w-0">
           <div className="mb-2 flex flex-wrap gap-2">
             <Badge variant="secondary">
               {questionTypeLabel(row.question.cohort)}
@@ -845,9 +876,9 @@ function AnswerRow({ row }: { row: ResultRow }) {
             ) : null}
             {answer?.scoreEligible ? <Badge variant="success">Grounded answer</Badge> : answer ? <Badge variant="warning">Not counted</Badge> : <Badge variant="secondary">Pending</Badge>}
           </div>
-          <p className="text-pretty text-sm font-medium leading-6 text-zinc-200">{row.question.text}</p>
+          <p className="break-words text-pretty text-sm font-medium leading-6 text-zinc-200">{row.question.text}</p>
         </div>
-        <span aria-hidden="true" className="mt-1 text-zinc-400 transition-transform group-open:rotate-45">+</span>
+        <span aria-hidden="true" className="mt-1 shrink-0 text-zinc-400 transition-transform group-open:rotate-45">+</span>
       </summary>
       <div className="border-t border-white/[0.07] px-4 py-4">
         {answer ? (
@@ -861,7 +892,7 @@ function AnswerRow({ row }: { row: ResultRow }) {
                     <li key={source.url}>
                       <a href={source.url} target="_blank" rel="noreferrer" className="flex items-start gap-2 text-xs leading-5 text-emerald-300 hover:text-emerald-200">
                         <ExternalLink className="mt-0.5 size-3 shrink-0" />
-                        <span>{source.title ?? source.publisher ?? new URL(source.url).hostname}</span>
+                        <span className="min-w-0 [overflow-wrap:anywhere]">{source.title ?? source.publisher ?? new URL(source.url).hostname}</span>
                       </a>
                     </li>
                   ))}
@@ -922,9 +953,9 @@ function Filter({
   formatOption?: (option: string) => string;
 }) {
   return (
-    <label>
+    <label className="block min-w-0">
       <span className="sr-only">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="ml-2 h-9 rounded-xl bg-white/[0.06] px-3 text-xs capitalize text-zinc-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)] outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60">
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 w-full min-w-0 rounded-xl bg-white/[0.06] px-3 text-xs capitalize text-zinc-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.09)] outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60">
         {options.map((option) => (
           <option key={option} value={option}>
             {formatOption?.(option) ??

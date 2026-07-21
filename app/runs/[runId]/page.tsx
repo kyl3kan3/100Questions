@@ -40,7 +40,7 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
     <main className="min-h-screen bg-[#070908] text-zinc-100">
       <AppHeader email={user.email} />
       <div className="page-shell py-8 md:py-12">
-        <div className="mb-5 flex items-center justify-between gap-4">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard"><ArrowLeft /> Dashboard</Link>
           </Button>
@@ -50,12 +50,14 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
             <DeleteRunButton runId={run.id} />
           )}
         </div>
-        <RunProgress
-          initialRun={{
-            ...toPublicRun(run),
-            createdAt: run.createdAt.toISOString(),
-          }}
-        />
+        <div className="min-w-0">
+          <RunProgress
+            initialRun={{
+              ...toPublicRun(run),
+              createdAt: run.createdAt.toISOString(),
+            }}
+          />
+        </div>
       </div>
     </main>
   );

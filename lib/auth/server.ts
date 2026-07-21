@@ -7,6 +7,12 @@ import {
 
 let neonAuth: NeonAuth | undefined;
 
+// A benchmark can stay open for up to two hours. Keep the signed session
+// snapshot valid beyond that window so progress polling does not depend on an
+// upstream auth refresh every five minutes. The underlying account session
+// lifetime and sign-out behavior are unchanged.
+const SESSION_DATA_TTL_SECONDS = 4 * 60 * 60;
+
 function readRequiredEnvironmentVariable(name: string): string {
   const value = process.env[name]?.trim();
 
@@ -30,7 +36,7 @@ export function getAuth(): NeonAuth {
     baseUrl: readRequiredEnvironmentVariable("NEON_AUTH_BASE_URL"),
     cookies: {
       secret: readRequiredEnvironmentVariable("NEON_AUTH_COOKIE_SECRET"),
-      sessionDataTtl: 300,
+      sessionDataTtl: SESSION_DATA_TTL_SECONDS,
     },
     logLevel: process.env.NODE_ENV === "development" ? "warn" : "error",
   });

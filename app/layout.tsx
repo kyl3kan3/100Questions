@@ -4,7 +4,12 @@ import Script from "next/script";
 
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
-import { absoluteUrl, SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  absoluteUrl,
+  SITE_NAME,
+  SITE_URL,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 import "./globals.css";
 
@@ -52,8 +57,20 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl() },
   formatDetection: { email: false, address: false, telephone: false },
   icons: {
-    icon: [{ url: "/logo-mark.svg", type: "image/svg+xml" }],
-    shortcut: "/logo-mark.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/logo-mark.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      {
+        url: "/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
   },
   manifest: "/manifest.webmanifest",
   verification: {
@@ -87,12 +104,14 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     type: "website",
     locale: "en_US",
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "100 Questions — AI Visibility Benchmark",
     description:
       "25 shared questions, four AI models, and 100 planned provider answers for a directional visibility benchmark.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

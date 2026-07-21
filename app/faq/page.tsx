@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const faqUrl = absoluteUrl("/faq");
 
@@ -27,12 +27,14 @@ export const metadata: Metadata = {
       "Plain-language answers about providers, questions, sources, scoring, privacy, and benchmark limitations.",
     url: faqUrl,
     type: "website",
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Visibility Benchmark FAQ · 100 Questions",
     description:
       "What 100 Questions measures, how it scores, and what a run can and cannot tell you.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

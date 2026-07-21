@@ -7,7 +7,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { absoluteUrl, SITE_UPDATED_AT } from "@/lib/site";
+import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/generative-engine-optimization");
 
@@ -34,12 +34,14 @@ export const metadata: Metadata = {
     type: "article",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "A Practical Guide to Generative Engine Optimization",
     description:
       "Clear entities, answer-ready pages, credible sources, technical access, and repeatable AI visibility measurement.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

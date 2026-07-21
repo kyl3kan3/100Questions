@@ -26,7 +26,7 @@ import {
   formatPackagePrice,
   getPublicBillingPackages,
 } from "@/lib/billing/packages";
-import { absoluteUrl, SITE_UPDATED_AT } from "@/lib/site";
+import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
@@ -48,12 +48,14 @@ export const metadata: Metadata = {
       "Compare your brand's visibility across OpenAI, Claude, Gemini, and Grok with shared questions, source evidence, and transparent metrics.",
     url: absoluteUrl(),
     type: "website",
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "100 Questions — AI Visibility Benchmark",
     description:
       "25 shared questions, four AI providers, and 100 planned web-grounded answers.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

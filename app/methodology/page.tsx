@@ -7,7 +7,12 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { absoluteUrl, SITE_NAME, SITE_UPDATED_AT } from "@/lib/site";
+import {
+  absoluteUrl,
+  SITE_NAME,
+  SITE_UPDATED_AT,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 const methodologyUrl = absoluteUrl("/methodology");
 
@@ -30,12 +35,14 @@ export const metadata: Metadata = {
     type: "article",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Visibility Benchmark Methodology · 100 Questions",
     description:
       "See how 25 shared questions become a transparent, source-backed comparison across four AI providers.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

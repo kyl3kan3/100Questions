@@ -1,6 +1,10 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { buildRobots, buildSitemap, PUBLIC_MARKETING_PATHS } from "./seo";
+import { SOCIAL_IMAGE } from "./site";
 
 describe("public SEO metadata", () => {
   it("lists every public marketing page and excludes private application routes", () => {
@@ -21,5 +25,16 @@ describe("public SEO metadata", () => {
       allow: "/",
       disallow: ["/api/", "/.well-known/workflow/"],
     });
+  });
+
+  it("uses a stable, public social preview image", () => {
+    expect(SOCIAL_IMAGE).toMatchObject({
+      url: "https://100questionsai.com/social-card-v1.png",
+      width: 1200,
+      height: 630,
+    });
+    expect(existsSync(join(process.cwd(), "public", "social-card-v1.png"))).toBe(
+      true,
+    );
   });
 });

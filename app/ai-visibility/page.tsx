@@ -7,7 +7,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { absoluteUrl, SITE_UPDATED_AT } from "@/lib/site";
+import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility");
 
@@ -34,12 +34,14 @@ export const metadata: Metadata = {
     type: "article",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "What Is AI Visibility?",
     description:
       "Measure how often AI answers mention your brand, cite your site, and surface competitors.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

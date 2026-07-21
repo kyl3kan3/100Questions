@@ -7,6 +7,8 @@ Canonical site: https://100questionsai.com/
 ## Public pages
 
 - [Home](https://100questionsai.com/): Product overview and benchmark summary.
+- [AI visibility guide](https://100questionsai.com/ai-visibility): Definition, measurement framework, core metrics, and the relationship between AI visibility and SEO.
+- [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
 - [Methodology](https://100questionsai.com/methodology): Question construction, grounding eligibility, metric definitions, evidence retention, and interpretation limits.
 - [FAQ](https://100questionsai.com/faq): Providers, scoring, privacy, billing, and common benchmark questions.
 

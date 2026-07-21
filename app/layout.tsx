@@ -35,10 +35,17 @@ export const metadata: Metadata = {
   category: "technology",
   keywords: [
     "AI visibility",
+    "AI visibility tool",
+    "AI search visibility",
+    "AI brand visibility",
+    "LLM visibility",
     "generative engine optimization",
+    "GEO tool",
     "GEO analytics",
     "AI search monitoring",
-    "brand visibility",
+    "AI brand monitoring",
+    "AI citation tracking",
+    "AI search share of voice",
     "LLM benchmark",
     "AI citations",
   ],
@@ -49,6 +56,18 @@ export const metadata: Metadata = {
     shortcut: "/logo-mark.svg",
   },
   manifest: "/manifest.webmanifest",
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
+    ...(process.env.BING_SITE_VERIFICATION
+      ? {
+          other: {
+            "msvalidate.01": process.env.BING_SITE_VERIFICATION,
+          },
+        }
+      : {}),
+  },
   robots: {
     index: true,
     follow: true,
@@ -95,13 +114,20 @@ export default function RootLayout({
         "@id": `${absoluteUrl()}#organization`,
         name: SITE_NAME,
         url: absoluteUrl(),
-        logo: absoluteUrl("/logo-mark.svg"),
+        description:
+          "A source-backed AI visibility benchmark comparing one shared question set across OpenAI, Claude, Gemini, and Grok.",
+        logo: {
+          "@type": "ImageObject",
+          url: absoluteUrl("/logo-mark.svg"),
+        },
       },
       {
         "@type": "WebSite",
         "@id": `${absoluteUrl()}#website`,
         name: SITE_NAME,
         url: absoluteUrl(),
+        description:
+          "Measure brand visibility, citations, competitor share of voice, and coverage across web-grounded AI answers.",
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
       },

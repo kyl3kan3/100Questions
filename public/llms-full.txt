@@ -3,12 +3,22 @@
 Canonical site: https://100questionsai.com/
 Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
+AI visibility guide: https://100questionsai.com/ai-visibility
+Generative engine optimization guide: https://100questionsai.com/generative-engine-optimization
 
 ## What the product does
 
 100 Questions is an authenticated, paid web application for directional AI visibility benchmarking. A user supplies a subject name, canonical domain, aliases, category and use-case description, market, locale, and optional competitors. The system freezes a test and compares web-grounded answers from OpenAI, Anthropic, Google, and xAI through Vercel AI Gateway.
 
 It is an API-grounded benchmark. It does not claim that its responses are identical to the providers' consumer chat interfaces, which can differ in prompts, personalization, routing, model selection, and search behavior.
+
+## AI visibility
+
+AI visibility describes how often and how prominently a brand appears when AI systems answer relevant category and buyer questions. It should not be reduced to one unexplained score. Useful measurement keeps brand mentions, prominence, selected-competitor share of voice, claimed-domain citations, and provider coverage separate, with the underlying answer and source evidence available for review.
+
+## Generative engine optimization
+
+Generative engine optimization (GEO) is the practice of making a brand and its expertise easier for AI answer systems to understand, retrieve, and cite. It complements SEO. Practical priorities include consistent entity facts, direct answers to buyer questions, original source-worthy evidence, relevant third-party corroboration, technically accessible public pages, and repeated measurement across a frozen question set. No tactic guarantees inclusion in a generated answer.
 
 ## Frozen question set
 

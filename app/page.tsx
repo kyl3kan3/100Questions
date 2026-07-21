@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,16 +21,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { absoluteUrl } from "@/lib/site";
 import {
+  BILLING_PACKAGES,
   formatPackagePrice,
   getPublicBillingPackages,
 } from "@/lib/billing/packages";
+import { absoluteUrl, SITE_UPDATED_AT } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
   description:
     "Measure whether AI assistants mention and cite your brand across 25 shared questions, four providers, and 100 planned web-grounded answers.",
+  keywords: [
+    "AI visibility tool",
+    "AI search visibility",
+    "AI brand visibility",
+    "LLM visibility tool",
+    "AI search monitoring",
+    "AI citation tracking",
+    "AI share of voice",
+  ],
   alternates: { canonical: absoluteUrl() },
   openGraph: {
     title: "100 Questions — AI Visibility Benchmark",
@@ -61,8 +72,59 @@ const scoreCards = [
 ] as const;
 
 export default function Home() {
+  const homeUrl = absoluteUrl();
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${homeUrl}#webpage`,
+        url: homeUrl,
+        name: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
+        description:
+          "Measure brand mentions, prominence, competitor share of voice, citations, and coverage across 100 planned web-grounded AI answers.",
+        isPartOf: { "@id": `${homeUrl}#website` },
+        about: { "@id": `${homeUrl}#product` },
+        primaryImageOfPage: {
+          "@type": "ImageObject",
+          url: absoluteUrl("/hero-ai-visibility.png"),
+        },
+        dateModified: SITE_UPDATED_AT,
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "Product",
+        "@id": `${homeUrl}#product`,
+        name: "100 Questions AI Visibility Benchmark",
+        url: homeUrl,
+        image: absoluteUrl("/hero-ai-visibility.png"),
+        description:
+          "A prepaid, source-backed AI visibility benchmark using one 25-question set across OpenAI, Claude, Gemini, and Grok.",
+        brand: { "@id": `${homeUrl}#organization` },
+        category: "AI visibility analytics",
+        offers: {
+          "@type": "AggregateOffer",
+          url: absoluteUrl("/#pricing"),
+          priceCurrency: "USD",
+          lowPrice: String(
+            Math.min(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) /
+              100,
+          ),
+          highPrice: String(
+            Math.max(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) /
+              100,
+          ),
+          offerCount: BILLING_PACKAGES.length,
+          availability: "https://schema.org/InStock",
+          seller: { "@id": `${homeUrl}#organization` },
+        },
+      },
+    ],
+  };
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070908] text-zinc-100">
+    <>
+      <main className="min-h-screen overflow-hidden bg-[#070908] text-zinc-100">
       <MarketingHeader />
 
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
@@ -210,6 +272,39 @@ export default function Home() {
       </section>
 
       <section className="border-t border-white/[0.07]">
+        <div className="page-shell py-16 md:py-20">
+          <div className="grid gap-4 md:grid-cols-2">
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Guide</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                What AI visibility means—and how to measure it
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Learn the difference between mentions, prominence, competitor
+                share of voice, citations, and coverage in AI-generated answers.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-visibility">Read the AI visibility guide</Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Practical framework</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Generative engine optimization without the hype
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Build clearer entity signals, useful source material, and a
+                repeatable measurement loop for AI search visibility.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/generative-engine-optimization">Read the GEO guide</Link>
+              </Button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-white/[0.07]">
         <div id="pricing" className="page-shell scroll-mt-8 py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow">Simple, prepaid pricing</p>
@@ -279,8 +374,9 @@ export default function Home() {
           </Button>
         </div>
       </section>
-
-    </main>
+      </main>
+      <JsonLd data={structuredData} />
+    </>
   );
 }
 

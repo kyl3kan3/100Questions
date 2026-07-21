@@ -103,6 +103,18 @@ const faqs = [
     answer:
       "No. It complements search, content, and brand research by showing answer evidence at one point in time. Citations show sources returned with an answer, but they do not prove a model's internal reasoning or establish that one page caused a mention.",
   },
+  {
+    id: "what-is-geo",
+    question: "What is generative engine optimization (GEO)?",
+    answer:
+      "Generative engine optimization is the practice of making a brand and its expertise easier for AI answer systems to understand, retrieve, and cite. It complements technical SEO and useful content with clear entity information, consistent category language, source-worthy pages, and measurement across multiple AI providers.",
+  },
+  {
+    id: "improve-ai-visibility",
+    question: "How can a brand improve its visibility in AI-generated answers?",
+    answer:
+      "Start with clear product and category language on crawlable pages, publish original evidence that directly answers buyer questions, keep company facts consistent, earn relevant third-party references, and fix technical crawl barriers. Then rerun the same benchmark after meaningful changes. No tactic guarantees a mention, so improvements should be evaluated as directional evidence over time.",
+  },
 ] as const;
 
 export default function FaqPage() {

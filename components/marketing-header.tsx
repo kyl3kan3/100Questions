@@ -13,6 +13,9 @@ export function MarketingHeader() {
         <nav className="flex items-center gap-1" aria-label="Primary navigation">
           <div className="mr-2 hidden items-center md:flex">
             <Button asChild variant="ghost" size="sm">
+              <Link href="/ai-visibility">AI visibility</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
               <Link href="/methodology">Methodology</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">

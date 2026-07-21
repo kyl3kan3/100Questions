@@ -15,7 +15,7 @@ export function GlobalFooter() {
             chat products.
           </p>
           <nav
-            className="mt-2 flex items-center justify-center gap-4 sm:justify-start"
+            className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-start"
             aria-label="Footer navigation"
           >
             <Link className="hover:text-zinc-200" href="/">
@@ -23,6 +23,15 @@ export function GlobalFooter() {
             </Link>
             <Link className="hover:text-zinc-200" href="/methodology">
               Methodology
+            </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility">
+              AI visibility
+            </Link>
+            <Link
+              className="hover:text-zinc-200"
+              href="/generative-engine-optimization"
+            >
+              GEO guide
             </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ

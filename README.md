@@ -75,6 +75,19 @@ npm run build
 
 Do not run a paid provider canary or a full fixed benchmark until the displayed run budget has been reviewed and explicitly confirmed. A run contains 25 shared questions and plans 100 provider answers (20 discovery and 5 diagnostic questions per provider). With the default guardrails, the planning estimate is about $2.48 and the hard scheduling guard is about $3.93. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
 
+## Search discovery
+
+Public search inventory is generated from `lib/seo.ts` and includes the home
+page, the AI visibility guide, the generative engine optimization guide, the
+methodology, and the FAQ. Private authentication, dashboard, run, workflow, and
+API URLs are excluded from the sitemap or marked `noindex` at the page level.
+
+For Google Search Console and Bing Webmaster Tools, set the production
+`GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` values supplied by the
+respective ownership flows. The site also hosts an IndexNow ownership key at
+the domain root so newly published or materially updated public URLs can be
+submitted to participating search engines after deployment.
+
 ## Required production checks
 
 - Configure the Neon Auth trusted production domain, custom SMTP, and email verification.

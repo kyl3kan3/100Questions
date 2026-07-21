@@ -39,9 +39,10 @@ export function getBenchmarkConfig() {
         process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
     },
     workflow: {
-      batchSize: envInteger("WORKFLOW_BATCH_SIZE", 2),
-      batchDelayMs: envInteger("WORKFLOW_BATCH_DELAY_MS", 15_000),
-      maxAttempts: envInteger("WORKFLOW_MAX_ATTEMPTS", 5),
+      // Provider queries and contextual analysis share the same Gateway
+      // capacity. Start at most one AI call every 15 seconds (4 RPM) and let
+      // the durable workflow sleep between calls instead of retrying 429s.
+      aiCallDelayMs: envInteger("WORKFLOW_AI_CALL_DELAY_MS", 15_000),
     },
     prompts: {
       questionVersion: "question-v2",

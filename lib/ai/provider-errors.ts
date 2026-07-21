@@ -22,9 +22,6 @@ export interface ProviderErrorDiagnostic {
   finishReason?: string;
 }
 
-const MAX_EXPONENTIAL_RETRY_MS = 5 * 60_000;
-const MAX_RETRY_JITTER_MS = 15_000;
-
 export function classifyProviderError(error: unknown): ClassifiedProviderError {
   if (GatewayError.isInstance(error)) {
     const retryAfterMs = retryAfterFromError(error);
@@ -164,38 +161,6 @@ export function classifyProviderError(error: unknown): ClassifiedProviderError {
     message: "The provider request failed before a grounded answer was recorded.",
     retryable: true,
   };
-}
-
-/**
- * Produces a conservative retry delay for durable AI steps. Rate limits need a
- * substantially longer floor than ordinary transient failures, while an
- * explicit Retry-After value from the provider always wins.
- */
-export function providerRetryDelayMs(
-  failure: ClassifiedProviderError,
-  attempt: number,
-  jitterUnit = Math.random(),
-): number {
-  const baseDelayMs =
-    failure.code === "PROVIDER_RATE_LIMITED"
-      ? 30_000
-      : failure.code === "PROVIDER_UNAVAILABLE"
-        ? 10_000
-        : 5_000;
-  const exponentialDelayMs = Math.min(
-    MAX_EXPONENTIAL_RETRY_MS,
-    baseDelayMs * 2 ** Math.max(0, attempt - 1),
-  );
-  const requiredDelayMs = Math.max(
-    exponentialDelayMs,
-    failure.retryAfterMs ?? 0,
-  );
-  const normalizedJitter = Math.min(1, Math.max(0, jitterUnit));
-  const jitterMs = Math.round(
-    Math.min(MAX_RETRY_JITTER_MS, requiredDelayMs * 0.2) * normalizedJitter,
-  );
-
-  return requiredDelayMs + jitterMs;
 }
 
 /**

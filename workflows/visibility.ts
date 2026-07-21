@@ -10,7 +10,6 @@ import {
   createHook,
   FatalError,
   getStepMetadata,
-  RetryableError,
   sleep,
 } from "workflow";
 
@@ -31,9 +30,7 @@ import {
   combineUsage,
   getGatewayGenerationCostMicros,
   providerErrorDiagnostic,
-  providerRetryDelayMs,
   queryGroundedProvider,
-  type ClassifiedProviderError,
   type CostProvenance,
   type NormalizedProviderAnswer,
 } from "@/lib/ai/providers";
@@ -83,9 +80,7 @@ interface WorkflowRunContext {
   providerPromptVersion: string;
   analysisVersion: string;
   budgetCeilingMicros: number;
-  batchSize: number;
-  batchDelayMs: number;
-  maxAttempts: number;
+  aiCallDelayMs: number;
   estimatedMicrosPerProviderCall: number;
   usageDate: string;
 }
@@ -120,7 +115,6 @@ const TERMINAL_STATUSES = [
   "failed",
   "cancelled",
 ] as const;
-const HARD_MAX_AI_ATTEMPTS = 5;
 const MAX_QUESTION_GENERATION_CALLS = 7;
 const PENDING_ANALYSIS_VERSION = "__pending__";
 
@@ -184,40 +178,22 @@ export async function runVisibilityWorkflow(
     console.log(
       `[visibility] JOBS runId=${runId} outstanding=${jobs.length}`,
     );
-    const queues = Object.fromEntries(
-      PROVIDERS.map((provider) => [
-        provider,
-        jobs.filter((job) => job.provider === provider),
-      ]),
-    ) as Record<ProviderKey, ProviderJobWork[]>;
     let creditConsumed = false;
 
     try {
-      while (PROVIDERS.some((provider) => queues[provider].length > 0)) {
-        const batch: ProviderJobWork[] = [];
+      if (jobs.length > 0) {
+        console.log(
+          `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=question_to_provider`,
+        );
+        await sleep(context.aiCallDelayMs);
+      }
 
-        while (batch.length < context.batchSize) {
-          let added = false;
-
-          for (const provider of PROVIDERS) {
-            const job = queues[provider].shift();
-            if (job) {
-              batch.push(job);
-              added = true;
-            }
-            if (batch.length === context.batchSize) break;
-          }
-
-          if (!added) break;
-        }
-
-        const budget = await checkBudgetStep(context, batch.length);
+      for (let index = 0; index < jobs.length; index += 1) {
+        const job = jobs[index];
+        const budget = await checkBudgetStep(context, 1);
 
         if (!budget.allowed) {
-          const remainingIds = [
-            ...batch,
-            ...PROVIDERS.flatMap((provider) => queues[provider]),
-          ].map(({ id }) => id);
+          const remainingIds = jobs.slice(index).map(({ id }) => id);
           await markBudgetBlockedJobsStep(context.id, remainingIds);
 
           if (!creditConsumed) {
@@ -231,41 +207,37 @@ export async function runVisibilityWorkflow(
           creditConsumed = true;
         }
 
-        await markBatchRunningStep(context.id, batch.map(({ id }) => id));
+        await markBatchRunningStep(context.id, [job.id]);
 
         console.log(
-          `[visibility] BATCH runId=${runId} size=${batch.length} spentMicros=${budget.spentMicros}`,
+          `[visibility] JOB runId=${runId} index=${index + 1}/${jobs.length} provider=${job.provider} spentMicros=${budget.spentMicros}`,
         );
-        const settled = await Promise.allSettled(
-          batch.map(async (job) => {
-            let answer = await queryProviderStep(context, job);
-            answer = await reconcileProviderAnswerCostStep(answer);
-            await persistProviderAnswerStep(context, job, answer);
-            let analysis = await analyzeAnswerStep(context, job, answer);
-            analysis = await reconcileAnalysisCostStep(analysis);
-            await persistProviderResultStep(context, job, answer, analysis);
-            return job.id;
-          }),
-        );
+        try {
+          let answer = await queryProviderStep(context, job);
+          answer = await reconcileProviderAnswerCostStep(answer);
+          await persistProviderAnswerStep(context, job, answer);
 
-        for (let index = 0; index < settled.length; index += 1) {
-          const outcome = settled[index];
-          const job = batch[index];
+          console.log(
+            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=provider_to_analysis`,
+          );
+          await sleep(context.aiCallDelayMs);
 
-          if (outcome.status === "rejected") {
-            await markJobFailedStep(
-              job.id,
-              "PROVIDER_JOB_FAILED",
-              workflowErrorMessage(outcome.reason),
-            );
-          }
+          let analysis = await analyzeAnswerStep(context, job, answer);
+          analysis = await reconcileAnalysisCostStep(analysis);
+          await persistProviderResultStep(context, job, answer, analysis);
+        } catch (error) {
+          await markJobFailedStep(
+            job.id,
+            "PROVIDER_JOB_FAILED",
+            workflowErrorMessage(error),
+          );
         }
 
-        if (
-          context.batchDelayMs > 0 &&
-          PROVIDERS.some((provider) => queues[provider].length > 0)
-        ) {
-          await sleep(context.batchDelayMs);
+        if (index + 1 < jobs.length) {
+          console.log(
+            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=job_to_job`,
+          );
+          await sleep(context.aiCallDelayMs);
         }
       }
 
@@ -368,10 +340,6 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
   ]);
 
   const config = getBenchmarkConfig();
-  const maxAttempts = Math.min(
-    HARD_MAX_AI_ATTEMPTS,
-    Math.max(1, config.workflow.maxAttempts),
-  );
   const context: WorkflowRunContext = {
     id: run.id,
     userId: run.userId,
@@ -390,9 +358,7 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
     providerPromptVersion: run.providerPromptVersion,
     analysisVersion: run.analysisVersion,
     budgetCeilingMicros: run.budgetCeilingMicros,
-    batchSize: Math.min(12, Math.max(1, config.workflow.batchSize)),
-    batchDelayMs: config.workflow.batchDelayMs,
-    maxAttempts,
+    aiCallDelayMs: config.workflow.aiCallDelayMs,
     estimatedMicrosPerProviderCall: estimatedMicrosPerCall(run),
     usageDate: run.createdAt.toISOString().slice(0, 10),
   };
@@ -449,10 +415,10 @@ async function generateQuestionsStep(
     console.error(
       `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throwRetriableAiError(failure, context.maxAttempts, "question generation");
+    throw new FatalError(`${failure.code}: ${failure.message}`);
   }
 }
-generateQuestionsStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
+generateQuestionsStep.maxRetries = 0;
 
 async function reconcileQuestionGenerationCostStep(
   context: WorkflowRunContext,
@@ -731,10 +697,7 @@ async function checkBudgetStep(
     estimatedFailureMicros;
   const projectedMicros =
     spentMicros +
-    nextCalls *
-      2 *
-      context.estimatedMicrosPerProviderCall *
-      context.maxAttempts;
+    nextCalls * 2 * context.estimatedMicrosPerProviderCall;
   const allowed = projectedMicros <= run.budgetCeilingMicros;
 
   console.log(
@@ -862,10 +825,10 @@ async function queryProviderStep(
     console.error(
       `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throwRetriableAiError(failure, context.maxAttempts, "grounded provider query");
+    throw new FatalError(`${failure.code}: ${failure.message}`);
   }
 }
-queryProviderStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
+queryProviderStep.maxRetries = 0;
 
 async function reconcileProviderAnswerCostStep(
   answer: DurableProviderAnswer,
@@ -990,10 +953,10 @@ async function analyzeAnswerStep(
     console.error(
       `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
-    throwRetriableAiError(failure, context.maxAttempts, "answer analysis");
+    throw new FatalError(`${failure.code}: ${failure.message}`);
   }
 }
-analyzeAnswerStep.maxRetries = HARD_MAX_AI_ATTEMPTS - 1;
+analyzeAnswerStep.maxRetries = 0;
 
 async function reconcileAnalysisCostStep(
   analysis: DurableAnswerAnalysis,
@@ -1411,10 +1374,6 @@ async function failRunStep(
   const questionFailureCostMicros =
     code === "QUESTION_PHASE_FAILED" && run.actualCostMicros === 0
       ? estimatedCallMicros *
-        Math.min(
-          HARD_MAX_AI_ATTEMPTS,
-          Math.max(1, getBenchmarkConfig().workflow.maxAttempts),
-        ) *
         MAX_QUESTION_GENERATION_CALLS
       : 0;
   const hasEstimatedFailureCost =
@@ -1688,19 +1647,4 @@ function providersForFrozenModels(models: FrozenModels): readonly ProviderKey[] 
   return models.xai
     ? PROVIDERS
     : PROVIDERS.filter((provider) => provider !== "xai");
-}
-
-function throwRetriableAiError(
-  failure: ClassifiedProviderError,
-  maxAttempts: number,
-  operation: string,
-): never {
-  const { attempt } = getStepMetadata();
-
-  if (!failure.retryable || attempt >= maxAttempts) {
-    throw new FatalError(`${failure.code}: ${failure.message}`);
-  }
-
-  const retryAfter = providerRetryDelayMs(failure, attempt);
-  throw new RetryableError(`${operation}: ${failure.message}`, { retryAfter });
 }

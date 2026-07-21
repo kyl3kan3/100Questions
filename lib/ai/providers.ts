@@ -20,7 +20,6 @@ import {
 
 export {
   classifyProviderError,
-  providerRetryDelayMs,
   providerErrorDiagnostic,
   type ClassifiedProviderError,
   type ProviderErrorDiagnostic,

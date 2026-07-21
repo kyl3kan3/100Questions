@@ -6,7 +6,6 @@ import { z } from "zod";
 import {
   classifyProviderError,
   providerErrorDiagnostic,
-  providerRetryDelayMs,
 } from "./provider-errors";
 
 describe("provider error handling", () => {
@@ -65,10 +64,9 @@ describe("provider error handling", () => {
       retryable: true,
       retryAfterMs: 45_000,
     });
-    expect(providerRetryDelayMs(failure, 1, 0)).toBe(45_000);
   });
 
-  it("retries an internal gateway wrapper even when its nested status is 403", () => {
+  it("classifies an internal gateway wrapper as transient", () => {
     const failure = classifyProviderError(
       new GatewayInternalServerError({ statusCode: 403 }),
     );
@@ -79,15 +77,4 @@ describe("provider error handling", () => {
     });
   });
 
-  it("uses a longer exponential floor for rate limits", () => {
-    const failure = {
-      code: "PROVIDER_RATE_LIMITED",
-      message: "rate limited",
-      retryable: true,
-    };
-
-    expect(providerRetryDelayMs(failure, 1, 0)).toBe(30_000);
-    expect(providerRetryDelayMs(failure, 3, 0)).toBe(120_000);
-    expect(providerRetryDelayMs(failure, 5, 0)).toBe(300_000);
-  });
 });

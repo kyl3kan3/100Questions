@@ -39,8 +39,9 @@ export function getBenchmarkConfig() {
         process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
     },
     workflow: {
-      batchSize: envInteger("WORKFLOW_BATCH_SIZE", 5),
-      maxAttempts: envInteger("WORKFLOW_MAX_ATTEMPTS", 2),
+      batchSize: envInteger("WORKFLOW_BATCH_SIZE", 2),
+      batchDelayMs: envInteger("WORKFLOW_BATCH_DELAY_MS", 15_000),
+      maxAttempts: envInteger("WORKFLOW_MAX_ATTEMPTS", 5),
     },
     prompts: {
       questionVersion: "question-v2",

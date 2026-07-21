@@ -11,6 +11,7 @@ import {
   FatalError,
   getStepMetadata,
   RetryableError,
+  sleep,
 } from "workflow";
 
 import { analyzeAnswer, type AnswerAnalysis } from "@/lib/ai/analyze";
@@ -30,6 +31,7 @@ import {
   combineUsage,
   getGatewayGenerationCostMicros,
   providerErrorDiagnostic,
+  providerRetryDelayMs,
   queryGroundedProvider,
   type ClassifiedProviderError,
   type CostProvenance,
@@ -82,6 +84,7 @@ interface WorkflowRunContext {
   analysisVersion: string;
   budgetCeilingMicros: number;
   batchSize: number;
+  batchDelayMs: number;
   maxAttempts: number;
   estimatedMicrosPerProviderCall: number;
   usageDate: string;
@@ -257,6 +260,13 @@ export async function runVisibilityWorkflow(
             );
           }
         }
+
+        if (
+          context.batchDelayMs > 0 &&
+          PROVIDERS.some((provider) => queues[provider].length > 0)
+        ) {
+          await sleep(context.batchDelayMs);
+        }
       }
 
       await markRunAnalyzingStep(context.id);
@@ -381,6 +391,7 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
     analysisVersion: run.analysisVersion,
     budgetCeilingMicros: run.budgetCeilingMicros,
     batchSize: Math.min(12, Math.max(1, config.workflow.batchSize)),
+    batchDelayMs: config.workflow.batchDelayMs,
     maxAttempts,
     estimatedMicrosPerProviderCall: estimatedMicrosPerCall(run),
     usageDate: run.createdAt.toISOString().slice(0, 10),
@@ -1690,7 +1701,6 @@ function throwRetriableAiError(
     throw new FatalError(`${failure.code}: ${failure.message}`);
   }
 
-  const retryAfter =
-    failure.retryAfterMs ?? Math.min(60_000, 2_000 * 2 ** (attempt - 1));
+  const retryAfter = providerRetryDelayMs(failure, attempt);
   throw new RetryableError(`${operation}: ${failure.message}`, { retryAfter });
 }

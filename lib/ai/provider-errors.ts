@@ -22,8 +22,13 @@ export interface ProviderErrorDiagnostic {
   finishReason?: string;
 }
 
+const MAX_EXPONENTIAL_RETRY_MS = 5 * 60_000;
+const MAX_RETRY_JITTER_MS = 15_000;
+
 export function classifyProviderError(error: unknown): ClassifiedProviderError {
   if (GatewayError.isInstance(error)) {
+    const retryAfterMs = retryAfterFromError(error);
+
     if (error.statusCode === 402) {
       return {
         code: "GATEWAY_BUDGET_EXCEEDED",
@@ -45,14 +50,20 @@ export function classifyProviderError(error: unknown): ClassifiedProviderError {
         code: "PROVIDER_RATE_LIMITED",
         message: "AI Gateway or the selected provider rate-limited the request.",
         retryable: true,
+        ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
       };
     }
 
-    if (error.isRetryable || error.statusCode >= 500) {
+    if (
+      error.type === "internal_server_error" ||
+      error.isRetryable ||
+      error.statusCode >= 500
+    ) {
       return {
         code: "PROVIDER_UNAVAILABLE",
         message: "AI Gateway or the selected provider is temporarily unavailable.",
         retryable: true,
+        ...(retryAfterMs === undefined ? {} : { retryAfterMs }),
       };
     }
 
@@ -156,6 +167,38 @@ export function classifyProviderError(error: unknown): ClassifiedProviderError {
 }
 
 /**
+ * Produces a conservative retry delay for durable AI steps. Rate limits need a
+ * substantially longer floor than ordinary transient failures, while an
+ * explicit Retry-After value from the provider always wins.
+ */
+export function providerRetryDelayMs(
+  failure: ClassifiedProviderError,
+  attempt: number,
+  jitterUnit = Math.random(),
+): number {
+  const baseDelayMs =
+    failure.code === "PROVIDER_RATE_LIMITED"
+      ? 30_000
+      : failure.code === "PROVIDER_UNAVAILABLE"
+        ? 10_000
+        : 5_000;
+  const exponentialDelayMs = Math.min(
+    MAX_EXPONENTIAL_RETRY_MS,
+    baseDelayMs * 2 ** Math.max(0, attempt - 1),
+  );
+  const requiredDelayMs = Math.max(
+    exponentialDelayMs,
+    failure.retryAfterMs ?? 0,
+  );
+  const normalizedJitter = Math.min(1, Math.max(0, jitterUnit));
+  const jitterMs = Math.round(
+    Math.min(MAX_RETRY_JITTER_MS, requiredDelayMs * 0.2) * normalizedJitter,
+  );
+
+  return requiredDelayMs + jitterMs;
+}
+
+/**
  * Returns identifiers and error categories that are safe to emit to runtime
  * logs. Deliberately excludes provider response bodies and generated text.
  */
@@ -199,6 +242,32 @@ function parseRetryAfter(value: string | undefined): number | undefined {
 
   const timestamp = Date.parse(value);
   if (Number.isFinite(timestamp)) return Math.max(0, timestamp - Date.now());
+
+  return undefined;
+}
+
+function retryAfterFromError(error: unknown): number | undefined {
+  let current: unknown = error;
+  const visited = new Set<unknown>();
+
+  for (let depth = 0; depth < 4 && current !== null; depth += 1) {
+    if (visited.has(current)) break;
+    visited.add(current);
+
+    const record = readRecord(current);
+    if (!record) break;
+
+    const responseHeaders = lowerCaseHeaders(record.responseHeaders);
+    const direct = parseRetryAfter(responseHeaders["retry-after"]);
+    if (direct !== undefined) return direct;
+
+    const response = readRecord(record.response);
+    const nestedHeaders = lowerCaseHeaders(response?.headers);
+    const nested = parseRetryAfter(nestedHeaders["retry-after"]);
+    if (nested !== undefined) return nested;
+
+    current = record.cause;
+  }
 
   return undefined;
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
+import { CancelRunButton } from "@/components/cancel-run-button";
 import { DeleteRunButton } from "@/components/delete-run-button";
 import { RunProgress } from "@/components/run-progress";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,9 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
     notFound();
   }
 
-  const active = ["generating", "querying", "analyzing"].includes(run.status);
+  const active = ["queued", "generating", "querying", "analyzing"].includes(
+    run.status,
+  );
 
   return (
     <main className="min-h-screen bg-[#070908] text-zinc-100">
@@ -41,7 +44,11 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard"><ArrowLeft /> Dashboard</Link>
           </Button>
-          <DeleteRunButton runId={run.id} disabled={active} />
+          {active ? (
+            <CancelRunButton runId={run.id} />
+          ) : (
+            <DeleteRunButton runId={run.id} />
+          )}
         </div>
         <RunProgress
           initialRun={{

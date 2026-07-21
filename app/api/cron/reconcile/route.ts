@@ -1,10 +1,12 @@
-import { and, eq, inArray, lte } from "drizzle-orm";
-import { start } from "workflow/api";
+import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { getRun as getWorkflowRun, start } from "workflow/api";
 
+import { releaseReservedCreditForRun } from "@/lib/billing/credits";
+import { getBenchmarkConfig } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import { runs, workflowDispatches } from "@/lib/db/schema";
 import { jsonError } from "@/lib/http";
-import { markWorkflowStarted } from "@/lib/runs";
+import { cancelRunForUser, markWorkflowStarted } from "@/lib/runs";
 import { runVisibilityWorkflow } from "@/workflows/visibility";
 
 export const runtime = "nodejs";
@@ -18,6 +20,50 @@ async function maintain(request: Request) {
   }
 
   const db = getDb();
+  const config = getBenchmarkConfig();
+  const staleCutoff = new Date(
+    Date.now() - config.workflow.maxRunDurationMs,
+  );
+  const staleRuns = await db
+    .select({
+      id: runs.id,
+      userId: runs.userId,
+    })
+    .from(runs)
+    .where(
+      and(
+        inArray(runs.status, ["queued", "generating", "querying", "analyzing"]),
+        sql`coalesce(${runs.startedAt}, ${runs.createdAt}) <= ${staleCutoff}`,
+      ),
+    )
+    .limit(20);
+  const stopped = await Promise.allSettled(
+    staleRuns.map(async (run) => {
+      const cancelled = await cancelRunForUser(run.id, run.userId, {
+        failureCode: "RUN_DURATION_LIMIT",
+        failureMessage:
+          "The run reached its maximum duration. Completed evidence was retained and further calls were stopped.",
+      });
+
+      if (cancelled.state !== "cancelled") return false;
+
+      if (cancelled.workflowRunId) {
+        await getWorkflowRun(cancelled.workflowRunId)
+          .cancel()
+          .catch(() => undefined);
+      }
+
+      if (cancelled.creditMayBeReleased) {
+        await releaseReservedCreditForRun({
+          userId: run.userId,
+          runId: run.id,
+          reason: "duration_limit_before_provider_work",
+        });
+      }
+
+      return true;
+    }),
+  );
   const expired = await db
     .delete(runs)
     .where(
@@ -48,6 +94,10 @@ async function maintain(request: Request) {
   );
 
   return Response.json({
+    staleRunsFound: staleRuns.length,
+    staleRunsStopped: stopped.filter(
+      (result) => result.status === "fulfilled" && result.value,
+    ).length,
     expiredRunsDeleted: expired.length,
     attempted: dispatches.length,
     started: settled.filter((result) => result.status === "fulfilled").length,

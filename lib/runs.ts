@@ -434,6 +434,151 @@ export async function cancelQueuedRunForUser(runId: string, userId: string) {
   return cancelled ?? null;
 }
 
+export type CancelRunResult =
+  | {
+      state: "cancelled";
+      workflowRunId: string | null;
+      creditMayBeReleased: boolean;
+    }
+  | { state: "not_active" }
+  | { state: "not_found" };
+
+type CancelRunOptions = {
+  failureCode?: string;
+  failureMessage?: string;
+};
+
+/**
+ * Makes cancellation authoritative in Postgres before asking Workflow to stop.
+ * Any provider answer already checkpointed is retained, while queued or
+ * in-flight jobs are closed so no additional work can be scheduled.
+ */
+export async function cancelRunForUser(
+  runId: string,
+  userId: string,
+  options: CancelRunOptions = {},
+): Promise<CancelRunResult> {
+  const db = getDb();
+  const failureCode = (options.failureCode ?? "CANCELLED_BY_USER").slice(0, 96);
+  const failureMessage = (
+    options.failureMessage ??
+    "Cancelled by user. Completed evidence was retained and no further calls will be scheduled."
+  ).slice(0, 500);
+  const [cancelled] = await db
+    .update(runs)
+    .set({
+      status: "cancelled",
+      failureCode,
+      failureMessage,
+      completedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(runs.id, runId),
+        eq(runs.userId, userId),
+        inArray(runs.status, [...activeStatuses]),
+      ),
+    )
+    .returning({
+      workflowRunId: runs.workflowRunId,
+      actualCostMicros: runs.actualCostMicros,
+      costProvenance: runs.costProvenance,
+    });
+
+  if (!cancelled) {
+    const existing = await getRunForUser(runId, userId);
+    return { state: existing ? "not_active" : "not_found" };
+  }
+
+  await db
+    .update(providerJobs)
+    .set({
+      status: "failed",
+      errorCode: "RUN_CANCELLED",
+      errorMessage: "The run was cancelled before this job completed.",
+      finishedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(providerJobs.runId, runId),
+        inArray(providerJobs.status, ["queued", "running"]),
+      ),
+    );
+
+  const jobs = await db
+    .select({
+      status: providerJobs.status,
+      attempts: providerJobs.attempts,
+      resultId: results.id,
+      scoreEligible: results.scoreEligible,
+      costMicros: results.costMicros,
+      costProvenance: results.costProvenance,
+    })
+    .from(providerJobs)
+    .leftJoin(results, eq(results.jobId, providerJobs.id))
+    .where(eq(providerJobs.runId, runId));
+  const estimatedMicros = getBenchmarkConfig().budget.estimatedMicrosPerProviderCall;
+  const estimatedUnpersistedCost = jobs.reduce(
+    (total, job) =>
+      job.status === "failed" && job.attempts > 0 && !job.resultId
+        ? total + job.attempts * estimatedMicros
+        : total,
+    0,
+  );
+  const persistedCost = jobs.reduce(
+    (total, job) => total + (job.costMicros ?? 0),
+    0,
+  );
+  const provenances = new Set<RunSummary["costProvenance"]>();
+
+  if (
+    cancelled.actualCostMicros > 0 &&
+    cancelled.costProvenance !== "unavailable"
+  ) {
+    provenances.add(cancelled.costProvenance);
+  }
+
+  for (const job of jobs) {
+    if (
+      job.costMicros &&
+      job.costProvenance &&
+      job.costProvenance !== "unavailable"
+    ) {
+      provenances.add(job.costProvenance);
+    }
+  }
+
+  if (estimatedUnpersistedCost > 0) {
+    provenances.add("estimated");
+  }
+
+  await db
+    .update(runs)
+    .set({
+      succeededProviderCalls: jobs.filter((job) => job.status === "succeeded")
+        .length,
+      failedProviderCalls: jobs.filter((job) => job.status === "failed").length,
+      eligibleProviderCalls: jobs.filter((job) => job.scoreEligible === true)
+        .length,
+      actualCostMicros:
+        cancelled.actualCostMicros + persistedCost + estimatedUnpersistedCost,
+      costProvenance:
+        provenances.size > 1
+          ? "mixed"
+          : (provenances.values().next().value ?? "unavailable"),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(runs.id, runId), eq(runs.status, "cancelled")));
+
+  return {
+    state: "cancelled",
+    workflowRunId: cancelled.workflowRunId,
+    creditMayBeReleased: jobs.every((job) => job.attempts === 0),
+  };
+}
+
 export async function deleteRunForUser(runId: string, userId: string) {
   const deleted = await getDb()
     .delete(runs)

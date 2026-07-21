@@ -43,6 +43,11 @@ export function getBenchmarkConfig() {
       // The shared search harness removes provider-native search throttles;
       // this delay is operational pacing, not a retry strategy.
       aiCallDelayMs: envInteger("WORKFLOW_AI_CALL_DELAY_MS", 15_000),
+      // A normal 100-job serial run currently completes in roughly 90–105
+      // minutes. This ceiling leaves recovery headroom without permitting an
+      // abandoned workflow to spend indefinitely.
+      maxRunDurationMs:
+        envInteger("WORKFLOW_MAX_RUN_DURATION_MINUTES", 120) * 60_000,
     },
     prompts: {
       questionVersion: "question-v2",

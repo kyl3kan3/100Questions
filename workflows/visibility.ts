@@ -81,9 +81,19 @@ interface WorkflowRunContext {
   analysisVersion: string;
   budgetCeilingMicros: number;
   aiCallDelayMs: number;
+  maxRunDurationMs: number;
   estimatedMicrosPerProviderCall: number;
+  ceilingMicrosPerProviderCall: number;
   usageDate: string;
 }
+
+type RunGuardResult =
+  | { allowed: true; spentMicros: number }
+  | {
+      allowed: false;
+      spentMicros: number;
+      reason: "budget" | "cancelled" | "duration" | "terminal";
+    };
 
 interface ClaimResult {
   claimed: boolean;
@@ -190,16 +200,38 @@ export async function runVisibilityWorkflow(
 
       for (let index = 0; index < jobs.length; index += 1) {
         const job = jobs[index];
-        const budget = await checkBudgetStep(context, 1);
+        const budget = await checkRunGuardStep(context, 2);
 
         if (!budget.allowed) {
-          const remainingIds = jobs.slice(index).map(({ id }) => id);
-          await markBudgetBlockedJobsStep(context.id, remainingIds);
+          if (budget.reason === "cancelled" || budget.reason === "terminal") {
+            await syncDailyUsageStep(context.userId, context.usageDate);
+            return await readTerminalResultStep(context.id, "cancelled");
+          }
+
+          const failure =
+            budget.reason === "duration"
+              ? {
+                  code: "RUN_DURATION_LIMIT",
+                  message:
+                    "The run reached its maximum duration and was stopped before more provider calls could begin.",
+                }
+              : {
+                  code: "RUN_BUDGET_REACHED",
+                  message:
+                    "The run reached its cost ceiling and was stopped before more provider calls could begin.",
+                };
+          await failRunStep(context.id, failure.code, failure.message);
 
           if (!creditConsumed) {
-            await releaseCreditStep(context, "budget_blocked_before_provider_work");
+            await releaseCreditStep(
+              context,
+              budget.reason === "duration"
+                ? "duration_limit_before_provider_work"
+                : "budget_blocked_before_provider_work",
+            );
           }
-          break;
+          await syncDailyUsageStep(context.userId, context.usageDate);
+          return await readTerminalResultStep(context.id, "failed");
         }
 
         if (!creditConsumed) {
@@ -207,7 +239,12 @@ export async function runVisibilityWorkflow(
           creditConsumed = true;
         }
 
-        await markBatchRunningStep(context.id, [job.id]);
+        const jobStarted = await markBatchRunningStep(context.id, [job.id]);
+
+        if (!jobStarted) {
+          await syncDailyUsageStep(context.userId, context.usageDate);
+          return await readTerminalResultStep(context.id, "cancelled");
+        }
 
         console.log(
           `[visibility] JOB runId=${runId} index=${index + 1}/${jobs.length} provider=${job.provider} spentMicros=${budget.spentMicros}`,
@@ -221,6 +258,30 @@ export async function runVisibilityWorkflow(
             `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=provider_to_analysis`,
           );
           await sleep(context.aiCallDelayMs);
+
+          const analysisGuard = await checkRunGuardStep(context, 1);
+
+          if (!analysisGuard.allowed) {
+            if (
+              analysisGuard.reason !== "cancelled" &&
+              analysisGuard.reason !== "terminal"
+            ) {
+              await failRunStep(
+                context.id,
+                analysisGuard.reason === "duration"
+                  ? "RUN_DURATION_LIMIT"
+                  : "RUN_BUDGET_REACHED",
+                analysisGuard.reason === "duration"
+                  ? "The run reached its maximum duration before answer analysis could begin."
+                  : "The run reached its cost ceiling before answer analysis could begin.",
+              );
+            }
+            await syncDailyUsageStep(context.userId, context.usageDate);
+            return await readTerminalResultStep(
+              context.id,
+              analysisGuard.reason === "cancelled" ? "cancelled" : "failed",
+            );
+          }
 
           let analysis = await analyzeAnswerStep(context, job, answer);
           analysis = await reconcileAnalysisCostStep(analysis);
@@ -359,7 +420,10 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
     analysisVersion: run.analysisVersion,
     budgetCeilingMicros: run.budgetCeilingMicros,
     aiCallDelayMs: config.workflow.aiCallDelayMs,
+    maxRunDurationMs: config.workflow.maxRunDurationMs,
     estimatedMicrosPerProviderCall: estimatedMicrosPerCall(run),
+    ceilingMicrosPerProviderCall:
+      config.budget.ceilingMicrosPerProviderCall,
     usageDate: run.createdAt.toISOString().slice(0, 10),
   };
 
@@ -640,18 +704,21 @@ async function loadOutstandingJobsStep(
 }
 loadOutstandingJobsStep.maxRetries = 3;
 
-async function checkBudgetStep(
+async function checkRunGuardStep(
   context: WorkflowRunContext,
-  nextCalls: number,
-): Promise<{ allowed: boolean; spentMicros: number }> {
+  nextAiCalls: number,
+): Promise<RunGuardResult> {
   "use step";
 
   console.log(
-    `[checkBudget] START runId=${context.id} nextCalls=${nextCalls}`,
+    `[checkRunGuard] START runId=${context.id} nextAiCalls=${nextAiCalls}`,
   );
   const db = getDb();
   const [run] = await db
     .select({
+      status: runs.status,
+      startedAt: runs.startedAt,
+      createdAt: runs.createdAt,
       budgetCeilingMicros: runs.budgetCeilingMicros,
       generationCostMicros: runs.actualCostMicros,
     })
@@ -660,6 +727,24 @@ async function checkBudgetStep(
     .limit(1);
 
   if (!run) throw new FatalError("RUN_NOT_FOUND: Benchmark run does not exist.");
+
+  if (TERMINAL_STATUSES.includes(run.status as TerminalRunStatus)) {
+    return {
+      allowed: false,
+      spentMicros: run.generationCostMicros,
+      reason: run.status === "cancelled" ? "cancelled" : "terminal",
+    };
+  }
+
+  const startedAt = run.startedAt ?? run.createdAt;
+
+  if (Date.now() - startedAt.getTime() >= context.maxRunDurationMs) {
+    return {
+      allowed: false,
+      spentMicros: run.generationCostMicros,
+      reason: "duration",
+    };
+  }
 
   const persistedCosts = await db
     .select({ costMicros: results.costMicros })
@@ -697,27 +782,29 @@ async function checkBudgetStep(
     estimatedFailureMicros;
   const projectedMicros =
     spentMicros +
-    nextCalls * 2 * context.estimatedMicrosPerProviderCall;
+    nextAiCalls * context.ceilingMicrosPerProviderCall;
   const allowed = projectedMicros <= run.budgetCeilingMicros;
 
   console.log(
-    `[checkBudget] DONE runId=${context.id} allowed=${allowed} spentMicros=${spentMicros}`,
+    `[checkRunGuard] DONE runId=${context.id} allowed=${allowed} spentMicros=${spentMicros}`,
   );
-  return { allowed, spentMicros };
+  return allowed
+    ? { allowed: true, spentMicros }
+    : { allowed: false, spentMicros, reason: "budget" };
 }
-checkBudgetStep.maxRetries = 3;
+checkRunGuardStep.maxRetries = 3;
 
 async function markBatchRunningStep(
   runId: string,
   jobIds: string[],
-): Promise<void> {
+): Promise<boolean> {
   "use step";
 
   console.log(
     `[markBatchRunning] START runId=${runId} count=${jobIds.length}`,
   );
   if (jobIds.length > 0) {
-    await getDb()
+    const started = await getDb()
       .update(providerJobs)
       .set({
         status: "running",
@@ -730,10 +817,19 @@ async function markBatchRunningStep(
           eq(providerJobs.runId, runId),
           inArray(providerJobs.id, jobIds),
           inArray(providerJobs.status, ["queued", "running"]),
+          sql`exists (
+            select 1 from runs as active_run
+            where active_run.id = ${runId}::uuid
+              and active_run.status in ('generating', 'querying', 'analyzing')
+          )`,
         ),
-      );
+      )
+      .returning({ id: providerJobs.id });
+    console.log(`[markBatchRunning] DONE runId=${runId} count=${started.length}`);
+    return started.length === jobIds.length;
   }
   console.log(`[markBatchRunning] DONE runId=${runId}`);
+  return true;
 }
 markBatchRunningStep.maxRetries = 3;
 
@@ -1120,37 +1216,6 @@ async function markJobFailedStep(
   );
 }
 markJobFailedStep.maxRetries = 3;
-
-async function markBudgetBlockedJobsStep(
-  runId: string,
-  jobIds: string[],
-): Promise<void> {
-  "use step";
-
-  console.log(
-    `[markBudgetBlockedJobs] START runId=${runId} count=${jobIds.length}`,
-  );
-  if (jobIds.length > 0) {
-    await getDb()
-      .update(providerJobs)
-      .set({
-        status: "failed",
-        errorCode: "RUN_BUDGET_REACHED",
-        errorMessage: "The run budget stopped this provider call before it started.",
-        finishedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(providerJobs.runId, runId),
-          inArray(providerJobs.id, jobIds),
-          inArray(providerJobs.status, ["queued", "running"]),
-        ),
-      );
-  }
-  console.log(`[markBudgetBlockedJobs] DONE runId=${runId}`);
-}
-markBudgetBlockedJobsStep.maxRetries = 3;
 
 async function markRunAnalyzingStep(runId: string): Promise<void> {
   "use step";

@@ -8,6 +8,7 @@ import {
   listRunsForUser,
   markWorkflowStarted,
   recordWorkflowDispatchAttemptFailure,
+  toPublicRun,
 } from "@/lib/runs";
 import { createRunSchema } from "@/lib/validation/run";
 import { runVisibilityWorkflow } from "@/workflows/visibility";
@@ -22,7 +23,8 @@ export async function GET() {
     return jsonError("Sign in to view benchmark runs.", 401, "unauthorized");
   }
 
-  return Response.json({ runs: await listRunsForUser(user.id) });
+  const runs = await listRunsForUser(user.id);
+  return Response.json({ runs: runs.map(toPublicRun) });
 }
 
 export async function POST(request: Request) {
@@ -111,7 +113,7 @@ export async function POST(request: Request) {
     reservation.run.workflowRunId
   ) {
     return Response.json(
-      { run: reservation.run, idempotent: true },
+      { run: toPublicRun(reservation.run), idempotent: true },
       { status: 200 },
     );
   }
@@ -121,7 +123,7 @@ export async function POST(request: Request) {
     reservation.run.status !== "queued"
   ) {
     return Response.json(
-      { run: reservation.run, idempotent: true },
+      { run: toPublicRun(reservation.run), idempotent: true },
       { status: 200 },
     );
   }
@@ -143,7 +145,7 @@ export async function POST(request: Request) {
     // because the workflow hook and DB claim deduplicate application work.
     return Response.json(
       {
-        run: reservation.run,
+        run: toPublicRun(reservation.run),
         idempotent: reservation.state === "existing",
         warning: "workflow_start_pending_reconciliation",
       },
@@ -159,7 +161,7 @@ export async function POST(request: Request) {
     // workflow claim repair state. Never report a refund while work runs.
     return Response.json(
       {
-        run: reservation.run,
+        run: toPublicRun(reservation.run),
         workflowRunId: workflowRun.runId,
         idempotent: reservation.state === "existing",
         warning: "workflow_started_dispatch_record_pending",
@@ -170,11 +172,11 @@ export async function POST(request: Request) {
 
   return Response.json(
     {
-      run: {
+      run: toPublicRun({
         ...reservation.run,
         workflowRunId: workflowRun.runId,
         dispatchStatus: "started",
-      },
+      }),
       idempotent: reservation.state === "existing",
     },
     { status: reservation.state === "created" ? 201 : 200 },

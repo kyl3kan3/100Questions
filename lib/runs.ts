@@ -25,6 +25,23 @@ const activeStatuses = [
 
 export type RunSummary = typeof runs.$inferSelect;
 
+export function toPublicRun(run: RunSummary) {
+  const {
+    actualCostMicros,
+    budgetCeilingMicros,
+    costProvenance,
+    estimatedCostMicros,
+    ...publicRun
+  } = run;
+
+  void actualCostMicros;
+  void budgetCeilingMicros;
+  void costProvenance;
+  void estimatedCostMicros;
+
+  return publicRun;
+}
+
 export type CreateReservedRunResult =
   | { state: "created" | "existing"; run: RunSummary }
   | { state: "no_credit" | "active_run" | "daily_limit" };
@@ -291,24 +308,16 @@ export async function getRunProgressForUser(runId: string, userId: string) {
       succeededProviderCalls: sql<number>`count(*) filter (where ${providerJobs.status} = 'succeeded')::integer`,
       failedProviderCalls: sql<number>`count(*) filter (where ${providerJobs.status} = 'failed')::integer`,
       eligibleProviderCalls: sql<number>`count(*) filter (where ${results.scoreEligible} = true)::integer`,
-      persistedResultCostMicros: sql<number>`coalesce(sum(${results.costMicros}), 0)::bigint`,
     })
     .from(providerJobs)
     .leftJoin(results, eq(results.jobId, providerJobs.id))
     .where(eq(providerJobs.runId, runId));
-  const terminal = ["complete", "partial", "failed", "cancelled"].includes(
-    run.status,
-  );
-
-  return {
+  return toPublicRun({
     ...run,
     succeededProviderCalls: Number(progress?.succeededProviderCalls ?? 0),
     failedProviderCalls: Number(progress?.failedProviderCalls ?? 0),
     eligibleProviderCalls: Number(progress?.eligibleProviderCalls ?? 0),
-    actualCostMicros: terminal
-      ? run.actualCostMicros
-      : run.actualCostMicros + Number(progress?.persistedResultCostMicros ?? 0),
-  };
+  });
 }
 
 export async function getRunResultsForUser(runId: string, userId: string) {
@@ -326,7 +335,20 @@ export async function getRunResultsForUser(runId: string, userId: string) {
     .where(eq(questions.runId, runId))
     .orderBy(asc(questions.sortOrder), asc(providerJobs.provider));
 
-  return { run, rows };
+  return {
+    run: toPublicRun(run),
+    rows: rows.map(({ question, job, result }) => {
+      if (!result) {
+        return { question, job, result };
+      }
+
+      const { costMicros, costProvenance, ...publicResult } = result;
+      void costMicros;
+      void costProvenance;
+
+      return { question, job, result: publicResult };
+    }),
+  };
 }
 
 export async function markWorkflowStarted(

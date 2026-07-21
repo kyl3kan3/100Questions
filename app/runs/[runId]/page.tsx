@@ -9,7 +9,7 @@ import { DeleteRunButton } from "@/components/delete-run-button";
 import { RunProgress } from "@/components/run-progress";
 import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/lib/auth/session";
-import { getRunForUser } from "@/lib/runs";
+import { getRunForUser, toPublicRun } from "@/lib/runs";
 
 export const metadata: Metadata = {
   title: "Benchmark run",
@@ -52,7 +52,7 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
         </div>
         <RunProgress
           initialRun={{
-            ...run,
+            ...toPublicRun(run),
             createdAt: run.createdAt.toISOString(),
           }}
         />

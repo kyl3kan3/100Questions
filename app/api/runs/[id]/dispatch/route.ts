@@ -6,6 +6,7 @@ import {
   getRunForUser,
   markWorkflowStarted,
   recordWorkflowDispatchAttemptFailure,
+  toPublicRun,
 } from "@/lib/runs";
 import { runVisibilityWorkflow } from "@/workflows/visibility";
 
@@ -34,7 +35,7 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   if (run.status !== "queued" || run.workflowRunId) {
-    return Response.json({ run, idempotent: true });
+    return Response.json({ run: toPublicRun(run), idempotent: true });
   }
 
   try {
@@ -45,7 +46,7 @@ export async function POST(request: Request, context: RouteContext) {
     } catch {
       return Response.json(
         {
-          run,
+          run: toPublicRun(run),
           workflowRunId: workflowRun.runId,
           warning: "workflow_started_dispatch_record_pending",
         },
@@ -54,11 +55,11 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     return Response.json({
-      run: {
+      run: toPublicRun({
         ...run,
         workflowRunId: workflowRun.runId,
         dispatchStatus: "started",
-      },
+      }),
     });
   } catch (error) {
     await recordWorkflowDispatchAttemptFailure(
@@ -68,7 +69,10 @@ export async function POST(request: Request, context: RouteContext) {
     );
 
     return Response.json(
-      { run, warning: "workflow_start_pending_reconciliation" },
+      {
+        run: toPublicRun(run),
+        warning: "workflow_start_pending_reconciliation",
+      },
       { status: 202 },
     );
   }

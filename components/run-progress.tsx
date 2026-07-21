@@ -43,9 +43,6 @@ type RunState = {
   eligibleProviderCalls: number;
   succeededProviderCalls: number;
   failedProviderCalls: number;
-  estimatedCostMicros: number;
-  actualCostMicros: number;
-  costProvenance: string;
   createdAt: string;
   competitors: string[];
   frozenModels: Record<string, string>;
@@ -331,15 +328,10 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
             <span className="font-mono tabular-nums">{completedCalls}/{run.providerCallsPlanned} calls</span>
           </div>
           <Progress value={progress} aria-label="Benchmark progress" />
-          <div className="mt-5 grid gap-3 text-xs text-zinc-400 sm:grid-cols-4">
+          <div className="mt-5 grid gap-3 text-xs text-zinc-400 sm:grid-cols-3">
             <Stat label="Questions" value={`${run.questionsGenerated}/${run.questionCountPlanned}`} />
             <Stat label="Grounded answers" value={String(run.eligibleProviderCalls)} />
             <Stat label="Unavailable" value={String(run.failedProviderCalls)} />
-            <Stat
-              label="Run cost"
-              value={formatMicros(run.actualCostMicros)}
-              detail={humanize(run.costProvenance)}
-            />
           </div>
           {run.failureMessage ? (
             <p className="mt-5 flex items-start gap-2 rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-200">
@@ -991,10 +983,6 @@ function questionTypeLabel(value: string) {
 
 function percent(value: number | null) {
   return value === null ? "—" : `${Math.round(value * 100)}%`;
-}
-
-function formatMicros(micros: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(micros / 1_000_000);
 }
 
 function isSafeUrl(value: string) {

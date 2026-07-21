@@ -1,6 +1,14 @@
 "use client";
 
-import { AlertTriangle, ExternalLink, LoaderCircle, Search } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleX,
+  ExternalLink,
+  LoaderCircle,
+  Search,
+  Users,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +46,7 @@ type RunState = {
   actualCostMicros: number;
   costProvenance: string;
   createdAt: string;
+  competitors: string[];
   frozenModels: Record<string, string>;
   failureMessage: string | null;
   workflowRunId: string | null;
@@ -72,6 +81,10 @@ type ResultRow = {
     prominence: string;
     sentiment: string | null;
     ownedDomainCited: boolean;
+    competitorMentions: Array<{
+      name: string;
+      sentiment: "positive" | "neutral" | "negative" | null;
+    }>;
   };
 };
 
@@ -284,10 +297,10 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           <Progress value={progress} aria-label="Benchmark progress" />
           <div className="mt-5 grid gap-3 text-xs text-zinc-400 sm:grid-cols-4">
             <Stat label="Questions" value={`${run.questionsGenerated}/${run.questionCountPlanned}`} />
-            <Stat label="Eligible" value={String(run.eligibleProviderCalls)} />
-            <Stat label="Failed" value={String(run.failedProviderCalls)} />
+            <Stat label="Grounded answers" value={String(run.eligibleProviderCalls)} />
+            <Stat label="Unavailable" value={String(run.failedProviderCalls)} />
             <Stat
-              label="Recorded cost"
+              label="Run cost"
               value={formatMicros(run.actualCostMicros)}
               detail={humanize(run.costProvenance)}
             />
@@ -306,7 +319,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       </Card>
 
       {payload ? (
-        <MetricGrid payload={payload} providers={availableProviders} />
+        <ResultsOverview payload={payload} providers={availableProviders} />
       ) : (
         <LoadingCard terminal={terminalStatuses.has(run.status)} />
       )}
@@ -315,13 +328,19 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         <CardHeader className="border-b border-white/[0.07] pb-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <CardTitle>Answer evidence</CardTitle>
+              <CardTitle>Every search and answer</CardTitle>
               <CardDescription className="mt-1">
-                Exact frozen questions, normalized answers, and source links.
+                Open any question to see the complete AI answer and its sources.
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <Filter value={cohort} onChange={(value) => setCohort(value as typeof cohort)} options={["all", "discovery", "diagnostic"]} label="Cohort" />
+              <Filter
+                value={cohort}
+                onChange={(value) => setCohort(value as typeof cohort)}
+                options={["all", "discovery", "diagnostic"]}
+                label="Question type"
+                formatOption={questionTypeLabel}
+              />
               <Filter
                 value={effectiveProvider}
                 onChange={(value) =>
@@ -353,7 +372,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   );
 }
 
-function MetricGrid({
+function ResultsOverview({
   payload,
   providers,
 }: {
@@ -361,67 +380,416 @@ function MetricGrid({
   providers: Provider[];
 }) {
   const metrics = payload.metrics;
+  const discoveryRows = payload.rows.filter(
+    (row) =>
+      row.question.cohort === "discovery" &&
+      row.job &&
+      row.result?.scoreEligible,
+  );
+  const appearedRows = discoveryRows.filter(
+    (row) => row.result?.targetMentioned,
+  );
+  const missedRows = discoveryRows.filter(
+    (row) => !row.result?.targetMentioned,
+  );
+  const unscoredDiscoveryCount = Math.max(
+    metrics.conservativeVisibilityFloor.denominator - discoveryRows.length,
+    0,
+  );
+  const competitors = rankCompetitors(
+    discoveryRows,
+    payload.run.competitors ?? [],
+  );
   const providerEntries = providers.flatMap((provider) => {
-    const metrics = payload.providerMetrics[provider];
-    return metrics ? [{ provider, metrics }] : [];
+    const providerMetrics = payload.providerMetrics[provider];
+    return providerMetrics ? [{ provider, metrics: providerMetrics }] : [];
   });
+  const visibility = metrics.discoveryVisibility;
+
   return (
-    <section aria-labelledby="metrics-heading">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 id="metrics-heading" className="text-sm font-semibold text-zinc-200">Headline metrics</h2>
-        {metrics.provisional ? <Badge variant="warning">Provisional · coverage below 90%</Badge> : <Badge variant="success">Coverage threshold met</Badge>}
+    <section aria-labelledby="results-heading" className="space-y-6">
+      <Card className="bg-[#0b0e0c] shadow-[0_20px_60px_rgba(0,0,0,0.22),inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+        <CardContent className="p-6 sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="eyebrow">Your search visibility</p>
+              <h2
+                id="results-heading"
+                className="mt-3 text-balance text-2xl font-semibold tracking-[-0.035em] text-white sm:text-3xl"
+              >
+                {visibility.denominator > 0 ? (
+                  <>
+                    {payload.run.subjectName} appeared in{" "}
+                    <span className="text-emerald-300 tabular-nums">
+                      {visibility.numerator} of {visibility.denominator}
+                    </span>{" "}
+                    completed discovery searches.
+                  </>
+                ) : (
+                  "There are not enough grounded discovery searches to measure visibility yet."
+                )}
+              </h2>
+              <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-zinc-400">
+                Discovery searches do not name your brand. They show whether an AI
+                recommends or mentions you without being prompted.
+              </p>
+            </div>
+            <div className="shrink-0 lg:text-right">
+              <p className="text-5xl font-semibold tracking-[-0.06em] text-white tabular-nums">
+                {percent(visibility.value)}
+              </p>
+              <p className="mt-1 text-xs text-zinc-400">
+                of grounded discovery answers
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <PlainMetric
+          label="You appeared"
+          value={`${visibility.numerator} searches`}
+          detail={`Out of ${visibility.denominator} grounded discovery searches`}
+          tone="positive"
+        />
+        <PlainMetric
+          label="You were missing"
+          value={`${missedRows.length} searches`}
+          detail="Completed searches that did not mention your brand"
+          tone={missedRows.length > 0 ? "negative" : "positive"}
+        />
+        <PlainMetric
+          label="Your site was cited"
+          value={percent(metrics.claimedDomainCitationRate.value)}
+          detail={`${metrics.claimedDomainCitationRate.numerator} of ${metrics.claimedDomainCitationRate.denominator} grounded answers`}
+        />
+        <PlainMetric
+          label="Positive mentions"
+          value={percent(metrics.sentiment.positive.value)}
+          detail={`${metrics.sentiment.positive.numerator} of ${metrics.sentiment.denominator} brand mentions`}
+        />
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <MetricCard label="Discovery visibility" metric={metrics.discoveryVisibility} />
-        <ValueCard label="Prominence index" value={percent(metrics.prominence.value)} detail={`${metrics.prominence.denominator} eligible discovery answers`} />
-        <MetricCard label="Positive sentiment" metric={metrics.sentiment.positive} />
-        <MetricCard label="Conservative floor" metric={metrics.conservativeVisibilityFloor} />
-        <MetricCard label="Share of voice" metric={metrics.shareOfVoice} />
-        <MetricCard label="Owned citations" metric={metrics.claimedDomainCitationRate} />
-      </div>
-      <p className="mt-3 text-xs leading-5 text-zinc-400">
-        Coverage {percent(metrics.coverage.value)} ({metrics.coverage.numerator}/{metrics.coverage.denominator}). Failed or ungrounded calls remain in coverage and do not enter eligible-score denominators.
+
+      <p className="rounded-2xl bg-white/[0.025] px-4 py-3 text-pretty text-xs leading-5 text-zinc-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+        Based on {visibility.denominator} grounded discovery answers. {unscoredDiscoveryCount}{" "}
+        failed or ungrounded discovery answers are excluded rather than counted as misses.
+        {metrics.provisional
+          ? " Treat these percentages as directional because overall answer coverage was below 90%."
+          : " Overall answer coverage met the 90% reliability threshold."}
       </p>
-      <div
-        className={
-          providerEntries.length >= 4
-            ? "mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-            : "mt-5 grid gap-3 sm:grid-cols-3"
-        }
-      >
-        {providerEntries.map(({ provider, metrics: providerMetric }) => {
-          return (
-            <Card key={provider} className="bg-[#0a0d0b]">
-              <CardContent className="p-5">
-                <p className="text-xs font-medium text-zinc-300">
-                  {providerLabels[provider]}
-                </p>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <div>
-                    <p className="text-2xl font-semibold text-white tabular-nums">{percent(providerMetric.discoveryVisibility.value)}</p>
-                    <p className="mt-1 text-[11px] text-zinc-400">discovery visibility</p>
-                  </div>
-                  <p className="font-mono text-[10px] text-zinc-400 tabular-nums">{percent(providerMetric.coverage.value)} coverage</p>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SearchOutcomeList
+          title="Where you appeared"
+          description="Questions where the AI mentioned your brand without being prompted."
+          rows={appearedRows}
+          empty="Your brand did not appear in any grounded discovery searches."
+          outcome="appeared"
+        />
+        <SearchOutcomeList
+          title="Where you did not appear"
+          description="Completed searches where the AI did not mention your brand."
+          rows={missedRows}
+          empty="Your brand appeared in every grounded discovery search."
+          outcome="missed"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <CompetitorComparison
+          subjectName={payload.run.subjectName}
+          subjectCount={appearedRows.length}
+          competitors={competitors}
+          denominator={discoveryRows.length}
+        />
+        <ProviderBreakdown entries={providerEntries} />
       </div>
     </section>
   );
 }
 
-function MetricCard({ label, metric }: { label: string; metric: RatioMetric }) {
+function PlainMetric({
+  label,
+  value,
+  detail,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  tone?: "neutral" | "positive" | "negative";
+}) {
   return (
-    <Card className="bg-[#0b0e0c]">
+    <Card className="bg-[#0b0e0c] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)]">
       <CardContent className="p-5">
         <p className="text-xs text-zinc-400">{label}</p>
-        <p className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white tabular-nums">{percent(metric.value)}</p>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400 tabular-nums">{metric.numerator}/{metric.denominator} eligible</p>
+        <p
+          className={`mt-3 text-2xl font-semibold tracking-[-0.035em] tabular-nums ${
+            tone === "positive"
+              ? "text-emerald-300"
+              : tone === "negative"
+                ? "text-amber-200"
+                : "text-white"
+          }`}
+        >
+          {value}
+        </p>
+        <p className="mt-2 text-pretty text-[11px] leading-5 text-zinc-400">
+          {detail}
+        </p>
       </CardContent>
     </Card>
   );
+}
+
+function SearchOutcomeList({
+  title,
+  description,
+  rows,
+  empty,
+  outcome,
+}: {
+  title: string;
+  description: string;
+  rows: ResultRow[];
+  empty: string;
+  outcome: "appeared" | "missed";
+}) {
+  const shown = rows.slice(0, 6);
+
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-3">
+          <div
+            className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl ${
+              outcome === "appeared"
+                ? "bg-emerald-300/10 text-emerald-300"
+                : "bg-amber-300/10 text-amber-200"
+            }`}
+          >
+            {outcome === "appeared" ? (
+              <CheckCircle2 className="size-4" />
+            ) : (
+              <CircleX className="size-4" />
+            )}
+          </div>
+          <div>
+            <CardTitle className="text-base">{title}</CardTitle>
+            <CardDescription className="mt-1 text-pretty leading-5">
+              {description}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {shown.length ? (
+          shown.map((row) => (
+            <div
+              key={row.job?.id ?? row.question.id}
+              className="rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                {row.job ? (
+                  <Badge variant="outline">{providerLabels[row.job.provider]}</Badge>
+                ) : null}
+                {outcome === "appeared" && row.result?.prominence ? (
+                  <span className="text-[10px] capitalize text-zinc-400">
+                    {humanize(row.result.prominence)} mention
+                  </span>
+                ) : null}
+                {outcome === "appeared" && row.result?.sentiment ? (
+                  <span className="text-[10px] capitalize text-zinc-400">
+                    {row.result.sentiment} tone
+                  </span>
+                ) : null}
+                {outcome === "appeared" && row.result?.ownedDomainCited ? (
+                  <span className="text-[10px] text-emerald-300">
+                    Your site was cited
+                  </span>
+                ) : null}
+              </div>
+              <p className="text-pretty text-sm leading-6 text-zinc-200">
+                {row.question.text}
+              </p>
+              {outcome === "missed" && row.result?.competitorMentions.length ? (
+                <p className="mt-2 text-pretty text-[11px] leading-5 text-zinc-400">
+                  Mentioned instead: {uniqueCompetitorNames(row).slice(0, 3).join(", ")}
+                </p>
+              ) : null}
+            </div>
+          ))
+        ) : (
+          <p className="rounded-xl bg-white/[0.025] px-4 py-6 text-center text-sm text-zinc-400">
+            {empty}
+          </p>
+        )}
+        {rows.length > shown.length ? (
+          <p className="pt-2 text-xs text-zinc-400">
+            +{rows.length - shown.length} more in the full answer evidence below.
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CompetitorComparison({
+  subjectName,
+  subjectCount,
+  competitors,
+  denominator,
+}: {
+  subjectName: string;
+  subjectCount: number;
+  competitors: Array<{ name: string; count: number }>;
+  denominator: number;
+}) {
+  const entries = [
+    { name: subjectName, count: subjectCount, subject: true },
+    ...competitors.slice(0, 7).map((competitor) => ({
+      ...competitor,
+      subject: false,
+    })),
+  ];
+
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-zinc-300">
+            <Users className="size-4" />
+          </div>
+          <div>
+            <CardTitle className="text-base">You versus competitors</CardTitle>
+            <CardDescription className="mt-1 text-pretty leading-5">
+              How often each name appeared across grounded discovery searches.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {entries.map((entry) => {
+          const value = denominator > 0 ? entry.count / denominator : 0;
+          return (
+            <div key={`${entry.subject ? "subject" : "competitor"}:${entry.name}`}>
+              <div className="mb-1.5 flex items-center justify-between gap-4 text-xs">
+                <span className={entry.subject ? "font-medium text-emerald-300" : "text-zinc-300"}>
+                  {entry.name}{entry.subject ? " (you)" : ""}
+                </span>
+                <span className="shrink-0 font-mono text-zinc-400 tabular-nums">
+                  {entry.count}/{denominator} · {percent(value)}
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/[0.05]">
+                <div
+                  className={`h-full rounded-full ${entry.subject ? "bg-emerald-300" : "bg-zinc-500"}`}
+                  style={{ width: `${Math.round(value * 100)}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+        {competitors.length === 0 ? (
+          <p className="text-sm text-zinc-400">
+            No competitors were detected in grounded discovery answers.
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProviderBreakdown({
+  entries,
+}: {
+  entries: Array<{ provider: Provider; metrics: MetricsPayload }>;
+}) {
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-base">Results by AI provider</CardTitle>
+        <CardDescription className="mt-1 text-pretty leading-5">
+          How often each provider mentioned you in grounded discovery answers.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {entries.map(({ provider, metrics }) => {
+          const visibility = metrics.discoveryVisibility;
+          return (
+            <div
+              key={provider}
+              className="flex items-center justify-between gap-4 rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+            >
+              <div>
+                <p className="text-sm font-medium text-zinc-200">
+                  {providerLabels[provider]}
+                </p>
+                <p className="mt-1 text-[11px] text-zinc-400 tabular-nums">
+                  {visibility.numerator} of {visibility.denominator} searches
+                </p>
+              </div>
+              <p className="text-xl font-semibold text-white tabular-nums">
+                {percent(visibility.value)}
+              </p>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}
+
+function rankCompetitors(
+  rows: ResultRow[],
+  configuredCompetitors: string[],
+): Array<{ name: string; count: number }> {
+  const counts = new Map<string, { name: string; count: number }>();
+
+  for (const name of configuredCompetitors) {
+    const key = normalizeEntityName(name);
+    if (key) counts.set(key, { name, count: 0 });
+  }
+
+  for (const row of rows) {
+    const seen = new Set<string>();
+
+    for (const mention of row.result?.competitorMentions ?? []) {
+      const key = normalizeEntityName(mention.name);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      const current = counts.get(key);
+      counts.set(key, {
+        name: current?.name ?? mention.name,
+        count: (current?.count ?? 0) + 1,
+      });
+    }
+  }
+
+  return [...counts.values()].sort(
+    (left, right) => right.count - left.count || left.name.localeCompare(right.name),
+  );
+}
+
+function uniqueCompetitorNames(row: ResultRow): string[] {
+  return [
+    ...new Map(
+      (row.result?.competitorMentions ?? []).map((mention) => [
+        normalizeEntityName(mention.name),
+        mention.name,
+      ]),
+    ).values(),
+  ];
+}
+
+function normalizeEntityName(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .toLocaleLowerCase("en-US")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
 }
 
 function AnswerRow({ row }: { row: ResultRow }) {
@@ -431,11 +799,13 @@ function AnswerRow({ row }: { row: ResultRow }) {
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 marker:hidden">
         <div>
           <div className="mb-2 flex flex-wrap gap-2">
-            <Badge variant="secondary">{row.question.cohort}</Badge>
+            <Badge variant="secondary">
+              {questionTypeLabel(row.question.cohort)}
+            </Badge>
             {row.job ? (
               <Badge variant="outline">{providerLabels[row.job.provider]}</Badge>
             ) : null}
-            {answer?.scoreEligible ? <Badge variant="success">grounded</Badge> : answer ? <Badge variant="warning">excluded</Badge> : <Badge variant="secondary">pending</Badge>}
+            {answer?.scoreEligible ? <Badge variant="success">Grounded answer</Badge> : answer ? <Badge variant="warning">Not counted</Badge> : <Badge variant="secondary">Pending</Badge>}
           </div>
           <p className="text-pretty text-sm font-medium leading-6 text-zinc-200">{row.question.text}</p>
         </div>
@@ -543,19 +913,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function LoadingCard({ terminal }: { terminal: boolean }) {
-  return <Card className="bg-[#0b0e0c]"><CardContent className="flex min-h-32 items-center justify-center gap-2 text-sm text-zinc-400"><LoaderCircle className="size-4 animate-spin" /> {terminal ? "Loading benchmark metrics…" : "Metrics and evidence appear when processing completes."}</CardContent></Card>;
-}
-
-function ValueCard({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return (
-    <Card className="bg-[#0b0e0c]">
-      <CardContent className="p-5">
-        <p className="text-xs text-zinc-400">{label}</p>
-        <p className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white tabular-nums">{value}</p>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400">{detail}</p>
-      </CardContent>
-    </Card>
-  );
+  return <Card className="bg-[#0b0e0c]"><CardContent className="flex min-h-32 items-center justify-center gap-2 text-sm text-zinc-400"><LoaderCircle className="size-4 animate-spin" /> {terminal ? "Loading your search results…" : "Your search results will appear when processing completes."}</CardContent></Card>;
 }
 
 function statusMessage(status: string) {
@@ -574,6 +932,15 @@ function statusMessage(status: string) {
 
 function humanize(value: string) {
   return value.replaceAll("_", " ").replace(/^./u, (letter) => letter.toUpperCase());
+}
+
+function questionTypeLabel(value: string) {
+  const labels: Record<string, string> = {
+    all: "All question types",
+    discovery: "Unprompted searches",
+    diagnostic: "Brand-specific checks",
+  };
+  return labels[value] ?? humanize(value);
 }
 
 function percent(value: number | null) {

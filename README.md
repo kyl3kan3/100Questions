@@ -41,12 +41,12 @@ confirmation, workflow accounting, and Gateway-level spending controls.
 
 ## Stripe setup
 
-1. Create a one-time Stripe Price for one benchmark purchase.
-2. Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, and `STRIPE_CREDITS_PER_PURCHASE`.
+1. Create four one-time Stripe Prices: $29 introductory, $39 single, $99 three-pack, and $249 ten-pack.
+2. Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_INTRO`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_THREE`, and `STRIPE_PRICE_TEN`.
 3. Forward these Stripe events to `/api/stripe/webhook` and set the resulting signing secret as `STRIPE_WEBHOOK_SECRET`: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`.
-4. Enable the Stripe Customer Portal if billing-history access is desired.
+4. Configure Stripe Tax for automatic tax calculation and enable the Stripe Customer Portal for billing history.
 
-The browser never submits a price ID. The server owns the configured Price and grants one credit per fixed run only after a signed Checkout event reports a paid session. Billing is fail-closed: Checkout stays unavailable unless the server secret, signing secret, Price, and credit quantity are all configured. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and reinstatements restore exactly the frozen amount. The Price amount and currency remain owned by Stripe and are not hard-coded here.
+The browser submits only a package key; the server maps it to a configured Stripe Price and fixed credit grant. The $29 introductory package is enforced as a user's first purchase. Signed Checkout events grant 1, 3, or 10 credits, and each credit expires 12 months after purchase. Billing is fail-closed unless every package Price and the webhook configuration are present. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and timely reinstatements restore exactly the frozen amount.
 
 For local webhook testing:
 

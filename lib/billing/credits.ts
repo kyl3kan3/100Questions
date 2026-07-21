@@ -9,10 +9,7 @@ import {
   creditLedger,
 } from "@/lib/db/schema";
 
-export {
-  getCreditsPerPurchase,
-  isStripeCheckoutConfigured,
-} from "@/lib/billing/stripe";
+export { isStripeCheckoutConfigured } from "@/lib/billing/stripe";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -55,6 +52,8 @@ type StripePurchaseInput = {
   stripeCustomerId: string | null;
   userId: string;
   credits: number;
+  packageId: string;
+  expiresAt: Date;
   livemode: boolean;
   apiVersion: string | null;
 };
@@ -107,15 +106,48 @@ function sanitizeText(value: string | undefined, maxLength: number) {
 
 export async function getCreditBalance(userId: string): Promise<number> {
   assertUserId(userId);
+  const result = await getDb().execute<{ balance: number | string }>(sql`
+    WITH global_balance AS (
+      SELECT greatest(coalesce(sum(amount), 0)::integer, 0) AS balance
+      FROM credit_ledger
+      WHERE user_id = ${userId}
+    ),
+    purchase_lots AS (
+      SELECT
+        amount,
+        expires_at,
+        coalesce(sum(amount) OVER (
+          ORDER BY created_at DESC, id DESC
+          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+        ), 0)::integer AS newer_credits
+      FROM credit_ledger
+      WHERE user_id = ${userId}
+        AND type = 'purchase'::credit_ledger_type
+        AND amount > 0
+    )
+    SELECT coalesce(sum(
+      CASE WHEN expires_at > now() THEN
+        least(amount, greatest(global_balance.balance - newer_credits, 0))
+      ELSE 0 END
+    ), 0)::integer AS balance
+    FROM purchase_lots
+    CROSS JOIN global_balance
+  `);
 
-  const [row] = await getDb()
-    .select({
-      balance: sql<number>`coalesce(sum(${creditLedger.amount}), 0)::integer`,
-    })
+  return Number(result.rows[0]?.balance ?? 0);
+}
+
+export async function hasPurchasedCredits(userId: string): Promise<boolean> {
+  assertUserId(userId);
+  const [purchase] = await getDb()
+    .select({ id: creditLedger.id })
     .from(creditLedger)
-    .where(eq(creditLedger.userId, userId));
+    .where(
+      sql`${creditLedger.userId} = ${userId} AND ${creditLedger.type} = 'purchase'::credit_ledger_type`,
+    )
+    .limit(1);
 
-  return Number(row?.balance ?? 0);
+  return Boolean(purchase);
 }
 
 /**
@@ -142,10 +174,35 @@ export async function reserveCreditForRun({
       WHERE ledger.external_reference = ${reference}
       LIMIT 1
     ),
-    current_balance AS MATERIALIZED (
-      SELECT coalesce(sum(ledger.amount), 0)::integer AS balance
+    global_balance AS MATERIALIZED (
+      SELECT greatest(coalesce(sum(ledger.amount), 0)::integer, 0) AS balance
       FROM credit_ledger AS ledger
       WHERE ledger.user_id = ${userId}
+    ),
+    purchase_lots AS MATERIALIZED (
+      SELECT
+        ledger.amount,
+        ledger.expires_at,
+        coalesce(sum(ledger.amount) OVER (
+          ORDER BY ledger.created_at DESC, ledger.id DESC
+          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+        ), 0)::integer AS newer_credits
+      FROM credit_ledger AS ledger
+      WHERE ledger.user_id = ${userId}
+        AND ledger.type = 'purchase'::credit_ledger_type
+        AND ledger.amount > 0
+    ),
+    current_balance AS MATERIALIZED (
+      SELECT coalesce(sum(
+        CASE WHEN purchase_lots.expires_at > now() THEN
+          least(
+            purchase_lots.amount,
+            greatest(global_balance.balance - purchase_lots.newer_credits, 0)
+          )
+        ELSE 0 END
+      ), 0)::integer AS balance
+      FROM purchase_lots
+      CROSS JOIN global_balance
     ),
     owned_run AS MATERIALIZED (
       SELECT run.id
@@ -441,6 +498,8 @@ export async function grantPurchasedCredits({
   stripeCustomerId,
   userId,
   credits,
+  packageId,
+  expiresAt,
   livemode,
   apiVersion,
 }: StripePurchaseInput): Promise<{ granted: boolean; status: string }> {
@@ -448,6 +507,14 @@ export async function grantPurchasedCredits({
 
   if (!Number.isSafeInteger(credits) || credits < 1 || credits > 100) {
     throw new Error("Invalid purchased credit count");
+  }
+
+  if (!packageId.trim() || packageId.length > 32) {
+    throw new Error("Invalid billing package ID");
+  }
+
+  if (!Number.isFinite(expiresAt.getTime()) || expiresAt <= new Date()) {
+    throw new Error("Invalid credit expiration");
   }
 
   const reference = normalizeReference(
@@ -519,6 +586,7 @@ export async function grantPurchasedCredits({
         stripe_payment_intent_id,
         external_reference,
         metadata,
+        expires_at,
         created_at
       )
       SELECT
@@ -528,7 +596,11 @@ export async function grantPurchasedCredits({
         ${stripeCheckoutSessionId},
         ${paymentIntentId},
         ${reference},
-        jsonb_build_object('stripe_event_id', ${stripeEventId}),
+        jsonb_build_object(
+          'stripe_event_id', ${stripeEventId},
+          'package_id', ${packageId}
+        ),
+        ${expiresAt},
         now()
       FROM eligible_event
       ON CONFLICT DO NOTHING
@@ -623,7 +695,12 @@ export async function reversePurchasedCredits({
       )
     ),
     purchase AS MATERIALIZED (
-      SELECT ledger.user_id, ledger.amount
+      SELECT
+        ledger.id,
+        ledger.user_id,
+        ledger.amount,
+        ledger.created_at,
+        ledger.expires_at
       FROM credit_ledger AS ledger
       CROSS JOIN eligible_event
       WHERE ledger.stripe_payment_intent_id = ${paymentIntentId}
@@ -634,10 +711,24 @@ export async function reversePurchasedCredits({
       SELECT
         purchase.user_id,
         purchase.amount AS purchased_credits,
-        greatest(coalesce(sum(ledger.amount), 0)::integer, 0) AS balance
+        purchase.expires_at,
+        greatest(coalesce(sum(ledger.amount), 0)::integer, 0) AS balance,
+        coalesce((
+          SELECT sum(newer.amount)::integer
+          FROM credit_ledger AS newer
+          WHERE newer.user_id = purchase.user_id
+            AND newer.type = 'purchase'::credit_ledger_type
+            AND newer.amount > 0
+            AND (newer.created_at, newer.id) > (purchase.created_at, purchase.id)
+        ), 0) AS newer_credits
       FROM purchase
       LEFT JOIN credit_ledger AS ledger ON ledger.user_id = purchase.user_id
-      GROUP BY purchase.user_id, purchase.amount
+      GROUP BY
+        purchase.id,
+        purchase.user_id,
+        purchase.amount,
+        purchase.created_at,
+        purchase.expires_at
     ),
     reversal AS (
       INSERT INTO credit_ledger (
@@ -645,7 +736,14 @@ export async function reversePurchasedCredits({
       )
       SELECT
         current_balance.user_id,
-        -least(current_balance.purchased_credits, current_balance.balance),
+        -CASE
+          WHEN current_balance.expires_at > now() THEN
+            least(
+              current_balance.purchased_credits,
+              greatest(current_balance.balance - current_balance.newer_credits, 0)
+            )
+          ELSE 0
+        END,
         'adjustment'::credit_ledger_type,
         ${externalReference},
         jsonb_build_object(
@@ -773,8 +871,14 @@ export async function restoreDisputedCredits({
       )
     ),
     withdrawal AS MATERIALIZED (
-      SELECT ledger.user_id, -ledger.amount AS reversed_credits
+      SELECT
+        ledger.user_id,
+        -ledger.amount AS reversed_credits,
+        purchase.expires_at
       FROM credit_ledger AS ledger
+      INNER JOIN credit_ledger AS purchase
+        ON purchase.stripe_payment_intent_id = ${paymentIntentId}
+       AND purchase.type = 'purchase'::credit_ledger_type
       CROSS JOIN eligible_event
       WHERE ledger.external_reference = ${withdrawalReference}
         AND ledger.type = 'adjustment'::credit_ledger_type
@@ -786,7 +890,10 @@ export async function restoreDisputedCredits({
       )
       SELECT
         withdrawal.user_id,
-        withdrawal.reversed_credits,
+        CASE
+          WHEN withdrawal.expires_at > now() THEN withdrawal.reversed_credits
+          ELSE 0
+        END,
         'adjustment'::credit_ledger_type,
         ${restorationReference},
         jsonb_build_object(

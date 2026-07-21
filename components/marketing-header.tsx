@@ -18,6 +18,9 @@ export function MarketingHeader() {
             <Button asChild variant="ghost" size="sm">
               <Link href="/faq">FAQ</Link>
             </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/#pricing">Pricing</Link>
+            </Button>
           </div>
           <Button asChild variant="ghost" size="sm">
             <Link href="/auth/sign-in">Sign in</Link>

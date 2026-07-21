@@ -543,6 +543,10 @@ export const creditLedger = pgTable(
       .$type<BillingMetadata>()
       .notNull()
       .default(sql`'{}'::jsonb`),
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      precision: 3,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -562,6 +566,10 @@ export const creditLedger = pgTable(
       table.createdAt,
     ),
     index("credit_ledger_user_run_idx").on(table.userId, table.runId),
+    index("credit_ledger_user_expires_at_idx").on(
+      table.userId,
+      table.expiresAt,
+    ),
   ],
 );
 

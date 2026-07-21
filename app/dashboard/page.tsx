@@ -14,9 +14,13 @@ import { hasUnlimitedAccess } from "@/lib/access";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 import {
   getCreditBalance,
-  getCreditsPerPurchase,
+  hasPurchasedCredits,
   isStripeCheckoutConfigured,
 } from "@/lib/billing/credits";
+import {
+  formatPackagePrice,
+  getPublicBillingPackages,
+} from "@/lib/billing/packages";
 import { getBenchmarkConfig, PROVIDERS } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import { billingCustomers } from "@/lib/db/schema";
@@ -45,8 +49,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const unlimitedAccess = hasUnlimitedAccess(user.id);
 
-  const [creditBalance, runs, customer, query] = await Promise.all([
+  const [creditBalance, hasPurchased, runs, customer, query] = await Promise.all([
     getCreditBalance(user.id),
+    hasPurchasedCredits(user.id),
     listRunsForUser(user.id),
     getDb()
       .select({ id: billingCustomers.id })
@@ -79,16 +84,30 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Benchmarks use provider-native web search through Vercel AI Gateway. No result without sources enters the score.
             </p>
           </div>
-          {unlimitedAccess ? (
-            <Badge variant="success">Unlimited test access</Badge>
-          ) : (
+          {unlimitedAccess ? <Badge variant="success">Unlimited test access</Badge> : null}
+        </div>
+
+        {!unlimitedAccess ? (
+          <section className="mb-8" aria-labelledby="buy-credits-heading">
+            <div className="mb-4">
+              <p className="eyebrow">Prepaid benchmark credits</p>
+              <h2 id="buy-credits-heading" className="mt-2 text-xl font-semibold text-white">
+                Buy only the benchmarks you need.
+              </h2>
+            </div>
             <BillingActions
               billingConfigured={isStripeCheckoutConfigured()}
               hasCustomer={customer.length > 0}
-              creditsPerPurchase={getCreditsPerPurchase()}
+              packages={getPublicBillingPackages(hasPurchased).map((billingPackage) => ({
+                id: billingPackage.id,
+                name: billingPackage.name,
+                credits: billingPackage.credits,
+                price: formatPackagePrice(billingPackage.priceCents),
+                description: billingPackage.description,
+              }))}
             />
-          )}
-        </div>
+          </section>
+        ) : null}
 
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
           <Summary

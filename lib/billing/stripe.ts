@@ -2,6 +2,12 @@ import "server-only";
 
 import Stripe from "stripe";
 
+import {
+  BILLING_PACKAGES,
+  getBillingPackage,
+  type BillingPackageId,
+} from "@/lib/billing/packages";
+
 const STRIPE_API_VERSION = "2026-06-24.dahlia";
 
 let stripeClient: Stripe | undefined;
@@ -44,31 +50,30 @@ export function getStripe(): Stripe {
   return stripeClient;
 }
 
-export function getStripePriceId(): string {
-  return readRequiredEnvironmentVariable("STRIPE_PRICE_ID");
-}
-
 export function getStripeWebhookSecret(): string {
   return readRequiredEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
 }
 
-export function getCreditsPerPurchase(): number {
-  const rawValue = process.env.STRIPE_CREDITS_PER_PURCHASE?.trim() || "1";
-  const value = Number(rawValue);
+export function getStripePackage(packageId: BillingPackageId) {
+  const billingPackage = getBillingPackage(packageId);
 
-  if (!Number.isSafeInteger(value) || value < 1 || value > 100) {
-    throw new BillingConfigurationError(
-      "STRIPE_CREDITS_PER_PURCHASE must be an integer from 1 to 100",
-    );
+  if (!billingPackage) {
+    throw new BillingConfigurationError("Unknown billing package");
   }
 
-  return value;
+  return {
+    ...billingPackage,
+    stripePriceId: readRequiredEnvironmentVariable(
+      billingPackage.priceEnvironmentVariable,
+    ),
+  };
 }
 
 export function isStripeCheckoutConfigured(): boolean {
   try {
-    getStripePriceId();
-    getCreditsPerPurchase();
+    for (const billingPackage of BILLING_PACKAGES) {
+      getStripePackage(billingPackage.id);
+    }
     getStripeWebhookSecret();
 
     return Boolean(process.env.STRIPE_SECRET_KEY?.trim());

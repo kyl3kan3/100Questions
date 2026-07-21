@@ -3,14 +3,18 @@ import { createHash } from "node:crypto";
 import { auth } from "@/lib/auth/server";
 import {
   getBillingCustomerForUser,
+  hasPurchasedCredits,
   upsertBillingCustomer,
 } from "@/lib/billing/credits";
 import {
+  getBillingPackage,
+  type BillingPackageId,
+} from "@/lib/billing/packages";
+import {
   BillingConfigurationError,
   getApplicationOrigin,
-  getCreditsPerPurchase,
   getStripe,
-  getStripePriceId,
+  getStripePackage,
   isSameOriginRequest,
   isStripeWebhookConfigured,
 } from "@/lib/billing/stripe";
@@ -52,6 +56,32 @@ export async function POST(request: Request) {
   }
 
   try {
+    const requestBody = (await request.json().catch(() => null)) as {
+      packageId?: unknown;
+    } | null;
+    const requestedPackageId = requestBody?.packageId;
+    const publicPackage =
+      typeof requestedPackageId === "string"
+        ? getBillingPackage(requestedPackageId)
+        : undefined;
+
+    if (!publicPackage) {
+      return Response.json({ error: "Select a valid benchmark package" }, { status: 400 });
+    }
+
+    if (
+      publicPackage.introductory &&
+      (await hasPurchasedCredits(session.user.id))
+    ) {
+      return Response.json(
+        { error: "The introductory package is limited to a first purchase" },
+        { status: 409 },
+      );
+    }
+
+    const billingPackage = getStripePackage(
+      publicPackage.id as BillingPackageId,
+    );
     const stripe = getStripe();
     let customerId = await getBillingCustomerForUser(session.user.id);
 
@@ -74,18 +104,19 @@ export async function POST(request: Request) {
       });
     }
     const origin = getApplicationOrigin(request);
-    const credits = getCreditsPerPurchase();
     const checkoutSession = await stripe.checkout.sessions.create(
       {
         mode: "payment",
-        line_items: [{ price: getStripePriceId(), quantity: 1 }],
+        line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
         client_reference_id: session.user.id,
         customer: customerId,
         metadata: {
           appUserId: session.user.id,
-          creditGrant: String(credits),
-          creditGrantVersion: "v1",
+          billingPackage: billingPackage.id,
+          creditGrant: String(billingPackage.credits),
+          creditGrantVersion: "v2",
         },
+        automatic_tax: { enabled: true },
         invoice_creation: { enabled: true },
         success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard?checkout=cancelled`,
@@ -108,7 +139,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         url: checkoutSession.url,
-        credits,
+        credits: billingPackage.credits,
       },
       { headers: { "Cache-Control": "no-store" } },
     );

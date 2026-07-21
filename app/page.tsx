@@ -21,6 +21,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { absoluteUrl } from "@/lib/site";
+import {
+  formatPackagePrice,
+  getPublicBillingPackages,
+} from "@/lib/billing/packages";
 
 export const metadata: Metadata = {
   title: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
@@ -206,6 +210,51 @@ export default function Home() {
       </section>
 
       <section className="border-t border-white/[0.07]">
+        <div id="pricing" className="page-shell scroll-mt-8 py-20 md:py-28">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">Simple, prepaid pricing</p>
+            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              One credit. One complete benchmark.
+            </h2>
+            <p className="mt-4 text-pretty text-sm leading-6 text-zinc-400">
+              No subscription, seat fees, or provider add-ons. Every run includes the same 25-question, four-provider benchmark and source evidence.
+            </p>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-5xl gap-4 md:grid-cols-3">
+            {getPublicBillingPackages(false).map((billingPackage) => (
+              <Card
+                key={billingPackage.id}
+                className={billingPackage.id === "three" ? "border border-emerald-300/25 bg-emerald-300/[0.035]" : "bg-[#0a0d0b]"}
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle>{billingPackage.name}</CardTitle>
+                    {billingPackage.id === "three" ? <Badge variant="success">Best value</Badge> : null}
+                  </div>
+                  <p className="pt-3 text-4xl font-semibold tracking-[-0.05em] text-white">
+                    {formatPackagePrice(billingPackage.priceCents)}
+                  </p>
+                  <CardDescription>{billingPackage.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <p className="flex items-center gap-2 text-sm text-zinc-300">
+                    <Check className="size-4 text-emerald-300" />
+                    {billingPackage.credits} complete benchmark{billingPackage.credits === 1 ? "" : "s"}
+                  </p>
+                  <Button asChild className="mt-6 w-full" variant={billingPackage.id === "three" ? "default" : "secondary"}>
+                    <Link href="/auth/sign-up">Choose package</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-zinc-500">
+            Introductory price is limited to the first purchase. Credits are valid for 12 months. Normal single-benchmark price after the introductory purchase is $39. Taxes may apply.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-t border-white/[0.07]">
         <div className="page-shell flex flex-col gap-8 py-16 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="eyebrow">Prepaid, not a subscription</p>
@@ -213,7 +262,7 @@ export default function Home() {
               Buy one run. Review 30 days of evidence.
             </h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
-              Stripe shows the live price before payment. Provider processing is disclosed before every run.
+              Packages start at $29. Stripe confirms the price and applicable taxes before payment.
             </p>
             <p className="mt-2 text-sm text-zinc-500">
               Need details first?{" "}

@@ -7,6 +7,10 @@ import {
   restoreDisputedCredits,
 } from "@/lib/billing/credits";
 import {
+  CREDIT_VALIDITY_MONTHS,
+  getBillingPackage,
+} from "@/lib/billing/packages";
+import {
   BillingConfigurationError,
   getStripe,
   getStripeWebhookSecret,
@@ -190,6 +194,8 @@ export async function POST(request: Request) {
     const clientReferenceId = checkoutSession.client_reference_id;
     const metadataUserId = checkoutSession.metadata?.appUserId;
     const metadataCredits = Number(checkoutSession.metadata?.creditGrant);
+    const packageId = checkoutSession.metadata?.billingPackage;
+    const billingPackage = packageId ? getBillingPackage(packageId) : undefined;
     const paymentIntentId = getStripeObjectId(checkoutSession.payment_intent);
 
     if (
@@ -197,10 +203,10 @@ export async function POST(request: Request) {
       !metadataUserId ||
       !paymentIntentId ||
       clientReferenceId !== metadataUserId ||
-      checkoutSession.metadata?.creditGrantVersion !== "v1" ||
+      checkoutSession.metadata?.creditGrantVersion !== "v2" ||
+      !billingPackage ||
       !Number.isSafeInteger(metadataCredits) ||
-      metadataCredits < 1 ||
-      metadataCredits > 100
+      metadataCredits !== billingPackage.credits
     ) {
       await persistIgnoredEvent(
         event,
@@ -210,6 +216,9 @@ export async function POST(request: Request) {
       return Response.json({ received: true });
     }
 
+    const expiresAt = new Date(event.created * 1_000);
+    expiresAt.setUTCMonth(expiresAt.getUTCMonth() + CREDIT_VALIDITY_MONTHS);
+
     await grantPurchasedCredits({
       stripeEventId: event.id,
       eventType: event.type,
@@ -218,6 +227,8 @@ export async function POST(request: Request) {
       stripeCustomerId: getStripeObjectId(checkoutSession.customer),
       userId: clientReferenceId,
       credits: metadataCredits,
+      packageId: billingPackage.id,
+      expiresAt,
       livemode: event.livemode,
       apiVersion: event.api_version,
     });

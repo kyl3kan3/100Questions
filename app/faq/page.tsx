@@ -89,7 +89,7 @@ const faqs = [
     id: "price-subscription",
     question: "Is 100 Questions a subscription?",
     answer:
-      "No. The implemented billing model sells prepaid benchmark credits through Stripe-hosted Checkout. Stripe displays the configured one-time price before payment; the application does not hard-code a public price into benchmark calculations.",
+      "No. The first benchmark is $29, three benchmarks are $99, and ten are $249. After the introductory purchase, a single benchmark is $39. Every credit buys the same complete benchmark, remains valid for 12 months, and is purchased through Stripe-hosted Checkout. Taxes may apply.",
   },
   {
     id: "required-input",

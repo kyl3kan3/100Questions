@@ -188,10 +188,13 @@ stored.
 
 ## Payments contract
 
-- Stripe-hosted Checkout runs in one-time `payment` mode against server-configured
-  `STRIPE_PRICE_ID`; the browser cannot choose an arbitrary price.
-- A completed, paid Checkout Session grants `STRIPE_CREDITS_PER_PURCHASE` credits, initially
-  one, through a signed webhook. One credit starts one fixed v2 benchmark run.
+- Stripe-hosted Checkout runs in one-time `payment` mode against four server-configured
+  package Prices. The browser submits a package key and cannot choose an arbitrary Price or grant.
+- Packages are $29 for an introductory first benchmark, $39 for later single benchmarks,
+  $99 for three, and $249 for ten. A signed paid Checkout Session grants the package's fixed
+  credit quantity. One credit starts one fixed v2 benchmark run.
+- Purchased credits expire 12 months after purchase. Available balance and run reservation
+  use FIFO lot accounting so an expired older purchase cannot consume a newer valid balance.
 - Billing is fail-closed: Checkout is unavailable unless the Stripe secret, webhook signing
   secret, Price, and positive credit quantity are all configured.
 - One idempotently-created Stripe Customer is persisted before Checkout so concurrent sessions
@@ -204,15 +207,17 @@ stored.
 - Starting a benchmark atomically reserves one credit. The workflow consumes it when provider
   querying begins, releases it if dispatch/generation fails before paid model work, and does
   not auto-refund after provider spend begins.
-- The price amount and currency are owned by Stripe and are not hard-coded in the app.
+- Public package prices are displayed by the app and must match their configured Stripe Prices.
 - Stripe Customer Portal is available to authenticated users with a Stripe customer record.
 
 Required Stripe configuration:
 
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_ID`
-- `STRIPE_CREDITS_PER_PURCHASE`
+- `STRIPE_PRICE_INTRO`
+- `STRIPE_PRICE_SINGLE`
+- `STRIPE_PRICE_THREE`
+- `STRIPE_PRICE_TEN`
 
 ## Workflow
 

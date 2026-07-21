@@ -29,6 +29,7 @@ import {
   combineCostProvenance,
   combineUsage,
   getGatewayGenerationCostMicros,
+  providerErrorDiagnostic,
   queryGroundedProvider,
   type ClassifiedProviderError,
   type CostProvenance,
@@ -411,7 +412,10 @@ async function generateQuestionsStep(
       locale: context.locale,
       discoveryCount: context.discoveryCount,
       diagnosticCount: context.diagnosticCount,
-      model: context.frozenModels.analysis,
+      // Question-set generation is a substantially larger structured task than
+      // per-answer labeling. Use the run's more capable frozen OpenAI model;
+      // the analysis model is intentionally the smallest/cheapest model.
+      model: context.frozenModels.openai,
       gatewayUserId: context.userId,
       runId: context.id,
       promptVersion: context.questionPromptVersion,
@@ -430,8 +434,9 @@ async function generateQuestionsStep(
     };
   } catch (error) {
     const failure = classifyProviderError(error);
+    const diagnostic = providerErrorDiagnostic(error);
     console.error(
-      `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
+      `[generateQuestions] FAIL runId=${context.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
     throwRetriableAiError(failure, context.maxAttempts, "question generation");
   }
@@ -842,8 +847,9 @@ async function queryProviderStep(
       })
       .where(eq(providerJobs.id, job.id));
     const failure = classifyProviderError(error);
+    const diagnostic = providerErrorDiagnostic(error);
     console.error(
-      `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
+      `[queryProvider] FAIL runId=${context.id} jobId=${job.id} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
     throwRetriableAiError(failure, context.maxAttempts, "grounded provider query");
   }
@@ -969,8 +975,9 @@ async function analyzeAnswerStep(
         and(eq(providerJobs.id, job.id), eq(providerJobs.status, "running")),
       );
     const failure = classifyProviderError(error);
+    const diagnostic = providerErrorDiagnostic(error);
     console.error(
-      `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)}`,
+      `[analyzeAnswer] FAIL runId=${context.id} provider=${answer.provider} attempt=${metadata.attempt} code=${failure.code} retryable=${failure.retryable} message=${JSON.stringify(failure.message)} diagnostic=${JSON.stringify(diagnostic)}`,
     );
     throwRetriableAiError(failure, context.maxAttempts, "answer analysis");
   }

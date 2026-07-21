@@ -32,10 +32,27 @@ export function parseGeneratedBrief(value: unknown) {
   return briefValidationSchema.parse(value);
 }
 
-export function parseGeneratedQuestionSet(value: unknown, expectedCount: number) {
+export function parseGeneratedQuestionSet(
+  value: unknown,
+  minimumCount: number,
+  maximumCount = minimumCount,
+) {
+  if (
+    !Number.isSafeInteger(minimumCount) ||
+    !Number.isSafeInteger(maximumCount) ||
+    minimumCount < 1 ||
+    maximumCount < minimumCount ||
+    maximumCount > 100
+  ) {
+    throw new RangeError("Question count bounds must be integers between 1 and 100");
+  }
+
   return z
     .object({
-      questions: z.array(questionValidationSchema).length(expectedCount),
+      questions: z
+        .array(questionValidationSchema)
+        .min(minimumCount)
+        .max(maximumCount),
     })
     .parse(value);
 }

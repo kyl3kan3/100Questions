@@ -1,11 +1,11 @@
 import "server-only";
 
 import { anthropic } from "@ai-sdk/anthropic";
-import { gateway, GatewayError } from "@ai-sdk/gateway";
+import { gateway } from "@ai-sdk/gateway";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { xai } from "@ai-sdk/xai";
-import { APICallError, generateText } from "ai";
+import { generateText } from "ai";
 
 import type {
   NormalizedSource,
@@ -17,6 +17,13 @@ import {
   assertProviderModelId,
   type ProviderKey,
 } from "./models";
+
+export {
+  classifyProviderError,
+  providerErrorDiagnostic,
+  type ClassifiedProviderError,
+  type ProviderErrorDiagnostic,
+} from "./provider-errors";
 
 export type GroundingStatus = "grounded" | "no_sources" | "unsupported";
 export type CostProvenance =
@@ -63,13 +70,6 @@ export interface GenerationAccounting {
   gatewayGenerationId: string | null;
   providerRequestId: string | null;
   gatewayRequestId: string | null;
-}
-
-export interface ClassifiedProviderError {
-  code: string;
-  message: string;
-  retryable: boolean;
-  retryAfterMs?: number;
 }
 
 const PROVIDER_TIMEOUT_MS = 55_000;
@@ -334,125 +334,6 @@ export function combineCostProvenance(
   return left === right ? left : "mixed";
 }
 
-export function classifyProviderError(error: unknown): ClassifiedProviderError {
-  if (GatewayError.isInstance(error)) {
-    if (error.statusCode === 402) {
-      return {
-        code: "GATEWAY_BUDGET_EXCEEDED",
-        message: "The AI Gateway budget was exhausted.",
-        retryable: false,
-      };
-    }
-
-    if (error.type === "authentication_error") {
-      return {
-        code: "GATEWAY_AUTH_ERROR",
-        message: "AI Gateway authentication failed.",
-        retryable: false,
-      };
-    }
-
-    if (error.type === "rate_limit_exceeded" || error.statusCode === 429) {
-      return {
-        code: "PROVIDER_RATE_LIMITED",
-        message: "AI Gateway or the selected provider rate-limited the request.",
-        retryable: true,
-      };
-    }
-
-    if (error.isRetryable || error.statusCode >= 500) {
-      return {
-        code: "PROVIDER_UNAVAILABLE",
-        message: "AI Gateway or the selected provider is temporarily unavailable.",
-        retryable: true,
-      };
-    }
-
-    return {
-      code:
-        error.type === "model_not_found"
-          ? "GATEWAY_MODEL_NOT_FOUND"
-          : "PROVIDER_REQUEST_REJECTED",
-      message: "AI Gateway permanently rejected the request configuration.",
-      retryable: false,
-    };
-  }
-
-  if (APICallError.isInstance(error)) {
-    const status = error.statusCode;
-    const retryAfterMs = parseRetryAfter(error.responseHeaders?.["retry-after"]);
-
-    if (status === 402) {
-      return {
-        code: "GATEWAY_BUDGET_EXCEEDED",
-        message: "The AI Gateway budget was exhausted.",
-        retryable: false,
-      };
-    }
-
-    if (status === 408 || status === 409 || status === 425 || status === 429) {
-      return {
-        code: status === 429 ? "PROVIDER_RATE_LIMITED" : "PROVIDER_TRANSIENT",
-        message: `The provider returned a transient HTTP ${status} response.`,
-        retryable: true,
-        retryAfterMs,
-      };
-    }
-
-    if (status !== undefined && status >= 500) {
-      return {
-        code: "PROVIDER_UNAVAILABLE",
-        message: `The provider returned HTTP ${status}.`,
-        retryable: true,
-        retryAfterMs,
-      };
-    }
-
-    if (status !== undefined && status >= 400) {
-      return {
-        code:
-          status === 401 || status === 403
-            ? "GATEWAY_AUTH_ERROR"
-            : "PROVIDER_REQUEST_REJECTED",
-        message: `The provider rejected the grounded request with HTTP ${status}.`,
-        retryable: false,
-      };
-    }
-  }
-
-  const name = error instanceof Error ? error.name : "UnknownError";
-
-  if (
-    /AbortError|TimeoutError|NetworkError|ResponseError/iu.test(name)
-  ) {
-    return {
-      code: "PROVIDER_TRANSIENT",
-      message: "The grounded provider request timed out or lost its connection.",
-      retryable: true,
-    };
-  }
-
-  if (
-    /Unsupported|NoSuchModel|LoadAPIKey|LoadSetting|InvalidArgument|InvalidPrompt/iu.test(
-      name,
-    )
-  ) {
-    return {
-      code: /LoadAPIKey|LoadSetting/iu.test(name)
-        ? "GATEWAY_AUTH_ERROR"
-        : "PROVIDER_CONFIGURATION_ERROR",
-      message: "The selected model or native search tool is not configured or supported.",
-      retryable: false,
-    };
-  }
-
-  return {
-    code: "PROVIDER_TRANSIENT",
-    message: "The provider request failed before a grounded answer was recorded.",
-    retryable: true,
-  };
-}
-
 function normalizeSources(
   sdkSources: readonly unknown[],
   toolResults: readonly unknown[],
@@ -711,18 +592,6 @@ function firstFiniteNumber(values: unknown[]): number | null {
     }
   }
   return null;
-}
-
-function parseRetryAfter(value: string | undefined): number | undefined {
-  if (!value) return undefined;
-
-  const seconds = Number(value);
-  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1_000;
-
-  const timestamp = Date.parse(value);
-  if (Number.isFinite(timestamp)) return Math.max(0, timestamp - Date.now());
-
-  return undefined;
 }
 
 function normalizeHttpUrl(value: string): string | null {

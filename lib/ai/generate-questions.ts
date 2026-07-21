@@ -62,6 +62,7 @@ export interface GeneratedQuestionSet {
 
 const QUESTION_TIMEOUT_MS = 90_000;
 const MAX_GENERATION_PASSES = 3;
+const MIN_CANDIDATE_BUFFER = 3;
 
 const QUESTION_SYSTEM_PROMPT = `You design neutral, reproducible benchmark questions for
 measuring how web-grounded AI assistants answer category and brand research questions.
@@ -203,14 +204,22 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
     pass += 1
   ) {
     const needed = options.count - accepted.length;
+    // Ask for a few extra candidates because deterministic checks can reject
+    // duplicates, identity leaks, or diagnostic questions that omit the exact
+    // subject name. Requiring exactly `needed` before those checks made one
+    // imperfect candidate invalidate an otherwise usable generation.
+    const requested = Math.min(
+      100,
+      needed + Math.max(MIN_CANDIDATE_BUFFER, Math.ceil(needed * 0.25)),
+    );
     const result = await generateText({
       model: options.model,
       system: QUESTION_SYSTEM_PROMPT,
       output: Output.object({
         schema: gatewayQuestionSetOutputSchema,
       }),
-      prompt: buildCohortPrompt(options, needed, accepted, pass),
-      maxOutputTokens: Math.min(12_000, Math.max(1_500, needed * 105)),
+      prompt: buildCohortPrompt(options, requested, accepted, pass),
+      maxOutputTokens: Math.min(12_000, Math.max(1_500, requested * 105)),
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(QUESTION_TIMEOUT_MS),
       providerOptions: gatewayOptions(options.input, options.cohort),
@@ -224,7 +233,7 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
       generationAccounting.gatewayGenerationId,
     );
 
-    const output = parseGeneratedQuestionSet(result.output, needed);
+    const output = parseGeneratedQuestionSet(result.output, needed, requested);
 
     for (const candidate of output.questions) {
       const text = candidate.text.replace(/\s+/gu, " ").trim();
@@ -303,6 +312,7 @@ function gatewayOptions(
       user: input.gatewayUserId,
       tags: [
         "feature:visibility-questions",
+        `run:${input.runId}`,
         `stage:${stage}`,
         `prompt:${input.promptVersion}`,
       ],

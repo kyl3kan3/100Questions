@@ -58,7 +58,7 @@ describe("question-generation output schemas", () => {
     ).toThrow();
   });
 
-  it("enforces question content and the requested count locally", () => {
+  it("enforces question content and requested count bounds locally", () => {
     const validQuestion = {
       category: "Pricing",
       text: "Which analytics tools offer predictable pricing for small teams?",
@@ -67,8 +67,22 @@ describe("question-generation output schemas", () => {
     expect(parseGeneratedQuestionSet({ questions: [validQuestion] }, 1)).toEqual({
       questions: [validQuestion],
     });
+    expect(
+      parseGeneratedQuestionSet(
+        { questions: [validQuestion, { ...validQuestion, text: `${validQuestion.text} Again.` }] },
+        1,
+        2,
+      ).questions,
+    ).toHaveLength(2);
     expect(() =>
       parseGeneratedQuestionSet({ questions: [validQuestion] }, 2),
+    ).toThrow();
+    expect(() =>
+      parseGeneratedQuestionSet(
+        { questions: [validQuestion, validQuestion] },
+        1,
+        1,
+      ),
     ).toThrow();
     expect(() =>
       parseGeneratedQuestionSet(

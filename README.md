@@ -1,6 +1,6 @@
 # 100Questions
 
-100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions and plans 100 provider answers across OpenAI, Claude, Gemini, and Grok with native web search. Successful sourced answers and coverage gaps remain visible behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
+100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions and plans 100 provider answers across OpenAI, Claude, Gemini, and Grok with a shared web-search harness. Successful sourced answers and coverage gaps remain visible behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
 
 The product is an API-grounded benchmark, not a claim of parity with the providers' consumer chat interfaces.
 
@@ -10,7 +10,7 @@ The product is an API-grounded benchmark, not a claim of parity with the provide
 - Managed Neon Auth with server-validated sessions
 - Neon Postgres and Drizzle schema/migration
 - Stripe-hosted one-time Checkout, signed idempotent webhooks, prepaid run credits, and Customer Portal
-- AI SDK 6 through Vercel AI Gateway with native OpenAI, Anthropic, Google, and xAI search tools (including `@ai-sdk/xai` and the default `xai/grok-4.5` route)
+- AI SDK 6 through Vercel AI Gateway with a bounded, provider-independent Exa search harness and separate OpenAI, Anthropic, Google, and xAI answer models
 - Vercel Workflow orchestration with bounded batches and retry classification
 - A fixed 20-question neutral discovery / 5-question target-named diagnostic split
 - Versioned visibility, prominence, share-of-voice, citation, sentiment, and coverage calculations

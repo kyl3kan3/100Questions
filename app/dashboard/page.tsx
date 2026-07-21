@@ -81,7 +81,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               AI visibility, with the evidence attached.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-              Benchmarks use provider-native web search through Vercel AI Gateway. No result without sources enters the score.
+              Benchmarks use a shared web-search harness through Vercel AI Gateway. No result without sources enters the score.
             </p>
           </div>
           {unlimitedAccess ? <Badge variant="success">Unlimited test access</Badge> : null}

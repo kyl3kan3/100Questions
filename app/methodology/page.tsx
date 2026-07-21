@@ -237,7 +237,7 @@ export default function MethodologyPage() {
                 Sources are a scoring requirement
               </h2>
               <p className="mt-5 text-pretty leading-7 text-zinc-400">
-                OpenAI, Anthropic, Google, and xAI requests use provider-native web
+                OpenAI, Anthropic, Google, and xAI requests use the same bounded web
                 search through Vercel AI Gateway. There is no plain-text fallback. A
                 provider result enters score-eligible denominators only when the call
                 succeeds and returns valid web sources.

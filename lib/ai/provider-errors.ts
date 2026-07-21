@@ -151,7 +151,7 @@ export function classifyProviderError(error: unknown): ClassifiedProviderError {
       code: /LoadAPIKey|LoadSetting/iu.test(name)
         ? "GATEWAY_AUTH_ERROR"
         : "PROVIDER_CONFIGURATION_ERROR",
-      message: "The selected model or native search tool is not configured or supported.",
+      message: "The selected answer model or search harness is not configured or supported.",
       retryable: false,
     };
   }

@@ -20,11 +20,7 @@
     "workflow:health": "workflow health"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.98",
     "@ai-sdk/gateway": "^3.0.153",
-    "@ai-sdk/google": "^3.0.95",
-    "@ai-sdk/openai": "^3.0.86",
-    "@ai-sdk/xai": "^3.0.110",
     "@datafast/ai-crawl": "^1.0.9",
     "@neondatabase/auth": "^0.4.2-beta",
     "@neondatabase/serverless": "^1.1.0",

@@ -28,7 +28,7 @@ export function assertProviderModelId(
 
   if (!model.startsWith(`${provider}/`)) {
     throw new Error(
-      `The ${provider} benchmark requires a ${provider}/* model for its native search tool`,
+      `The ${provider} benchmark requires a ${provider}/* answer model`,
     );
   }
 

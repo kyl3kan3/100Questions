@@ -1,10 +1,6 @@
 import "server-only";
 
-import { anthropic } from "@ai-sdk/anthropic";
 import { gateway } from "@ai-sdk/gateway";
-import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
-import { xai } from "@ai-sdk/xai";
 import { generateText } from "ai";
 
 import type {
@@ -78,23 +74,26 @@ const MAX_SOURCES = 100;
 const MAX_SEARCH_QUERIES = 20;
 
 const GROUNDED_SYSTEM_PROMPT = `You are a neutral research assistant answering one
-standalone question. You must use the configured native web-search tool before answering.
+standalone question. You must use the configured web-search tool before answering.
 Base recommendations and factual claims on the pages you retrieve. Answer directly and
 concisely. Do not mention this benchmark, its subject, hidden criteria, or evaluation logic.
 Never invent citations. If web search is unavailable, state that you could not complete a
 grounded answer instead of answering from memory.`;
 
 /**
- * Executes exactly one provider-native, web-grounded request through Vercel AI
- * Gateway. There is intentionally no plain-text fallback: missing citations are
- * returned as ineligible grounding states and unsupported tools fail closed.
+ * Executes exactly one web-grounded request through Vercel AI Gateway. Every
+ * answer model uses the same bounded Gateway search harness, which isolates
+ * retrieval from provider-native search quotas while preserving independent
+ * answer generation. There is intentionally no plain-text fallback: missing
+ * citations are returned as ineligible grounding states and search failures
+ * fail closed.
  */
 export async function queryGroundedProvider(
   input: ProviderQueryInput,
 ): Promise<NormalizedProviderAnswer> {
   const model = assertProviderModelId(input.provider, input.model);
   const startedAt = performance.now();
-  const result = await executeNativeSearch({ ...input, model });
+  const result = await executeGroundedSearch({ ...input, model });
   const latencyMs = Math.max(0, Math.round(performance.now() - startedAt));
   const allSteps = result.steps ?? [];
   const toolCalls: unknown[] = [];
@@ -160,7 +159,7 @@ export async function queryGroundedProvider(
   };
 }
 
-async function executeNativeSearch(input: ProviderQueryInput) {
+async function executeGroundedSearch(input: ProviderQueryInput) {
   const prompt = `Market: ${input.market}\nLocale: ${input.locale}\n\nQuestion: ${input.question}`;
   const tags: string[] = [
     "feature:visibility-benchmark",
@@ -175,6 +174,16 @@ async function executeNativeSearch(input: ProviderQueryInput) {
     maxOutputTokens: MAX_ANSWER_TOKENS,
     maxRetries: 0,
     abortSignal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
+    tools: {
+      web_search: gateway.tools.exaSearch({
+        type: "fast",
+        numResults: 8,
+        userLocation: input.locale.split(/[-_]/u)[1]?.toUpperCase(),
+        contents: {
+          highlights: { maxCharacters: 1_200 },
+        },
+      }),
+    },
     providerOptions: {
       gateway: {
         user: input.gatewayUserId,
@@ -185,22 +194,9 @@ async function executeNativeSearch(input: ProviderQueryInput) {
 
   switch (input.provider) {
     case "openai":
-      return generateText({
-        ...common,
-        tools: {
-          web_search: openai.tools.webSearch({
-            externalWebAccess: true,
-            searchContextSize: "low",
-          }),
-        },
-      });
+      return generateText(common);
     case "anthropic":
-      return generateText({
-        ...common,
-        tools: {
-          web_search: anthropic.tools.webSearch_20250305({ maxUses: 2 }),
-        },
-      });
+      return generateText(common);
     case "google":
       return generateText({
         ...common,
@@ -209,9 +205,6 @@ async function executeNativeSearch(input: ProviderQueryInput) {
           google: {
             thinkingConfig: { thinkingLevel: "minimal" },
           },
-        },
-        tools: {
-          google_search: google.tools.googleSearch({}),
         },
       });
     case "xai":
@@ -226,9 +219,6 @@ async function executeNativeSearch(input: ProviderQueryInput) {
             reasoningEffort: "low",
             store: false,
           },
-        },
-        tools: {
-          web_search: xai.tools.webSearch(),
         },
       });
   }

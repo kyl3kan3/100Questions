@@ -39,9 +39,9 @@ export function getBenchmarkConfig() {
         process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
     },
     workflow: {
-      // Provider queries and contextual analysis share the same Gateway
-      // capacity. Start at most one AI call every 15 seconds (4 RPM) and let
-      // the durable workflow sleep between calls instead of retrying 429s.
+      // Keep one call in flight so a run has deterministic cost and ordering.
+      // The shared search harness removes provider-native search throttles;
+      // this delay is operational pacing, not a retry strategy.
       aiCallDelayMs: envInteger("WORKFLOW_AI_CALL_DELAY_MS", 15_000),
     },
     prompts: {

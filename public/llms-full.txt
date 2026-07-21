@@ -21,7 +21,7 @@ The exact frozen set is sent to each of four providers, creating 100 planned pro
 
 ## Grounding and scoring eligibility
 
-Provider requests use provider-native web search. There is no plain-text fallback. A result is score-eligible only when the provider call succeeds and returns valid HTTP or HTTPS sources. Failed calls, unsupported search, and answers without valid sources remain visible in coverage but do not enter eligible-score denominators.
+Provider requests use a shared bounded web-search harness. There is no plain-text fallback. A result is score-eligible only when the provider call succeeds and returns valid HTTP or HTTPS sources. Failed calls, unsupported search, and answers without valid sources remain visible in coverage but do not enter eligible-score denominators.
 
 ## Metrics
 

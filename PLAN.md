@@ -27,7 +27,7 @@ and search behavior can differ.
 | Application | Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4 |
 | AI routing | AI SDK 6 through Vercel AI Gateway |
 | Providers | OpenAI, Anthropic, Google, and xAI (Grok) |
-| Grounding | Provider-native web-search tools; no plain-completion fallback |
+| Grounding | Shared bounded Gateway search harness; no plain-completion fallback |
 | Orchestration | Vercel Workflow, with bounded durable batches |
 | Database | Neon Postgres, Drizzle ORM, and the Neon serverless driver |
 | Authentication | Managed Neon Auth with email and password |
@@ -109,7 +109,7 @@ and normalized competitors under an explicit `analysis_version`.
 - **Next.js Server Components** render authenticated pages and initial database reads.
 - **Route handlers** handle auth, Checkout, webhooks, run creation, run reads, deletion, and
   reconciliation.
-- **Vercel AI Gateway** handles question generation, provider-native search, structured
+- **Vercel AI Gateway** handles question generation, shared web search, structured
   analysis, usage metadata, and model observability.
 - **Vercel Workflow** handles durable question generation, bounded provider fan-out,
   analysis, and finalization.
@@ -266,10 +266,10 @@ Each provider adapter returns a normalized object:
 }
 ```
 
-Adapters use Gateway model strings while supplying native tools from `@ai-sdk/openai`,
-`@ai-sdk/anthropic`, `@ai-sdk/google`, and `@ai-sdk/xai`. The default Grok route is
-`xai/grok-4.5`. Prompts require web search and citations. A provider canary fails instead of
-downgrading when a selected model does not support its native search tool.
+Adapters use Gateway model strings and one bounded Gateway Exa search tool across every
+answer model. The default Grok route is `xai/grok-4.5`. Prompts require web search and
+citations. A provider call fails instead of downgrading when the shared search harness does
+not return sources.
 
 ## API and UI
 
@@ -302,7 +302,7 @@ Pages:
 - Exactly 25 shared questions and four providers, producing 100 planned provider answers
 - One active run per user by default
 - Configurable per-user daily run and cost ceilings
-- Per-provider concurrency limits, maximum output tokens, and native-search-use limits
+- Serialized provider calls, maximum output tokens, and bounded shared-search results
 - Pre-run upper-bound estimate and explicit confirmation
 - Pre-run cost planning includes grounded provider queries, worst-case structured analysis,
   and the bounded question-generation allowance; progress still reports provider jobs.

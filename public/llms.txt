@@ -14,7 +14,7 @@ Canonical site: https://100questionsai.com/
 
 - Each run freezes 25 questions: 20 neutral discovery questions and 5 target-named diagnostic questions.
 - The same 25 questions are sent to four providers, creating 100 planned answers.
-- Provider-native web search is required. Failed, unsupported, or unsourced results are excluded from eligible-score denominators and remain visible in coverage.
+- Shared web-search grounding is required. Failed, unsupported, or unsourced results are excluded from eligible-score denominators and remain visible in coverage.
 - Headline measures include discovery visibility, prominence, share of voice, claimed-domain citation rate, sentiment, and coverage.
 - Metrics are marked provisional below 90% coverage.
 - Results are time-stamped, directional API-grounded snapshots and do not claim parity with consumer chat products.

@@ -9,6 +9,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -122,6 +123,8 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   const [payload, setPayload] = useState<ResultsPayload | null>(null);
   const [run, setRun] = useState(initialRun);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [updateWillRetry, setUpdateWillRetry] = useState(false);
+  const [updateNeedsSignIn, setUpdateNeedsSignIn] = useState(false);
   const [cohort, setCohort] = useState<"all" | "discovery" | "diagnostic">("all");
   const [provider, setProvider] = useState<"all" | Provider>("all");
   const [category, setCategory] = useState("all");
@@ -139,12 +142,39 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       timer = setTimeout(() => void refresh(), delay);
     }
 
-    async function loadResults(): Promise<boolean> {
+    function setPollingIssue(
+      message: string,
+      { retrying = false, needsSignIn = false } = {},
+    ) {
+      if (cancelled) return;
+      setUpdateError(message);
+      setUpdateWillRetry(retrying);
+      setUpdateNeedsSignIn(needsSignIn);
+    }
+
+    function clearPollingIssue() {
+      if (cancelled) return;
+      setUpdateError(null);
+      setUpdateWillRetry(false);
+      setUpdateNeedsSignIn(false);
+    }
+
+    async function loadResults(): Promise<"success" | "retry" | "stop"> {
       try {
         const response = await fetch(`/api/runs/${initialRun.id}/results`, {
           cache: "no-store",
           signal: controller.signal,
         });
+
+        if (response.status === 401) {
+          setPollingIssue("Your sign-in session expired.", { needsSignIn: true });
+          return "stop";
+        }
+
+        if (response.status === 404) {
+          setPollingIssue("This benchmark is not available for the signed-in account.");
+          return "stop";
+        }
 
         if (!response.ok) {
           throw new Error("Result evidence is temporarily unavailable.");
@@ -154,22 +184,22 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           const next = (await response.json()) as ResultsPayload;
           setPayload(next);
           setRun(next.run);
-          setUpdateError(null);
+          clearPollingIssue();
         }
 
-        return true;
+        return "success";
       } catch (error) {
         if (!cancelled && error instanceof Error && error.name !== "AbortError") {
-          setUpdateError(error.message);
+          setPollingIssue(error.message, { retrying: true });
         }
-        return false;
+        return "retry";
       }
     }
 
     async function refreshStatus() {
       try {
         if (terminalStatuses.has(initialRun.status)) {
-          if (!(await loadResults())) {
+          if ((await loadResults()) === "retry") {
             failures += 1;
             schedule(refreshStatus);
           }
@@ -181,8 +211,13 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           signal: controller.signal,
         });
 
-        if (response.status === 401 || response.status === 404) {
-          setUpdateError("This benchmark is no longer available to this session.");
+        if (response.status === 401) {
+          setPollingIssue("Your sign-in session expired.", { needsSignIn: true });
+          return;
+        }
+
+        if (response.status === 404) {
+          setPollingIssue("This benchmark is not available for the signed-in account.");
           return;
         }
 
@@ -195,7 +230,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         if (cancelled) return;
         failures = 0;
         setRun(next.run);
-        setUpdateError(null);
+        clearPollingIssue();
 
         if (
           next.run.status === "queued" &&
@@ -211,7 +246,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         }
 
         if (terminalStatuses.has(next.run.status)) {
-          if (!(await loadResults())) {
+          if ((await loadResults()) === "retry") {
             failures += 1;
             schedule(refreshStatus);
           }
@@ -225,10 +260,11 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
         }
 
         failures += 1;
-        setUpdateError(
+        setPollingIssue(
           error instanceof Error
             ? error.message
             : "Live progress is temporarily unavailable.",
+          { retrying: true },
         );
         schedule(refreshStatus);
       }
@@ -312,7 +348,17 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           ) : null}
           {updateError ? (
             <p role="status" aria-live="polite" className="mt-3 text-xs text-amber-200">
-              {updateError} Retrying with backoff.
+              {updateError}{" "}
+              {updateNeedsSignIn ? (
+                <Link
+                  className="font-semibold underline underline-offset-4 hover:text-amber-100"
+                  href="/auth/sign-in"
+                >
+                  Sign in again, then reopen this benchmark from the dashboard.
+                </Link>
+              ) : updateWillRetry ? (
+                "Retrying with backoff."
+              ) : null}
             </p>
           ) : null}
         </CardContent>

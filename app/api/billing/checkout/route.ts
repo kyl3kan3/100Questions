@@ -107,6 +107,7 @@ export async function POST(request: Request) {
     const checkoutSession = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        managed_payments: { enabled: false },
         line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
         client_reference_id: session.user.id,
         customer: customerId,

@@ -26,7 +26,7 @@ export const BILLING_PACKAGES = [
     priceCents: 3_900,
     priceEnvironmentVariable: "STRIPE_PRICE_THREE",
     introductory: false,
-    description: "Measure a baseline, make changes, and run a follow-up.",
+    description: "Baseline, implementation check, and final measurement.",
   },
   {
     id: "ten",

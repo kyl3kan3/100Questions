@@ -36,5 +36,6 @@ describe("public SEO metadata", () => {
     expect(existsSync(join(process.cwd(), "public", "social-card-v1.png"))).toBe(
       true,
     );
+    expect(existsSync(join(process.cwd(), "public", "sample-report-preview.png"))).toBe(true);
   });
 });

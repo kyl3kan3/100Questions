@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { BillingPackageId } from "@/lib/billing/packages";
+import { trackEvent } from "@/lib/analytics";
 
 export type PurchasePackage = {
   id: BillingPackageId;
@@ -42,6 +43,7 @@ export function BillingActions({
   const [error, setError] = useState<string | null>(null);
 
   async function openCheckout(packageId: BillingPackageId) {
+    trackEvent("checkout_started", { package_id: packageId });
     setPending(packageId);
     setError(null);
 

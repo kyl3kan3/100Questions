@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthForm } from "@/components/auth-form";
+import { AnalyticsEvent } from "@/components/analytics-event";
 import { BrandMark } from "@/components/brand-mark";
 import { absoluteUrl } from "@/lib/site";
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-[#070908] px-4 py-12">
+      <AnalyticsEvent event="signup_started" />
       <div className="flex w-full flex-col items-center gap-8">
         <Link href="/" aria-label="Return to 100 Questions home">
           <BrandMark />

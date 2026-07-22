@@ -137,10 +137,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <RunForm
             creditBalance={creditBalance}
             unlimitedAccess={unlimitedAccess}
-            estimatedMicrosPerProviderCall={config.budget.estimatedMicrosPerProviderCall}
-            ceilingMicrosPerProviderCall={config.budget.ceilingMicrosPerProviderCall}
-            aiCallsPerProviderJob={config.budget.aiCallsPerProviderJob}
-            questionGenerationCallAllowance={config.budget.questionGenerationCallAllowance}
             providerCount={PROVIDERS.length}
             questionCount={config.benchmark.defaultQuestionCount}
           />

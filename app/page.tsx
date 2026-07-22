@@ -29,9 +29,9 @@ import {
 import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
+  title: "Actionable AI Visibility Audit for Your Brand",
   description:
-    "Measure whether AI assistants mention and cite your brand across 25 shared questions, four providers, and 100 planned web-grounded answers.",
+    "Find where web-grounded AI models overlook your brand, why competitors appear instead, and what to fix next—with evidence and no subscription.",
   keywords: [
     "AI visibility tool",
     "AI search visibility",
@@ -89,7 +89,7 @@ export default function Home() {
         about: { "@id": `${homeUrl}#product` },
         primaryImageOfPage: {
           "@type": "ImageObject",
-          url: absoluteUrl("/hero-ai-visibility.png"),
+          url: absoluteUrl("/sample-report-preview.png"),
         },
         dateModified: SITE_UPDATED_AT,
         inLanguage: "en-US",
@@ -99,9 +99,9 @@ export default function Home() {
         "@id": `${homeUrl}#product`,
         name: "100 Questions AI Visibility Benchmark",
         url: homeUrl,
-        image: absoluteUrl("/hero-ai-visibility.png"),
+        image: absoluteUrl("/sample-report-preview.png"),
         description:
-          "A prepaid, source-backed AI visibility benchmark using one 25-question set across OpenAI, Claude, Gemini, and Grok.",
+          "A prepaid, source-backed AI visibility audit with one 25-question set, four model providers, and a prioritized action plan.",
         brand: { "@id": `${homeUrl}#organization` },
         category: "AI visibility analytics",
         offers: {
@@ -132,24 +132,23 @@ export default function Home() {
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
           <Badge variant="outline" className="mb-7 border-emerald-300/25 text-emerald-200">
-            Grounded AI visibility benchmark
+            Actionable web-grounded model audit
           </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-            See whether AI puts your brand in the answer.
+            Find where AI overlooks your brand—and what to fix next.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            Run 25 identical questions across OpenAI, Claude, Gemini, and Grok.
-            Compare up to 100 web-grounded provider answers with sources and
-            transparent, directional results—not a mystery score.
+            See the missed buyer questions, competitors shown instead, sources
+            models trust, and five evidence-backed actions—without a subscription.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
               <Link href="/auth/sign-up">
-                Measure my brand <ArrowRight />
+                Run my first audit — $9 <ArrowRight />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/methodology">Read the methodology</Link>
+              <Link href="/sample-report">View a sample report</Link>
             </Button>
           </div>
           <p className="mt-5 flex items-center gap-2 text-xs text-zinc-400">
@@ -160,8 +159,8 @@ export default function Home() {
         <Card className="animate-enter relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d] [animation-delay:120ms]">
           <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
             <Image
-              src="/hero-ai-visibility.png"
-              alt="Four streams of evidence converging into one measured AI visibility result"
+              src="/sample-report-preview.png"
+              alt="Sample report showing visibility, missed questions, competitors, sources, and recommended actions"
               fill
               priority
               sizes="(min-width: 768px) 42vw, 100vw"
@@ -171,10 +170,10 @@ export default function Home() {
             <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-200">
-                  Evidence in. Signal out.
+                  A real deliverable, before you buy
                 </p>
                 <p className="mt-1 text-xs text-zinc-300">
-                  25 shared questions. 100 planned provider answers.
+                  Metrics, missed questions, sources, and five next actions.
                 </p>
               </div>
               <Badge variant="success" className="shrink-0">Live evidence</Badge>
@@ -208,7 +207,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] px-3.5 py-3 text-xs leading-5 text-zinc-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
               <CircleGauge className="size-4 shrink-0 text-emerald-300" />
-              Every headline metric keeps its numerator, denominator, and coverage visible.
+              Every metric and recommendation links back to stored evidence.
             </div>
           </CardContent>
         </Card>
@@ -222,6 +221,23 @@ export default function Home() {
               <p className="mt-1 text-xs text-zinc-400">{model} · {grounding}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="page-shell py-20 md:py-24">
+        <div className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/[0.025] p-7 sm:p-9">
+          <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
+            <div>
+              <p className="eyebrow">Know what you receive</p>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">A client-ready audit, not another monitoring dashboard.</h2>
+              <Button asChild variant="link" className="mt-4"><Link href="/sample-report">Open the complete sample report</Link></Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {["25 buyer questions", "Four web-grounded providers", "Competitor comparison", "Answer and citation evidence", "Five prioritized actions", "PDF and CSV exports"].map((item) => (
+                <p key={item} className="flex items-center gap-3 rounded-xl bg-black/20 px-4 py-3 text-sm text-zinc-200"><Check className="size-4 shrink-0 text-emerald-300" />{item}</p>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -263,8 +279,8 @@ export default function Home() {
           <FeatureCard icon={<Globe2 />} title="Grounding required">
             A response without valid web sources is excluded from scoring and remains visible in coverage.
           </FeatureCard>
-          <FeatureCard icon={<Database />} title="Evidence retained">
-            Inspect normalized answers, source URLs, model versions, usage, and exclusion reasons.
+          <FeatureCard icon={<Database />} title="Evidence becomes action">
+            See the buyer questions you missed, who appeared instead, which sources recur, and what page or third-party mention is likely needed.
           </FeatureCard>
           <FeatureCard icon={<Check />} title="Same frozen test">
             All four models receive the same 25 questions, locale, and prompt
@@ -314,7 +330,7 @@ export default function Home() {
               One credit. One complete benchmark.
             </h2>
             <p className="mt-4 text-pretty text-sm leading-6 text-zinc-400">
-              No subscription, seat fees, or provider add-ons. Every run includes the same 25-question, four-provider benchmark and source evidence.
+              No subscription, seat fees, or provider add-ons. Every run includes the audit, evidence, prioritized action plan, and exports.
             </p>
           </div>
           <div className="mx-auto mt-10 grid max-w-5xl gap-4 md:grid-cols-3">

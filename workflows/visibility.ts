@@ -15,6 +15,7 @@ import {
 } from "workflow";
 
 import { analyzeAnswer, type AnswerAnalysis } from "@/lib/ai/analyze";
+import { buildActionPlan } from "@/lib/action-plan";
 import {
   generateBenchmarkQuestions,
   type GeneratedQuestionSet,
@@ -43,6 +44,7 @@ import {
 import { getBenchmarkConfig } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import {
+  actionRecommendations,
   dailyUsage,
   providerJobs,
   questions,
@@ -67,6 +69,7 @@ export interface VisibilityWorkflowResult {
 
 interface WorkflowRunContext {
   id: string;
+  baselineRunId: string | null;
   userId: string;
   subjectName: string;
   canonicalDomain: string;
@@ -389,6 +392,9 @@ export async function runVisibilityWorkflow(
 
       await markRunAnalyzingStep(context.id);
       const finalized = await finalizeRunStep(context.id);
+      if (finalized.status === "complete" || finalized.status === "partial") {
+        await persistActionPlanStep(context.id);
+      }
       await syncDailyUsageStep(context.userId, context.usageDate);
       console.log(
         `[visibility] DONE runId=${runId} status=${finalized.status}`,
@@ -497,6 +503,7 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
   const config = getBenchmarkConfig();
   const context: WorkflowRunContext = {
     id: run.id,
+    baselineRunId: run.baselineRunId,
     userId: run.userId,
     subjectName: run.subjectName,
     canonicalDomain: run.canonicalDomain,
@@ -538,6 +545,61 @@ async function generateQuestionsStep(
   );
 
   try {
+    if (context.baselineRunId) {
+      const baselineQuestions = await getDb()
+        .select({
+          cohort: questions.cohort,
+          category: questions.category,
+          text: questions.text,
+          sortOrder: questions.sortOrder,
+          normalizedHash: questions.normalizedHash,
+          generatorModel: questions.generatorModel,
+          promptVersion: questions.promptVersion,
+        })
+        .from(questions)
+        .innerJoin(runs, eq(questions.runId, runs.id))
+        .where(
+          and(
+            eq(questions.runId, context.baselineRunId),
+            eq(runs.userId, context.userId),
+          ),
+        )
+        .orderBy(asc(questions.sortOrder));
+
+      if (baselineQuestions.length !== context.questionCount) {
+        throw new FatalError(
+          "BASELINE_QUESTION_SET_INCOMPATIBLE: The baseline question set is incomplete.",
+        );
+      }
+
+      console.log(
+        `[generateQuestions] REUSED runId=${context.id} baseline=${context.baselineRunId} count=${baselineQuestions.length}`,
+      );
+      return {
+        questions: baselineQuestions.map((question) => ({
+          cohort: question.cohort,
+          category: question.category,
+          text: question.text,
+          sortOrder: question.sortOrder,
+          normalizedHash: question.normalizedHash,
+        })),
+        generatorModel: baselineQuestions[0].generatorModel,
+        promptVersion: baselineQuestions[0].promptVersion,
+        usage: {
+          inputTokens: null,
+          outputTokens: null,
+          totalTokens: null,
+          reasoningTokens: null,
+          cachedInputTokens: null,
+          searchUses: null,
+        },
+        costMicros: 0,
+        costProvenance: "unavailable",
+        generationCallCount: 0,
+        gatewayGenerationIds: [],
+      };
+    }
+
     const generated = await generateBenchmarkQuestions({
       subjectName: context.subjectName,
       canonicalDomain: context.canonicalDomain,
@@ -1441,6 +1503,56 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
   };
 }
 finalizeRunStep.maxRetries = 3;
+
+async function persistActionPlanStep(runId: string): Promise<number> {
+  "use step";
+
+  console.log(`[persistActionPlan] START runId=${runId}`);
+  const db = getDb();
+  const [run] = await db
+    .select({ canonicalDomain: runs.canonicalDomain })
+    .from(runs)
+    .where(eq(runs.id, runId))
+    .limit(1);
+
+  if (!run) throw new FatalError("RUN_NOT_FOUND: Benchmark run does not exist.");
+
+  const evidence = await db
+    .select({
+      resultId: results.id,
+      questionId: questions.id,
+      questionText: questions.text,
+      category: questions.category,
+      cohort: questions.cohort,
+      scoreEligible: results.scoreEligible,
+      targetMentioned: results.targetMentioned,
+      prominence: results.prominence,
+      ownedDomainCited: results.ownedDomainCited,
+      competitorMentions: results.competitorMentions,
+      sources: results.sources,
+    })
+    .from(results)
+    .innerJoin(providerJobs, eq(results.jobId, providerJobs.id))
+    .innerJoin(questions, eq(providerJobs.questionId, questions.id))
+    .where(eq(providerJobs.runId, runId));
+  const actionPlan = buildActionPlan(evidence, run.canonicalDomain);
+
+  if (actionPlan.length > 0) {
+    await db
+      .insert(actionRecommendations)
+      .values(
+        actionPlan.map((recommendation) => ({
+          runId,
+          ...recommendation,
+        })),
+      )
+      .onConflictDoNothing();
+  }
+
+  console.log(`[persistActionPlan] DONE runId=${runId} count=${actionPlan.length}`);
+  return actionPlan.length;
+}
+persistActionPlanStep.maxRetries = 3;
 
 async function notifyRunFinishedStep(runId: string): Promise<void> {
   "use step";

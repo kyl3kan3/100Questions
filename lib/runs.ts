@@ -7,6 +7,7 @@ import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getBenchmarkConfig, PROVIDERS } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import {
+  actionRecommendations,
   providerJobs,
   questions,
   results,
@@ -48,6 +49,7 @@ export type CreateReservedRunResult =
 
 type CreateReservedRunOptions = {
   unlimitedAccess?: boolean;
+  baselineRunId?: string;
 };
 
 export async function createReservedRun(
@@ -98,7 +100,7 @@ export async function createReservedRun(
     ),
     created_run AS (
       INSERT INTO runs (
-        id, user_id, client_request_id, subject_name, canonical_domain,
+        id, user_id, client_request_id, baseline_run_id, subject_name, canonical_domain,
         description, aliases, competitors, market, locale, status,
         question_count_planned, discovery_count_planned,
         diagnostic_count_planned, provider_calls_planned,
@@ -108,7 +110,7 @@ export async function createReservedRun(
         retention_expires_at
       )
       SELECT
-        ${id}::uuid, ${userId}, ${clientRequestId}, ${input.subjectName},
+        ${id}::uuid, ${userId}, ${clientRequestId}, ${options.baselineRunId ?? null}::uuid, ${input.subjectName},
         ${input.canonicalDomain}, ${input.description},
         ${JSON.stringify(input.aliases)}::jsonb,
         ${JSON.stringify(input.competitors)}::jsonb,
@@ -327,16 +329,24 @@ export async function getRunResultsForUser(runId: string, userId: string) {
     return null;
   }
 
-  const rows = await getDb()
-    .select({ question: questions, job: providerJobs, result: results })
-    .from(questions)
-    .leftJoin(providerJobs, eq(providerJobs.questionId, questions.id))
-    .leftJoin(results, eq(results.jobId, providerJobs.id))
-    .where(eq(questions.runId, runId))
-    .orderBy(asc(questions.sortOrder), asc(providerJobs.provider));
+  const [rows, actionPlan] = await Promise.all([
+    getDb()
+      .select({ question: questions, job: providerJobs, result: results })
+      .from(questions)
+      .leftJoin(providerJobs, eq(providerJobs.questionId, questions.id))
+      .leftJoin(results, eq(results.jobId, providerJobs.id))
+      .where(eq(questions.runId, runId))
+      .orderBy(asc(questions.sortOrder), asc(providerJobs.provider)),
+    getDb()
+      .select()
+      .from(actionRecommendations)
+      .where(eq(actionRecommendations.runId, runId))
+      .orderBy(asc(actionRecommendations.rank)),
+  ]);
 
   return {
     run: toPublicRun(run),
+    actionPlan,
     rows: rows.map(({ question, job, result }) => {
       if (!result) {
         return { question, job, result };

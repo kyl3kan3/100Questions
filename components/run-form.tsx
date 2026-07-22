@@ -1,27 +1,17 @@
 "use client";
 
-import { ArrowRight, LoaderCircle, ShieldCheck } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, LoaderCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { trackEvent } from "@/lib/analytics";
 
 type RunFormProps = {
-  estimatedMicrosPerProviderCall: number;
-  ceilingMicrosPerProviderCall: number;
-  aiCallsPerProviderJob: number;
-  questionGenerationCallAllowance: number;
   creditBalance: number;
   unlimitedAccess?: boolean;
   providerCount: number;
@@ -29,51 +19,74 @@ type RunFormProps = {
 };
 
 export function RunForm({
-  estimatedMicrosPerProviderCall,
-  ceilingMicrosPerProviderCall,
-  aiCallsPerProviderJob,
-  questionGenerationCallAllowance,
   creditBalance,
   unlimitedAccess = false,
   providerCount,
   questionCount,
 }: RunFormProps) {
   const router = useRouter();
-  const [confirmed, setConfirmed] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
   const [pending, setPending] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [idempotencyKey, setIdempotencyKey] = useState(() =>
-    crypto.randomUUID(),
-  );
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const [values, setValues] = useState({
+    subjectName: "",
+    canonicalDomain: "",
+    description: "",
+    aliases: "",
+    competitors: "",
+    market: "United States",
+    locale: "en-US",
+  });
   const providerCalls = questionCount * providerCount;
-  const plannedAiCalls =
-    providerCalls * aiCallsPerProviderJob + questionGenerationCallAllowance;
-  const estimate = useMemo(
-    () => formatMicros(plannedAiCalls * estimatedMicrosPerProviderCall),
-    [estimatedMicrosPerProviderCall, plannedAiCalls],
-  );
-  const ceiling = useMemo(
-    () => formatMicros(plannedAiCalls * ceilingMicrosPerProviderCall),
-    [ceilingMicrosPerProviderCall, plannedAiCalls],
-  );
+
+  function update(field: keyof typeof values, value: string) {
+    setValues((current) => ({ ...current, [field]: value }));
+  }
+
+  async function continueToDetails() {
+    if (values.subjectName.trim().length < 2 || !values.canonicalDomain.trim()) {
+      setError("Add a brand name and domain first.");
+      return;
+    }
+
+    setError(null);
+    setSuggesting(true);
+    try {
+      const response = await fetch("/api/subjects/preview", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          subjectName: values.subjectName,
+          canonicalDomain: values.canonicalDomain,
+        }),
+      });
+      const data = (await response.json()) as {
+        description?: string;
+        aliases?: string[];
+        error?: string;
+      };
+
+      if (response.ok) {
+        setValues((current) => ({
+          ...current,
+          description: current.description || data.description || "",
+          aliases: current.aliases || data.aliases?.join("\n") || current.subjectName,
+        }));
+      }
+    } catch {
+      // Suggestions are optional; the editable form remains available.
+    } finally {
+      setSuggesting(false);
+      setStep(2);
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
-
-    const formData = new FormData(event.currentTarget);
-    const payload = {
-      subjectName: formData.get("subjectName"),
-      canonicalDomain: formData.get("canonicalDomain"),
-      description: formData.get("description"),
-      aliases: parseList(formData.get("aliases")),
-      competitors: parseList(formData.get("competitors")),
-      market: formData.get("market"),
-      locale: formData.get("locale"),
-      questionCount,
-      confirmedBudget: confirmed,
-    };
 
     try {
       const response = await fetch("/api/runs", {
@@ -82,26 +95,26 @@ export function RunForm({
           "content-type": "application/json",
           "idempotency-key": idempotencyKey,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...values,
+          aliases: parseList(values.aliases),
+          competitors: parseList(values.competitors),
+          questionCount,
+          confirmedBudget: true,
+        }),
       });
-      const data = (await response.json()) as {
-        error?: string;
-        run?: { id: string };
-      };
+      const data = (await response.json()) as { error?: string; run?: { id: string } };
 
       if (!response.ok || !data.run) {
         throw new Error(data.error ?? "The benchmark could not be started.");
       }
 
+      trackEvent("benchmark_started", { run_id: data.run.id, is_rerun: false });
       setIdempotencyKey(crypto.randomUUID());
       router.push(`/runs/${data.run.id}`);
       router.refresh();
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "The benchmark could not be started.",
-      );
+      setError(caught instanceof Error ? caught.message : "The benchmark could not be started.");
     } finally {
       setPending(false);
     }
@@ -111,193 +124,86 @@ export function RunForm({
     <Card className="bg-[#0b0e0c]">
       <form onSubmit={onSubmit}>
         <CardHeader className="border-b border-white/[0.07] pb-6">
-          <CardTitle className="text-xl">New visibility benchmark</CardTitle>
+          <p className="eyebrow">Step {step} of 2</p>
+          <CardTitle className="text-xl">
+            {step === 1 ? "What should we audit?" : "Review the benchmark brief"}
+          </CardTitle>
           <CardDescription>
-            Describe the subject precisely. Discovery prompts will omit its name,
-            aliases, and domain.
+            {step === 1
+              ? "Start with the brand and website. We will suggest the rest from the public homepage."
+              : "Edit the suggested context and add the competitors buyers are likely to compare."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Brand or product name" htmlFor="subjectName">
-              <Input
-                id="subjectName"
-                name="subjectName"
-                placeholder="Northstar Analytics"
-                required
-                minLength={2}
-                maxLength={120}
-                autoComplete="organization"
-              />
-            </Field>
-            <Field label="Canonical domain" htmlFor="canonicalDomain">
-              <Input
-                id="canonicalDomain"
-                name="canonicalDomain"
-                placeholder="northstar.example"
-                required
-                maxLength={253}
-                autoComplete="url"
-              />
-            </Field>
-          </div>
-
-          <Field label="Category and use-case description" htmlFor="description">
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="A product analytics platform for B2B SaaS teams that need privacy-friendly funnels, retention cohorts, and warehouse-native reporting."
-              required
-              minLength={20}
-              maxLength={2000}
-              rows={5}
-            />
-            <p className="mt-2 text-xs leading-5 text-zinc-400">
-              This becomes the neutral category brief used to generate discovery questions.
-            </p>
-          </Field>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Aliases (optional)" htmlFor="aliases">
-              <Textarea
-                id="aliases"
-                name="aliases"
-                placeholder="Northstar\nNorthstar Analytics"
-                rows={3}
-              />
-            </Field>
-            <Field label="Competitors (optional)" htmlFor="competitors">
-              <Textarea
-                id="competitors"
-                name="competitors"
-                placeholder="Competitor One\nCompetitor Two"
-                rows={3}
-              />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Market" htmlFor="market">
-              <Input
-                id="market"
-                name="market"
-                placeholder="United States"
-                defaultValue="United States"
-                required
-                maxLength={120}
-              />
-            </Field>
-            <Field label="Locale" htmlFor="locale">
-              <Input
-                id="locale"
-                name="locale"
-                defaultValue="en-US"
-                required
-                maxLength={32}
-              />
-            </Field>
-          </div>
-
-          <div className="rounded-2xl bg-white/[0.035] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-zinc-200">
-                  {questionCount} shared questions × {providerCount} models ={" "}
-                  {providerCalls} planned web-grounded answers
-                </p>
-                <p className="mt-1 text-xs leading-5 text-zinc-400">
-                  Every model receives the same 20 discovery and 5 diagnostic
-                  questions. Up to {providerCalls} contextual analyses and{" "}
-                  {questionGenerationCallAllowance} question-generation calls are
-                  budgeted. Estimated {estimate}; hard scheduling guard {ceiling}.
-                  {unlimitedAccess
-                    ? "This test account does not consume prepaid credits."
-                    : "One prepaid run credit is reserved."}{" "}
-                  Results are directional at this sample size.
-                </p>
-              </div>
-              <span className="shrink-0 font-mono text-xs text-zinc-400 tabular-nums">
-                {unlimitedAccess
-                  ? "Unlimited access"
-                  : `${creditBalance} ${creditBalance === 1 ? "credit" : "credits"}`}
-              </span>
+          {step === 1 ? (
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Brand or product name" htmlFor="subjectName">
+                <Input id="subjectName" value={values.subjectName} onChange={(event) => update("subjectName", event.target.value)} placeholder="Northstar Analytics" required minLength={2} maxLength={120} autoComplete="organization" />
+              </Field>
+              <Field label="Canonical domain" htmlFor="canonicalDomain">
+                <Input id="canonicalDomain" value={values.canonicalDomain} onChange={(event) => update("canonicalDomain", event.target.value)} placeholder="northstar.example" required maxLength={253} autoComplete="url" />
+              </Field>
             </div>
-            <label className="mt-4 flex cursor-pointer items-start gap-3 border-t border-white/[0.07] pt-4 text-sm leading-6 text-zinc-400">
-              <input
-                type="checkbox"
-                checked={confirmed}
-                onChange={(event) => setConfirmed(event.target.checked)}
-                className="mt-1 size-4 shrink-0 accent-emerald-300"
-              />
-              <span>
-                I approve this run&apos;s provider-processing plan and understand
-                that retries and ambiguous provider timeouts can vary from the
-                {` ${ceiling}`} scheduling estimate. Inputs pass through Vercel to
-                OpenAI, Claude, Gemini, and Grok.
-              </span>
-            </label>
-          </div>
+          ) : (
+            <>
+              <Field label="Category and use-case description" htmlFor="description">
+                <Textarea id="description" value={values.description} onChange={(event) => update("description", event.target.value)} placeholder="A product analytics platform for B2B SaaS teams that need privacy-friendly funnels, retention cohorts, and warehouse-native reporting." required minLength={20} maxLength={2000} rows={5} />
+                <p className="mt-2 text-xs leading-5 text-zinc-400">This becomes the neutral brief used to generate discovery questions.</p>
+              </Field>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Aliases (optional)" htmlFor="aliases">
+                  <Textarea id="aliases" value={values.aliases} onChange={(event) => update("aliases", event.target.value)} placeholder="Northstar\nNorthstar Analytics" rows={3} />
+                </Field>
+                <Field label="Competitors (recommended)" htmlFor="competitors">
+                  <Textarea id="competitors" value={values.competitors} onChange={(event) => update("competitors", event.target.value)} placeholder="Competitor One\nCompetitor Two" rows={3} />
+                </Field>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Market" htmlFor="market">
+                  <Input id="market" value={values.market} onChange={(event) => update("market", event.target.value)} required maxLength={120} />
+                </Field>
+                <Field label="Locale" htmlFor="locale">
+                  <Input id="locale" value={values.locale} onChange={(event) => update("locale", event.target.value)} required maxLength={32} />
+                </Field>
+              </div>
+              <div className="rounded-2xl bg-white/[0.035] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-zinc-200">This uses one credit</p>
+                    <p className="mt-1 text-xs leading-5 text-zinc-400">{questionCount} shared questions across {providerCount} web-grounded models produce up to {providerCalls} evidence-backed answers. Results can differ from consumer ChatGPT, Gemini, Claude, or Grok interfaces.</p>
+                  </div>
+                  <span className="shrink-0 font-mono text-xs text-zinc-400 tabular-nums">{unlimitedAccess ? "Unlimited" : `${creditBalance} ${creditBalance === 1 ? "credit" : "credits"}`}</span>
+                </div>
+              </div>
+            </>
+          )}
 
-          {error ? (
-            <p role="alert" className="rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-200">
-              {error}
-            </p>
-          ) : null}
+          {error ? <p role="alert" className="rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</p> : null}
         </CardContent>
         <CardFooter className="flex-col items-stretch justify-between gap-4 border-t border-white/[0.07] pt-6 sm:flex-row sm:items-center">
-          <p className="flex items-center gap-2 text-xs text-zinc-400">
-            <ShieldCheck className="size-4" /> No ungrounded fallback enters the score.
-          </p>
-          <Button
-            type="submit"
-            disabled={
-              pending ||
-              !confirmed ||
-              (!unlimitedAccess && creditBalance < 1)
-            }
-            className="sm:min-w-40"
-          >
-            {pending ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}
-            {pending ? "Queuing…" : "Start benchmark"}
-          </Button>
+          <p className="flex items-center gap-2 text-xs text-zinc-400"><ShieldCheck className="size-4" /> Private by default. No ungrounded fallback enters the score.</p>
+          <div className="flex gap-2">
+            {step === 2 ? <Button type="button" variant="outline" onClick={() => setStep(1)}><ArrowLeft /> Back</Button> : null}
+            {step === 1 ? (
+              <Button type="button" onClick={() => void continueToDetails()} disabled={suggesting} className="sm:min-w-40">
+                {suggesting ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{suggesting ? "Finding details…" : "Suggest details"}
+              </Button>
+            ) : (
+              <Button type="submit" disabled={pending || (!unlimitedAccess && creditBalance < 1)} className="sm:min-w-40">
+                {pending ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}{pending ? "Queuing…" : "Run benchmark"}
+              </Button>
+            )}
+          </div>
         </CardFooter>
       </form>
     </Card>
   );
 }
 
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <Label htmlFor={htmlFor} className="mb-2">
-        {label}
-      </Label>
-      {children}
-    </div>
-  );
+function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: React.ReactNode }) {
+  return <div><Label htmlFor={htmlFor} className="mb-2">{label}</Label>{children}</div>;
 }
 
-function parseList(value: FormDataEntryValue | null) {
-  return typeof value === "string"
-    ? value
-        .split(/[\n,]/u)
-        .map((item) => item.trim())
-        .filter(Boolean)
-    : [];
-}
-
-function formatMicros(micros: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(micros / 1_000_000);
+function parseList(value: string) {
+  return value.split(/[\n,]/u).map((item) => item.trim()).filter(Boolean);
 }

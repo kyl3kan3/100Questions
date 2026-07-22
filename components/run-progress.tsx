@@ -7,10 +7,11 @@ import {
   ExternalLink,
   LoaderCircle,
   Search,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { trackEvent } from "@/lib/analytics";
 
 type Provider = "openai" | "anthropic" | "google" | "xai";
 
@@ -48,6 +50,7 @@ type RunState = {
   frozenModels: Record<string, string>;
   failureMessage: string | null;
   workflowRunId: string | null;
+  baselineRunId: string | null;
 };
 
 type ResultRow = {
@@ -65,6 +68,7 @@ type ResultRow = {
     errorMessage: string | null;
   };
   result: null | {
+    id: string;
     answerText: string;
     sources: Array<{ url: string; title: string | null; publisher: string | null }>;
     requiredAttribution: Array<{
@@ -112,6 +116,25 @@ type ResultsPayload = {
   providerMetrics: Partial<Record<Provider, MetricsPayload>>;
   providers?: Provider[];
   categories: string[];
+  actionPlan: Array<{
+    id: string;
+    rank: number;
+    category: string;
+    title: string;
+    rationale: string;
+    action: string;
+    evidenceResultIds: string[];
+    sourceUrls: string[];
+    confidence: "high" | "medium" | "low";
+    analysisVersion: string;
+  }>;
+};
+
+type ComparisonPayload = {
+  metrics: Record<"visibility" | "citations" | "coverage", { baseline: number | null; current: number | null; delta: number | null }> & {
+    competitorMentions: { baseline: number; current: number; delta: number };
+  };
+  modelChanges: Array<{ key: string; baseline: string | null; current: string | null }>;
 };
 
 const terminalStatuses = new Set(["complete", "partial", "failed", "cancelled"]);
@@ -126,6 +149,8 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   const [cohort, setCohort] = useState<"all" | "discovery" | "diagnostic">("all");
   const [provider, setProvider] = useState<"all" | Provider>("all");
   const [category, setCategory] = useState("all");
+  const [comparison, setComparison] = useState<ComparisonPayload | null>(null);
+  const viewedResult = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -306,6 +331,22 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
     };
   }, [initialRun.id, initialRun.status]);
 
+  useEffect(() => {
+    if (!payload || viewedResult.current) return;
+    viewedResult.current = true;
+    trackEvent("result_viewed", { run_id: payload.run.id, status: payload.run.status });
+  }, [payload]);
+
+  useEffect(() => {
+    if (!payload?.run.baselineRunId) return;
+    const controller = new AbortController();
+    void fetch(`/api/runs/${payload.run.id}/comparison`, { cache: "no-store", signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: ComparisonPayload | null) => setComparison(data))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [payload?.run.baselineRunId, payload?.run.id]);
+
   const completedCalls = run.succeededProviderCalls + run.failedProviderCalls;
   const progress = Math.round((completedCalls / Math.max(run.providerCallsPlanned, 1)) * 100);
   const availableProviders = useMemo(() => {
@@ -388,7 +429,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       </Card>
 
       {payload ? (
-        <ResultsOverview payload={payload} providers={availableProviders} />
+        <ResultsOverview payload={payload} providers={availableProviders} comparison={comparison} />
       ) : (
         <LoadingCard terminal={terminalStatuses.has(run.status)} />
       )}
@@ -444,9 +485,11 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
 function ResultsOverview({
   payload,
   providers,
+  comparison,
 }: {
   payload: ResultsPayload;
   providers: Provider[];
+  comparison: ComparisonPayload | null;
 }) {
   const metrics = payload.metrics;
   const discoveryRows = payload.rows.filter(
@@ -548,6 +591,10 @@ function ResultsOverview({
           : " Overall answer coverage met the 90% reliability threshold."}
       </p>
 
+      {comparison ? <BaselineComparison comparison={comparison} /> : null}
+
+      <ActionPlanSection items={payload.actionPlan} />
+
       <div className="grid gap-4 lg:grid-cols-2">
         <SearchOutcomeList
           title="Where you appeared"
@@ -576,6 +623,62 @@ function ResultsOverview({
       </div>
     </section>
   );
+}
+
+function ActionPlanSection({ items }: { items: ResultsPayload["actionPlan"] }) {
+  return (
+    <Card className="border border-emerald-300/15 bg-emerald-300/[0.025]">
+      <CardHeader>
+        <p className="eyebrow">Evidence-backed action plan</p>
+        <CardTitle className="text-xl">What to do next</CardTitle>
+        <CardDescription>Ranked actions derived from the stored answers and citations below. They identify opportunities, not guaranteed ranking gains.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {items.length ? items.map((item) => (
+          <article key={item.id} className="rounded-2xl bg-black/20 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+            <div className="flex items-start gap-4">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-sm font-semibold text-emerald-950">{item.rank}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-medium text-zinc-100">{item.title}</h3>
+                  <Badge variant="secondary">{item.confidence} confidence</Badge>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{item.action}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-400">Why: {item.rationale}</p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                  {item.evidenceResultIds.slice(0, 4).map((id, index) => <a key={id} href={`#evidence-${id}`} className="text-emerald-300 hover:text-emerald-200">Answer {index + 1}</a>)}
+                  {item.sourceUrls.slice(0, 3).map((url) => <a key={url} href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-zinc-300 hover:text-white">Source <ExternalLink className="size-3" /></a>)}
+                </div>
+              </div>
+            </div>
+          </article>
+        )) : <p className="rounded-xl bg-white/[0.03] p-4 text-sm text-zinc-400">This run did not contain enough stored evidence for a responsible action plan.</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function BaselineComparison({ comparison }: { comparison: ComparisonPayload }) {
+  const entries = [
+    ["Visibility", comparison.metrics.visibility, true],
+    ["Owned citations", comparison.metrics.citations, true],
+    ["Answer coverage", comparison.metrics.coverage, true],
+    ["Competitor mentions", comparison.metrics.competitorMentions, false],
+  ] as const;
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader><div className="flex items-center gap-3"><TrendingUp className="size-5 text-emerald-300" /><div><CardTitle className="text-base">Change from baseline</CardTitle><CardDescription>Same questions, measured again after implementation.</CardDescription></div></div></CardHeader>
+      <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {entries.map(([label, metric, ratio]) => <div key={label} className="rounded-xl bg-white/[0.03] p-4"><p className="text-xs text-zinc-400">{label}</p><p className="mt-2 text-xl font-semibold tabular-nums">{ratio ? percent(metric.current) : metric.current}</p><p className={`mt-1 text-xs tabular-nums ${metric.delta !== null && metric.delta > 0 ? "text-emerald-300" : metric.delta !== null && metric.delta < 0 ? "text-red-300" : "text-zinc-400"}`}>{formatDelta(metric.delta, ratio)}</p></div>)}
+      </CardContent>
+    </Card>
+  );
+}
+
+function formatDelta(value: number | null, ratio: boolean) {
+  if (value === null) return "No comparable value";
+  const formatted = ratio ? `${Math.abs(value * 100).toFixed(1)} points` : String(Math.abs(value));
+  return value === 0 ? "No change" : `${value > 0 ? "+" : "−"}${formatted} from baseline`;
 }
 
 function PlainMetric({
@@ -864,7 +967,7 @@ function normalizeEntityName(value: string): string {
 function AnswerRow({ row }: { row: ResultRow }) {
   const answer = row.result;
   return (
-    <details className="group rounded-2xl bg-white/[0.025] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)] open:bg-white/[0.04]">
+    <details id={answer ? `evidence-${answer.id}` : undefined} className="group scroll-mt-24 rounded-2xl bg-white/[0.025] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)] open:bg-white/[0.04]">
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 marker:hidden">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap gap-2">

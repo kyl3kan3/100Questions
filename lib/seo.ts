@@ -8,6 +8,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/generative-engine-optimization",
   "/methodology",
   "/faq",
+  "/sample-report",
 ] as const;
 
 export function buildSitemap(): MetadataRoute.Sitemap {
@@ -46,6 +47,13 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.7,
+    },
+    {
+      url: absoluteUrl("/sample-report"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+      images: [absoluteUrl("/sample-report-preview.png")],
     },
   ];
 }

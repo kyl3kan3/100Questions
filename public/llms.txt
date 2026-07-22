@@ -1,6 +1,6 @@
 # 100 Questions
 
-> 100 Questions is a private, prepaid AI visibility benchmark. It sends one frozen 25-question set across OpenAI, Anthropic, Google, and xAI through Vercel AI Gateway, producing 100 planned web-grounded provider answers with transparent coverage and metric denominators.
+> 100 Questions is a private, prepaid AI visibility audit. It sends one frozen 25-question set across OpenAI, Anthropic, Google, and xAI through Vercel AI Gateway, then turns stored answers and citations into a prioritized action plan.
 
 Canonical site: https://100questionsai.com/
 
@@ -11,6 +11,7 @@ Canonical site: https://100questionsai.com/
 - [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
 - [Methodology](https://100questionsai.com/methodology): Question construction, grounding eligibility, metric definitions, evidence retention, and interpretation limits.
 - [FAQ](https://100questionsai.com/faq): Providers, scoring, privacy, billing, and common benchmark questions.
+- [Sample report](https://100questionsai.com/sample-report): Complete fictional audit with metrics, missed questions, competitor evidence, citations, and recommended actions.
 
 ## Core benchmark facts
 
@@ -19,6 +20,8 @@ Canonical site: https://100questionsai.com/
 - Shared web-search grounding is required. Failed, unsupported, or unsourced results are excluded from eligible-score denominators and remain visible in coverage.
 - Headline measures include discovery visibility, prominence, share of voice, claimed-domain citation rate, sentiment, and coverage.
 - Metrics are marked provisional below 90% coverage.
+- Completed reports include up to five evidence-linked actions plus owner-only PDF and CSV exports.
+- Reruns reuse the same questions and compare visibility, citations, competitor mentions, and coverage against the baseline.
 - Results are time-stamped, directional API-grounded snapshots and do not claim parity with consumer chat products.
 - Runs are private to the authenticated owner. The default answer-retention window is 30 days.
 - Billing uses prepaid benchmark credits, not a subscription: $9 for a first benchmark, then $15 for one, $39 for three, or $99 for ten. Credits are valid for 12 months.

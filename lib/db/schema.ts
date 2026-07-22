@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   char,
@@ -139,12 +140,25 @@ export type BillingMetadata = Record<
   string | number | boolean | null
 >;
 
+export type ActionPlanCategory =
+  | "content_gap"
+  | "competitor_gap"
+  | "citation_gap"
+  | "authority_source"
+  | "mention_quality";
+
+export type ActionPlanConfidence = "high" | "medium" | "low";
+
 export const runs = pgTable(
   "runs",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
     clientRequestId: varchar("client_request_id", { length: 128 }).notNull(),
+    baselineRunId: uuid("baseline_run_id").references(
+      (): AnyPgColumn => runs.id,
+      { onDelete: "set null" },
+    ),
     subjectName: text("subject_name").notNull(),
     canonicalDomain: text("canonical_domain").notNull(),
     description: text("description").notNull(),
@@ -253,6 +267,7 @@ export const runs = pgTable(
         sql`${table.status} IN ('queued', 'generating', 'querying', 'analyzing')`,
       ),
     index("runs_user_created_at_idx").on(table.userId, table.createdAt),
+    index("runs_baseline_run_id_idx").on(table.baselineRunId),
     index("runs_user_status_idx").on(table.userId, table.status),
     index("runs_status_retention_idx").on(
       table.status,
@@ -270,6 +285,54 @@ export const runs = pgTable(
     check(
       "runs_costs_nonnegative_check",
       sql`${table.budgetCeilingMicros} >= 0 AND ${table.estimatedCostMicros} >= 0 AND ${table.actualCostMicros} >= 0`,
+    ),
+  ],
+);
+
+export const actionRecommendations = pgTable(
+  "action_recommendations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => runs.id, { onDelete: "cascade" }),
+    rank: integer("rank").notNull(),
+    category: varchar("category", { length: 48 })
+      .$type<ActionPlanCategory>()
+      .notNull(),
+    title: text("title").notNull(),
+    rationale: text("rationale").notNull(),
+    action: text("action").notNull(),
+    evidenceResultIds: jsonb("evidence_result_ids")
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    sourceUrls: jsonb("source_urls")
+      .$type<string[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    confidence: varchar("confidence", { length: 16 })
+      .$type<ActionPlanConfidence>()
+      .notNull(),
+    analysisVersion: varchar("analysis_version", { length: 64 })
+      .notNull()
+      .default("action-plan-v1"),
+    createdAt: timestamp("created_at", { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("action_recommendations_run_rank_unique").on(
+      table.runId,
+      table.rank,
+    ),
+    index("action_recommendations_run_id_idx").on(table.runId),
+    check(
+      "action_recommendations_rank_check",
+      sql`${table.rank} BETWEEN 1 AND 5`,
     ),
   ],
 );

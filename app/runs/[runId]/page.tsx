@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { CancelRunButton } from "@/components/cancel-run-button";
 import { DeleteRunButton } from "@/components/delete-run-button";
+import { ReportActions } from "@/components/report-actions";
 import { RunProgress } from "@/components/run-progress";
 import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/lib/auth/session";
@@ -44,11 +45,10 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard"><ArrowLeft /> Dashboard</Link>
           </Button>
-          {active ? (
-            <CancelRunButton runId={run.id} />
-          ) : (
-            <DeleteRunButton runId={run.id} />
-          )}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {!active && ["complete", "partial"].includes(run.status) ? <ReportActions runId={run.id} /> : null}
+            {active ? <CancelRunButton runId={run.id} /> : <DeleteRunButton runId={run.id} />}
+          </div>
         </div>
         <div className="min-w-0">
           <RunProgress

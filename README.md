@@ -1,6 +1,6 @@
 # 100Questions
 
-100Questions is a private, paid AI-visibility benchmark. Benchmark v2 freezes exactly 25 shared questions and plans 100 provider answers across OpenAI, Claude, Gemini, and Grok with a shared web-search harness. Successful sourced answers and coverage gaps remain visible behind transparent metrics. Historical v1 runs keep their original frozen provider set and denominators.
+100Questions is a private, prepaid AI visibility audit. Benchmark v2 freezes exactly 25 shared questions and plans 100 provider answers across OpenAI, Claude, Gemini, and Grok with a shared web-search harness. It turns stored answer and citation evidence into up to five prioritized actions. Historical v1 runs keep their original frozen provider set and denominators.
 
 The product is an API-grounded benchmark, not a claim of parity with the providers' consumer chat interfaces.
 
@@ -15,7 +15,9 @@ The product is an API-grounded benchmark, not a claim of parity with the provide
 - Transactional completion, partial-result, failure, and cancellation email notifications through Resend
 - A fixed 20-question neutral discovery / 5-question target-named diagnostic split
 - Versioned visibility, prominence, share-of-voice, citation, sentiment, and coverage calculations
-- Owner-only dashboard, progress, evidence, and deletion routes
+- Evidence-linked, versioned action plans with owner-only PDF and CSV exports
+- Exact-question reruns with owner-only baseline comparisons
+- Owner-only dashboard, progress, evidence, rerun, export, and deletion routes
 
 The complete methodology and operational decisions live in [PLAN.md](./PLAN.md).
 
@@ -46,8 +48,8 @@ and cancellation guards still apply before new model calls are scheduled.
 Internal test accounts can bypass prepaid credits and per-user daily quotas by
 setting `UNLIMITED_ACCESS_USER_IDS` to a comma-separated list of trusted Neon
 Auth user IDs. This policy is evaluated only from the authenticated server
-session. Unlimited runs still keep one active run at a time, per-run budget
-confirmation, workflow accounting, and Gateway-level spending controls.
+session. Unlimited runs still keep one active run at a time, workflow
+accounting, and Gateway-level spending controls.
 
 ## Stripe setup
 
@@ -73,12 +75,12 @@ npm test
 npm run build
 ```
 
-Do not run a paid provider canary or a full fixed benchmark until the displayed run budget has been reviewed and explicitly confirmed. A run contains 25 shared questions and plans 100 provider answers (20 discovery and 5 diagnostic questions per provider). With the default guardrails, the planning estimate is about $2.48 and the hard scheduling guard is about $3.93. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
+Do not run a paid provider canary or a full fixed benchmark without deliberate approval. A run contains 25 shared questions and plans 100 provider answers (20 discovery and 5 diagnostic questions per provider). Internal cost ceilings remain enforced server-side. Results are directional: with only 25 questions, a rough worst-case sampling interval is about +/-20 percentage points, before accounting for question-set selection and provider variability. The pure metric and question-validation test suites do not make paid model calls.
 
 ## Search discovery
 
 Public search inventory is generated from `lib/seo.ts` and includes the home
-page, the AI visibility guide, the generative engine optimization guide, the
+page, the sample report, the AI visibility guide, the generative engine optimization guide, the
 methodology, and the FAQ. Private authentication, dashboard, run, workflow, and
 API URLs are excluded from the sitemap or marked `noindex` at the page level.
 

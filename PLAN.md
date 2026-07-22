@@ -14,6 +14,8 @@ providers through Vercel AI Gateway, and reports across 100 planned provider ans
 - Claimed-domain citation rate
 - Sentiment among answers that mention the target
 - Diagnostic source mix and answer evidence for manual review
+- A versioned, ranked action plan that references stored result evidence and sources
+- Owner-only PDF/CSV exports and exact-question reruns with baseline deltas
 - Per-run usage and cost
 
 Results are a time-stamped API-grounded benchmark. They do not claim parity with the
@@ -79,7 +81,8 @@ A single run is a directional snapshot because search results and model response
 only 25 shared questions, a simple worst-case sampling interval is roughly +/-20 percentage
 points (and the 20-question discovery cohort is slightly wider). This is a scale cue, not a
 claim that the generated question set is a random or representative statistical sample.
-Repeated sampling and longitudinal trend claims remain Phase 2.
+Reruns reuse the exact stored question set and compare visibility, citations, competitor
+mentions, and coverage. Comparisons remain directional and disclose model-version changes.
 
 ## Metrics
 

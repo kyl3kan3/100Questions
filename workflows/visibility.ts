@@ -132,7 +132,8 @@ const TERMINAL_STATUSES = [
   "failed",
   "cancelled",
 ] as const;
-const MAX_QUESTION_GENERATION_CALLS = 7;
+const MAX_QUESTION_GENERATION_CALLS = 14;
+const LEGACY_QUESTION_GENERATION_CALLS = 7;
 const PENDING_ANALYSIS_VERSION = "__pending__";
 
 /**
@@ -304,10 +305,12 @@ export async function runVisibilityWorkflow(
             ),
           );
 
-          console.log(
-            `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=batch_query_to_analysis`,
-          );
-          await sleep(context.aiCallDelayMs);
+          if (context.aiCallDelayMs > 0) {
+            console.log(
+              `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=batch_query_to_analysis`,
+            );
+            await sleep(context.aiCallDelayMs);
+          }
 
           const analysisGuard = await checkRunGuardStep(
             context,
@@ -382,7 +385,10 @@ export async function runVisibilityWorkflow(
           );
         }
 
-        if (batchStart + batch.length < jobs.length) {
+        if (
+          context.aiCallDelayMs > 0 &&
+          batchStart + batch.length < jobs.length
+        ) {
           console.log(
             `[visibility] PACING runId=${runId} delayMs=${context.aiCallDelayMs} reason=batch_to_batch`,
           );
@@ -1935,11 +1941,29 @@ function estimatedMicrosPerCall(run: {
   providerCallsPlanned: number;
 }): number {
   if (run.providerCallsPlanned > 0 && run.estimatedCostMicros > 0) {
-    const frozenEstimatedGatewayCalls =
-      run.providerCallsPlanned * 2 + MAX_QUESTION_GENERATION_CALLS;
+    // The reserved total freezes the per-call estimate, but older benchmark-v2
+    // runs reserved seven question calls. Recover the exact integer estimate
+    // from either layout so historical runs keep their original accounting.
+    for (const questionCalls of [
+      MAX_QUESTION_GENERATION_CALLS,
+      LEGACY_QUESTION_GENERATION_CALLS,
+    ]) {
+      const frozenEstimatedGatewayCalls =
+        run.providerCallsPlanned * 2 + questionCalls;
+      if (run.estimatedCostMicros % frozenEstimatedGatewayCalls === 0) {
+        return Math.max(
+          1,
+          run.estimatedCostMicros / frozenEstimatedGatewayCalls,
+        );
+      }
+    }
+
     return Math.max(
       1,
-      Math.round(run.estimatedCostMicros / frozenEstimatedGatewayCalls),
+      Math.round(
+        run.estimatedCostMicros /
+          (run.providerCallsPlanned * 2 + MAX_QUESTION_GENERATION_CALLS),
+      ),
     );
   }
   return getBenchmarkConfig().budget.estimatedMicrosPerProviderCall;
@@ -1977,9 +2001,14 @@ function providerStepError(
 
   if (!failure.retryable) return new FatalError(message);
 
+  const baseBackoffMs =
+    failure.code === "PROVIDER_UNAVAILABLE" ||
+    failure.code === "PROVIDER_RATE_LIMITED"
+      ? 5_000
+      : 2_000;
   const exponentialBackoffMs = Math.min(
-    2_000 * 2 ** Math.max(0, attempt - 1),
-    15_000,
+    baseBackoffMs * 2 ** Math.max(0, attempt - 1),
+    30_000,
   );
   return new RetryableError(message, {
     retryAfter: Math.max(failure.retryAfterMs ?? 0, exponentialBackoffMs),

@@ -41,9 +41,10 @@ Run notifications require a verified sender domain plus `RESEND_API_KEY` and
 continues normally and the notification step is skipped.
 
 Provider jobs run in bounded batches. `WORKFLOW_MAX_CONCURRENT_JOBS` is capped
-at the four configured providers, and `WORKFLOW_AI_CALL_DELAY_MS` adds a short
-cooldown between query and analysis stages. Per-run duration, budget, credit,
-and cancellation guards still apply before new model calls are scheduled.
+at the four configured providers. `WORKFLOW_AI_CALL_DELAY_MS` defaults to zero
+and can add an incident-response cooldown without requiring a deploy. Per-run
+duration, budget, credit, and cancellation guards still apply before new model
+calls are scheduled.
 
 Internal test accounts can bypass prepaid credits and per-user daily quotas by
 setting `UNLIMITED_ACCESS_USER_IDS` to a comma-separated list of trusted Neon

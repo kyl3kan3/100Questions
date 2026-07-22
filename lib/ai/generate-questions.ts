@@ -11,6 +11,7 @@ import {
 } from "./matching";
 import { assertGatewayModelId } from "./models";
 import {
+  classifyProviderError,
   combineCostProvenance,
   combineUsage,
   getGenerationAccounting,
@@ -89,11 +90,12 @@ export async function generateBenchmarkQuestions(
   let accounting = emptyAccounting();
   const gatewayGenerationIds: string[] = [];
 
-  const briefResult = await generateText({
-    model,
-    system: QUESTION_SYSTEM_PROMPT,
-    output: Output.object({ schema: gatewayBriefOutputSchema }),
-    prompt: `Create a category/use-case brief that does not name or identify the subject.
+  const briefGeneration = await retryInvalidStructuredOutput(async () => {
+    const result = await generateText({
+      model,
+      system: QUESTION_SYSTEM_PROMPT,
+      output: Output.object({ schema: gatewayBriefOutputSchema }),
+      prompt: `Create a category/use-case brief that does not name or identify the subject.
 
 Subject description: ${input.description}
 Market: ${input.market}
@@ -101,16 +103,18 @@ Locale: ${input.locale}
 
 Forbidden in the returned brief: ${formatForbiddenIdentity(identity)}. Describe only the
 general category, audience needs, decision criteria, and use cases.`,
-    maxOutputTokens: 1_000,
-    maxRetries: 0,
-    abortSignal: AbortSignal.timeout(QUESTION_TIMEOUT_MS),
-    providerOptions: gatewayOptions(input, "brief"),
+      maxOutputTokens: 1_000,
+      maxRetries: 0,
+      abortSignal: AbortSignal.timeout(QUESTION_TIMEOUT_MS),
+      providerOptions: gatewayOptions(input, "brief"),
+    });
+    return { result, brief: parseGeneratedBrief(result.output) };
   });
+  const { result: briefResult, brief } = briefGeneration.value;
 
   const briefAccounting = getGenerationAccounting(briefResult);
   accounting = mergeAccounting(accounting, briefAccounting);
   collectGenerationId(gatewayGenerationIds, briefAccounting.gatewayGenerationId);
-  const brief = parseGeneratedBrief(briefResult.output);
 
   if (matchBrand(brief.neutralBrief, identity).mentioned) {
     throw new Error("The generated neutral brief exposed the benchmark subject");
@@ -161,7 +165,8 @@ general category, audience needs, decision criteria, and use cases.`,
     usage: accounting.usage,
     costMicros: accounting.costMicros,
     costProvenance: accounting.costProvenance,
-    generationCallCount: 1 + discovery.callCount + diagnostic.callCount,
+    generationCallCount:
+      briefGeneration.attempts + discovery.callCount + diagnostic.callCount,
     gatewayGenerationIds: [...new Set(gatewayGenerationIds)],
   };
 }
@@ -212,28 +217,33 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
       100,
       needed + Math.max(MIN_CANDIDATE_BUFFER, Math.ceil(needed * 0.25)),
     );
-    const result = await generateText({
-      model: options.model,
-      system: QUESTION_SYSTEM_PROMPT,
-      output: Output.object({
-        schema: gatewayQuestionSetOutputSchema,
-      }),
-      prompt: buildCohortPrompt(options, requested, accepted, pass),
-      maxOutputTokens: Math.min(12_000, Math.max(1_500, requested * 105)),
-      maxRetries: 0,
-      abortSignal: AbortSignal.timeout(QUESTION_TIMEOUT_MS),
-      providerOptions: gatewayOptions(options.input, options.cohort),
+    const generation = await retryInvalidStructuredOutput(async () => {
+      const result = await generateText({
+        model: options.model,
+        system: QUESTION_SYSTEM_PROMPT,
+        output: Output.object({
+          schema: gatewayQuestionSetOutputSchema,
+        }),
+        prompt: buildCohortPrompt(options, requested, accepted, pass),
+        maxOutputTokens: Math.min(12_000, Math.max(1_500, requested * 105)),
+        maxRetries: 0,
+        abortSignal: AbortSignal.timeout(QUESTION_TIMEOUT_MS),
+        providerOptions: gatewayOptions(options.input, options.cohort),
+      });
+      return {
+        result,
+        output: parseGeneratedQuestionSet(result.output, needed, requested),
+      };
     });
+    const { result, output } = generation.value;
 
-    callCount += 1;
+    callCount += generation.attempts;
     const generationAccounting = getGenerationAccounting(result);
     accounting = mergeAccounting(accounting, generationAccounting);
     collectGenerationId(
       gatewayGenerationIds,
       generationAccounting.gatewayGenerationId,
     );
-
-    const output = parseGeneratedQuestionSet(result.output, needed, requested);
 
     for (const candidate of output.questions) {
       const text = candidate.text.replace(/\s+/gu, " ").trim();
@@ -268,6 +278,30 @@ async function generateCohort(options: GenerateCohortOptions): Promise<{
   }
 
   return { questions: accepted, accounting, callCount, gatewayGenerationIds };
+}
+
+/**
+ * Repair malformed schema output at the smallest possible boundary. Retrying
+ * here preserves completed brief/cohort work; the Workflow-level retry remains
+ * available for transport failures and repeated invalid output.
+ */
+async function retryInvalidStructuredOutput<T>(
+  operation: () => Promise<T>,
+): Promise<{ value: T; attempts: number }> {
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      return { value: await operation(), attempts: attempt };
+    } catch (error) {
+      if (
+        attempt === 2 ||
+        classifyProviderError(error).code !== "PROVIDER_INVALID_OUTPUT"
+      ) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error("Structured output retry exhausted unexpectedly");
 }
 
 function buildCohortPrompt(

@@ -167,6 +167,7 @@ async function executeGroundedSearch(input: ProviderQueryInput) {
   const prompt = `Market: ${input.market}\nLocale: ${input.locale}\n\nQuestion: ${input.question}`;
   const tags: string[] = [
     "feature:visibility-benchmark",
+    `run:${input.runId}`,
     `provider:${input.provider}`,
     `cohort:${input.cohort}`,
     `prompt:${input.promptVersion}`,
@@ -200,7 +201,18 @@ async function executeGroundedSearch(input: ProviderQueryInput) {
     case "openai":
       return generateText(common);
     case "anthropic":
-      return generateText(common);
+      return generateText({
+        ...common,
+        providerOptions: {
+          gateway: {
+            ...common.providerOptions.gateway,
+            // Sonnet 5 is available from all three providers. Prefer the
+            // lowest-latency route while allowing Gateway to fail over before
+            // a transient provider outage reaches the workflow retry layer.
+            order: ["vertex", "bedrock", "anthropic"],
+          },
+        },
+      });
     case "google":
       return generateText({
         ...common,

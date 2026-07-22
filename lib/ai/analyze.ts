@@ -19,6 +19,7 @@ import {
 } from "./matching";
 import { assertGatewayModelId } from "./models";
 import {
+  classifyProviderError,
   getGenerationAccounting,
   type CostProvenance,
 } from "./providers";
@@ -97,11 +98,12 @@ export async function analyzeAnswer(
   }
 
   const startedAt = performance.now();
-  const result = await generateText({
-    model,
-    system: ANALYSIS_SYSTEM_PROMPT,
-    output: Output.object({ schema: gatewayAnalysisOutputSchema }),
-    prompt: `Target: ${input.subjectName}
+  try {
+    const result = await generateText({
+      model,
+      system: ANALYSIS_SYSTEM_PROMPT,
+      output: Output.object({ schema: gatewayAnalysisOutputSchema }),
+      prompt: `Target: ${input.subjectName}
 Known target aliases: ${input.aliases.join(", ") || "none"}
 Deterministically detected competitors: ${
       deterministicCompetitors.map(({ name }) => name).join(", ") || "none"
@@ -109,54 +111,80 @@ Deterministically detected competitors: ${
 
 Answer to label:
 ${input.answerText}`,
-    maxOutputTokens: 500,
-    maxRetries: 0,
-    abortSignal: AbortSignal.timeout(ANALYSIS_TIMEOUT_MS),
-    providerOptions: {
-      gateway: {
-        user: input.gatewayUserId,
-        tags: [
-          "feature:visibility-analysis",
-          `analysis:${input.analysisVersion}`,
-        ],
+      maxOutputTokens: 500,
+      maxRetries: 0,
+      abortSignal: AbortSignal.timeout(ANALYSIS_TIMEOUT_MS),
+      providerOptions: {
+        gateway: {
+          user: input.gatewayUserId,
+          tags: [
+            "feature:visibility-analysis",
+            `run:${input.runId}`,
+            `analysis:${input.analysisVersion}`,
+          ],
+        },
       },
-    },
-  });
-  const latencyMs = Math.max(0, Math.round(performance.now() - startedAt));
-  const accounting = getGenerationAccounting(result);
-  const analysis = parseGeneratedAnalysis(result.output);
-  const modelCompetitors = new Map(
-    analysis.competitors.map((competitor) => [
-      normalizeMatchText(competitor.name),
-      competitor,
-    ]),
-  );
-  const competitorMentions: CompetitorMention[] = deterministicCompetitors.map(
-    ({ name, match }) => {
-      const modelLabel = modelCompetitors.get(normalizeMatchText(name));
-      return {
+    });
+    const latencyMs = Math.max(0, Math.round(performance.now() - startedAt));
+    const accounting = getGenerationAccounting(result);
+    const analysis = parseGeneratedAnalysis(result.output);
+    const modelCompetitors = new Map(
+      analysis.competitors.map((competitor) => [
+        normalizeMatchText(competitor.name),
+        competitor,
+      ]),
+    );
+    const competitorMentions: CompetitorMention[] = deterministicCompetitors.map(
+      ({ name, match }) => {
+        const modelLabel = modelCompetitors.get(normalizeMatchText(name));
+        return {
+          name,
+          matchedAlias: match.matchedAliases[0] ?? null,
+          sentiment: modelLabel?.sentiment ?? null,
+        };
+      },
+    );
+
+    return {
+      targetMentioned: targetMatch.mentioned,
+      matchedAliases: [...targetMatch.matchedAliases],
+      ownedDomainCited,
+      prominence: targetMatch.mentioned ? analysis.prominence : "absent",
+      sentiment: targetMatch.mentioned ? analysis.sentiment : null,
+      competitorMentions,
+      usage: accounting.usage,
+      costMicros: accounting.costMicros,
+      costProvenance: accounting.costProvenance,
+      gatewayGenerationId: accounting.gatewayGenerationId,
+      gatewayRequestId: accounting.gatewayRequestId,
+      providerRequestId: accounting.providerRequestId,
+      latencyMs,
+    };
+  } catch (error) {
+    if (classifyProviderError(error).code !== "PROVIDER_INVALID_OUTPUT") {
+      throw error;
+    }
+
+    // Presence, aliases, citations, and competitor names are already derived
+    // deterministically. If the small labeling model emits malformed JSON,
+    // preserve that evidence with conservative contextual labels instead of
+    // failing and paying for the same answer again.
+    const latencyMs = Math.max(1, Math.round(performance.now() - startedAt));
+    return {
+      targetMentioned: targetMatch.mentioned,
+      matchedAliases: [...targetMatch.matchedAliases],
+      ownedDomainCited,
+      prominence: targetMatch.mentioned ? "incidental" : "absent",
+      sentiment: null,
+      competitorMentions: deterministicCompetitors.map(({ name, match }) => ({
         name,
         matchedAlias: match.matchedAliases[0] ?? null,
-        sentiment: modelLabel?.sentiment ?? null,
-      };
-    },
-  );
-
-  return {
-    targetMentioned: targetMatch.mentioned,
-    matchedAliases: [...targetMatch.matchedAliases],
-    ownedDomainCited,
-    prominence: targetMatch.mentioned ? analysis.prominence : "absent",
-    sentiment: targetMatch.mentioned ? analysis.sentiment : null,
-    competitorMentions,
-    usage: accounting.usage,
-    costMicros: accounting.costMicros,
-    costProvenance: accounting.costProvenance,
-    gatewayGenerationId: accounting.gatewayGenerationId,
-    gatewayRequestId: accounting.gatewayRequestId,
-    providerRequestId: accounting.providerRequestId,
-    latencyMs,
-  };
+        sentiment: null,
+      })),
+      ...emptyAnalysisAccounting(),
+      latencyMs,
+    };
+  }
 }
 
 function emptyAnalysisAccounting(): Pick<

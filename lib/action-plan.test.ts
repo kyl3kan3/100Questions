@@ -37,4 +37,38 @@ describe("buildActionPlan", () => {
     const plan = buildActionPlan([row({ sources: [{ url: "https://docs.northstar.example/setup", title: null, publisher: null, snippet: null, publishedAt: null }] })], "northstar.example");
     expect(plan.some((item) => item.category === "authority_source")).toBe(false);
   });
+
+  it("does not treat four provider answers to one question as four findings", () => {
+    const questionId = "question-1";
+    const plan = buildActionPlan(
+      [
+        row({ resultId: "result-1", questionId }),
+        row({ resultId: "result-2", questionId }),
+        row({ resultId: "result-3", questionId }),
+        row({ resultId: "result-4", questionId }),
+      ],
+      "northstar.example",
+    );
+    const contentGap = plan.find((item) => item.category === "content_gap");
+
+    expect(contentGap).toMatchObject({ confidence: "low" });
+    expect(contentGap?.rationale).toContain("1 discovery question");
+    expect(contentGap?.evidenceResultIds).toHaveLength(4);
+  });
+
+  it("raises confidence only when evidence spans distinct questions", () => {
+    const plan = buildActionPlan(
+      [
+        row({ resultId: "result-1", questionId: "question-1" }),
+        row({ resultId: "result-2", questionId: "question-2" }),
+        row({ resultId: "result-3", questionId: "question-3" }),
+        row({ resultId: "result-4", questionId: "question-4" }),
+      ],
+      "northstar.example",
+    );
+
+    expect(plan.find((item) => item.category === "content_gap")).toMatchObject({
+      confidence: "high",
+    });
+  });
 });

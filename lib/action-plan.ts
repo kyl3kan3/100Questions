@@ -5,7 +5,7 @@ import type {
   NormalizedSource,
 } from "@/lib/db/schema";
 
-export const ACTION_PLAN_VERSION = "action-plan-v1";
+export const ACTION_PLAN_VERSION = "action-plan-v2";
 
 export type ActionPlanEvidenceRow = {
   resultId: string;
@@ -48,20 +48,22 @@ export function buildActionPlan(
     .filter(([category]) => category.length > 0)
     .sort(
       ([leftName, leftRows], [rightName, rightRows]) =>
-        rightRows.length - leftRows.length || leftName.localeCompare(rightName),
+        distinctQuestionCount(rightRows) - distinctQuestionCount(leftRows) ||
+        leftName.localeCompare(rightName),
     )
     .slice(0, 2);
 
   for (const [category, categoryRows] of categoryGaps) {
+    const questionCount = distinctQuestionCount(categoryRows);
     const competitors = topCompetitors(categoryRows, 3);
     recommendations.push({
       category: "content_gap",
       title: `Strengthen the ${category.toLocaleLowerCase("en-US")} answer`,
-      rationale: `The brand was absent from ${categoryRows.length} grounded discovery ${plural(categoryRows.length, "answer")}${competitors.length ? ` while ${formatList(competitors)} appeared` : ""}.`,
+      rationale: `The brand was absent from grounded answers across ${questionCount} discovery ${plural(questionCount, "question")}${competitors.length ? ` while ${formatList(competitors)} appeared` : ""}.`,
       action: `Publish or improve one focused page that directly answers these buyer questions with specific capabilities, constraints, proof, and comparisons. Re-run the same benchmark after the page is indexed.`,
       evidenceResultIds: unique(categoryRows.map((row) => row.resultId)),
       sourceUrls: uniqueSourceUrls(categoryRows, canonicalDomain).slice(0, 5),
-      confidence: confidenceForCount(categoryRows.length),
+      confidence: confidenceForCount(questionCount),
       analysisVersion: ACTION_PLAN_VERSION,
     });
   }
@@ -82,7 +84,7 @@ export function buildActionPlan(
     recommendations.push({
       category: "competitor_gap",
       title: `Close the evidence gap with ${competitor}`,
-      rationale: `${competitor} appeared in ${count} grounded discovery ${plural(count, "answer")} where the brand did not.`,
+      rationale: `${competitor} appeared in grounded answers across ${count} discovery ${plural(count, "question")} where the brand did not.`,
       action: `Review the cited evidence behind those answers, then add verifiable differentiators and comparison-ready facts to the most relevant owned page. Do not copy competitor claims or imply guaranteed placement.`,
       evidenceResultIds: unique(evidence.map((row) => row.resultId)),
       sourceUrls: uniqueSourceUrls(evidence, canonicalDomain).slice(0, 5),
@@ -105,7 +107,7 @@ export function buildActionPlan(
     recommendations.push({
       category: "authority_source",
       title: `Build credible visibility on ${domain}`,
-      rationale: `${domain} was cited in ${count} grounded ${plural(count, "answer")} that omitted the brand.`,
+      rationale: `${domain} was cited across ${count} grounded ${plural(count, "question")} that omitted the brand.`,
       action: `Look for an editorially appropriate way to earn inclusion on this source—such as a directory profile, expert contribution, review, integration listing, or original research worth citing.`,
       evidenceResultIds: unique(evidence.map((row) => row.resultId)),
       sourceUrls: unique(
@@ -124,14 +126,15 @@ export function buildActionPlan(
     (row) => row.targetMentioned && !row.ownedDomainCited,
   );
   if (uncitedMentions.length > 0) {
+    const questionCount = distinctQuestionCount(uncitedMentions);
     recommendations.push({
       category: "citation_gap",
       title: "Make owned evidence easier to cite",
-      rationale: `The brand appeared in ${uncitedMentions.length} grounded ${plural(uncitedMentions.length, "answer")} without a citation to the claimed domain.`,
+      rationale: `At least one grounded answer across ${questionCount} ${plural(questionCount, "question")} mentioned the brand without citing the claimed domain.`,
       action: `Give key claims permanent, crawlable URLs with descriptive headings, concise definitions, dates, authorship, and primary evidence. Link related proof from the canonical product page.`,
       evidenceResultIds: unique(uncitedMentions.map((row) => row.resultId)),
       sourceUrls: uniqueSourceUrls(uncitedMentions, canonicalDomain).slice(0, 5),
-      confidence: confidenceForCount(uncitedMentions.length),
+      confidence: confidenceForCount(questionCount),
       analysisVersion: ACTION_PLAN_VERSION,
     });
   }
@@ -140,14 +143,15 @@ export function buildActionPlan(
     (row) => row.prominence === "incidental" || row.prominence === "absent",
   );
   if (weakMentions.length > 0) {
+    const questionCount = distinctQuestionCount(weakMentions);
     recommendations.push({
       category: "mention_quality",
       title: "Turn incidental mentions into shortlist evidence",
-      rationale: `${weakMentions.length} grounded discovery ${plural(weakMentions.length, "answer")} mentioned the brand without placing it prominently.`,
+      rationale: `Grounded answers across ${questionCount} discovery ${plural(questionCount, "question")} mentioned the brand without placing it prominently.`,
       action: `Clarify the category, ideal customer, strongest use cases, and defensible proof in concise language that third-party sources can repeat accurately.`,
       evidenceResultIds: unique(weakMentions.map((row) => row.resultId)),
       sourceUrls: uniqueSourceUrls(weakMentions, canonicalDomain).slice(0, 5),
-      confidence: confidenceForCount(weakMentions.length),
+      confidence: confidenceForCount(questionCount),
       analysisVersion: ACTION_PLAN_VERSION,
     });
   }
@@ -168,7 +172,10 @@ function groupBy<T>(rows: T[], key: (row: T) => string): Map<string, T[]> {
 }
 
 function countCompetitors(rows: ActionPlanEvidenceRow[]): Map<string, number> {
-  const counts = new Map<string, { name: string; count: number }>();
+  const counts = new Map<
+    string,
+    { name: string; questionIds: Set<string> }
+  >();
   for (const row of rows) {
     const seen = new Set<string>();
     for (const mention of row.competitorMentions) {
@@ -178,11 +185,19 @@ function countCompetitors(rows: ActionPlanEvidenceRow[]): Map<string, number> {
       const current = counts.get(key);
       counts.set(key, {
         name: current?.name ?? mention.name.trim(),
-        count: (current?.count ?? 0) + 1,
+        questionIds: new Set([
+          ...(current?.questionIds ?? []),
+          row.questionId,
+        ]),
       });
     }
   }
-  return new Map([...counts.values()].map(({ name, count }) => [name, count]));
+  return new Map(
+    [...counts.values()].map(({ name, questionIds }) => [
+      name,
+      questionIds.size,
+    ]),
+  );
 }
 
 function topCompetitors(rows: ActionPlanEvidenceRow[], limit: number): string[] {
@@ -199,7 +214,7 @@ function countSourceDomains(
   rows: ActionPlanEvidenceRow[],
   canonicalDomain: string,
 ): Map<string, number> {
-  const counts = new Map<string, number>();
+  const counts = new Map<string, Set<string>>();
   const owned = canonicalDomain.toLocaleLowerCase("en-US");
   for (const row of rows) {
     const seen = new Set<string>();
@@ -209,10 +224,18 @@ function countSourceDomains(
         continue;
       }
       seen.add(hostname);
-      counts.set(hostname, (counts.get(hostname) ?? 0) + 1);
+      counts.set(
+        hostname,
+        new Set([...(counts.get(hostname) ?? []), row.questionId]),
+      );
     }
   }
-  return counts;
+  return new Map(
+    [...counts.entries()].map(([hostname, questionIds]) => [
+      hostname,
+      questionIds.size,
+    ]),
+  );
 }
 
 function uniqueSourceUrls(
@@ -259,6 +282,10 @@ function confidenceForCount(count: number): ActionPlanConfidence {
   if (count >= 4) return "high";
   if (count >= 2) return "medium";
   return "low";
+}
+
+function distinctQuestionCount(rows: ActionPlanEvidenceRow[]): number {
+  return new Set(rows.map((row) => row.questionId)).size;
 }
 
 function unique(values: string[]): string[] {

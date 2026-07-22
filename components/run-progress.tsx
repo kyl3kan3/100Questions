@@ -2,11 +2,13 @@
 
 import {
   AlertTriangle,
-  CheckCircle2,
-  CircleX,
+  BookOpenText,
+  ChevronDown,
   ExternalLink,
   LoaderCircle,
+  Network,
   Search,
+  ShieldCheck,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -23,6 +25,18 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { trackEvent } from "@/lib/analytics";
+import {
+  buildCompetitorSignals,
+  buildOpportunityThemes,
+  buildQuestionInsights,
+  buildSourceSignals,
+  summarizeQuestionInsights,
+  type CompetitorSignal,
+  type InsightSummary,
+  type OpportunityTheme,
+  type QuestionInsight,
+  type SourceSignal,
+} from "@/lib/result-insights";
 
 type Provider = "openai" | "anthropic" | "google" | "xai";
 
@@ -147,7 +161,6 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
   const [updateWillRetry, setUpdateWillRetry] = useState(false);
   const [updateNeedsSignIn, setUpdateNeedsSignIn] = useState(false);
   const [cohort, setCohort] = useState<"all" | "discovery" | "diagnostic">("all");
-  const [provider, setProvider] = useState<"all" | Provider>("all");
   const [category, setCategory] = useState("all");
   const [comparison, setComparison] = useState<ComparisonPayload | null>(null);
   const viewedResult = useRef(false);
@@ -367,18 +380,19 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
     return providerOrder.filter((candidate) => candidates.includes(candidate));
   }, [payload, run.frozenModels]);
 
-  const effectiveProvider =
-    provider === "all" || availableProviders.includes(provider) ? provider : "all";
+  const questionInsights = useMemo(
+    () => buildQuestionInsights(payload?.rows ?? [], availableProviders),
+    [availableProviders, payload?.rows],
+  );
 
-  const filteredRows = useMemo(
+  const filteredQuestions = useMemo(
     () =>
-      (payload?.rows ?? []).filter(
-        (row) =>
-          (cohort === "all" || row.question.cohort === cohort) &&
-          (effectiveProvider === "all" || row.job?.provider === effectiveProvider) &&
-          (category === "all" || row.question.category === category),
+      questionInsights.filter(
+        ({ question }) =>
+          (cohort === "all" || question.cohort === cohort) &&
+          (category === "all" || question.category === category),
       ),
-    [category, cohort, effectiveProvider, payload?.rows],
+    [category, cohort, questionInsights],
   );
 
   return (
@@ -388,7 +402,9 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="eyebrow mb-2">Benchmark run</p>
-              <CardTitle className="text-2xl">{run.subjectName}</CardTitle>
+              <h1 className="text-balance text-2xl font-semibold tracking-[-0.025em] text-zinc-50">
+                {run.subjectName}
+              </h1>
               <CardDescription className="mt-1">{run.canonicalDomain}</CardDescription>
             </div>
             <StatusBadge status={run.status} />
@@ -429,21 +445,30 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
       </Card>
 
       {payload ? (
-        <ResultsOverview payload={payload} providers={availableProviders} comparison={comparison} />
+        <ResultsOverview
+          payload={payload}
+          providers={availableProviders}
+          comparison={comparison}
+          questionInsights={questionInsights}
+        />
       ) : (
         <LoadingCard terminal={terminalStatuses.has(run.status)} />
       )}
 
-      <Card className="bg-[#0b0e0c]">
+      <Card
+        aria-labelledby="evidence-heading"
+        className="bg-[#0b0e0c]"
+        role="region"
+      >
         <CardHeader className="border-b border-white/[0.07] pb-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="min-w-0">
-              <CardTitle>Every search and answer</CardTitle>
+              <CardTitle as="h2" id="evidence-heading">Question evidence</CardTitle>
               <CardDescription className="mt-1">
-                Open any question to see the complete AI answer and its sources.
+                One row per buyer question. Open a row to inspect each provider&apos;s complete answer and sources.
               </CardDescription>
             </div>
-            <div className="grid w-full min-w-0 gap-2 sm:grid-cols-3 md:w-auto">
+            <div className="grid w-full min-w-0 gap-2 sm:grid-cols-2 md:w-auto">
               <Filter
                 value={cohort}
                 onChange={(value) => setCohort(value as typeof cohort)}
@@ -451,24 +476,15 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
                 label="Question type"
                 formatOption={questionTypeLabel}
               />
-              <Filter
-                value={effectiveProvider}
-                onChange={(value) =>
-                  setProvider(value === "all" || isProvider(value) ? value : "all")
-                }
-                options={["all", ...availableProviders]}
-                label="Provider"
-                formatOption={(option) =>
-                  option === "all" ? "All providers" : providerLabels[option as Provider]
-                }
-              />
               <Filter value={category} onChange={setCategory} options={["all", ...(payload?.categories ?? [])]} label="Category" />
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {filteredRows.length ? (
-            filteredRows.map((row) => <AnswerRow key={`${row.question.id}:${row.job?.id ?? "pending"}`} row={row} />)
+          {filteredQuestions.length ? (
+            filteredQuestions.map((question) => (
+              <QuestionEvidenceRow key={question.question.id} insight={question} />
+            ))
           ) : (
             <div className="flex min-h-36 flex-col items-center justify-center text-center">
               <Search aria-hidden="true" className="mb-3 size-5 text-zinc-400" />
@@ -486,10 +502,12 @@ function ResultsOverview({
   payload,
   providers,
   comparison,
+  questionInsights,
 }: {
   payload: ResultsPayload;
   providers: Provider[];
   comparison: ComparisonPayload | null;
+  questionInsights: Array<QuestionInsight<ResultRow>>;
 }) {
   const metrics = payload.metrics;
   const discoveryRows = payload.rows.filter(
@@ -498,163 +516,511 @@ function ResultsOverview({
       row.job &&
       row.result?.scoreEligible,
   );
-  const appearedRows = discoveryRows.filter(
-    (row) => row.result?.targetMentioned,
-  );
-  const missedRows = discoveryRows.filter(
-    (row) => !row.result?.targetMentioned,
-  );
   const unscoredDiscoveryCount = Math.max(
     metrics.conservativeVisibilityFloor.denominator - discoveryRows.length,
     0,
   );
-  const competitors = rankCompetitors(
+  const discoveryQuestions = questionInsights.filter(
+    ({ question }) => question.cohort === "discovery",
+  );
+  const summary = summarizeQuestionInsights(discoveryQuestions);
+  const themes = buildOpportunityThemes(discoveryQuestions);
+  const competitors = buildCompetitorSignals(
     discoveryRows,
     payload.run.competitors ?? [],
+  );
+  const sources = buildSourceSignals(
+    discoveryRows,
+    payload.run.canonicalDomain,
   );
   const providerEntries = providers.flatMap((provider) => {
     const providerMetrics = payload.providerMetrics[provider];
     return providerMetrics ? [{ provider, metrics: providerMetrics }] : [];
   });
   const visibility = metrics.discoveryVisibility;
+  const evidenceQuestions = new Map(
+    questionInsights.flatMap((question) =>
+      question.resultIds.map((resultId) => [resultId, question] as const),
+    ),
+  );
 
   return (
     <section aria-labelledby="results-heading" className="space-y-6">
-      <Card className="bg-[#0b0e0c] shadow-[0_20px_60px_rgba(0,0,0,0.22),inset_0_0_0_1px_rgba(255,255,255,0.07)]">
-        <CardContent className="p-6 sm:p-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="eyebrow">Your search visibility</p>
-              <h2
-                id="results-heading"
-                className="mt-3 text-balance text-2xl font-semibold tracking-[-0.035em] text-white sm:text-3xl"
-              >
-                {visibility.denominator > 0 ? (
-                  <>
-                    {payload.run.subjectName} appeared in{" "}
-                    <span className="text-emerald-300 tabular-nums">
-                      {visibility.numerator} of {visibility.denominator}
-                    </span>{" "}
-                    completed discovery searches.
-                  </>
-                ) : (
-                  "There are not enough grounded discovery searches to measure visibility yet."
-                )}
-              </h2>
-              <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-zinc-400">
-                Discovery searches do not name your brand. They show whether an AI
-                recommends or mentions you without being prompted.
-              </p>
-            </div>
-            <div className="shrink-0 lg:text-right">
-              <p className="text-5xl font-semibold tracking-[-0.06em] text-white tabular-nums">
-                {percent(visibility.value)}
-              </p>
-              <p className="mt-1 text-xs text-zinc-400">
-                of grounded discovery answers
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ExecutiveVerdict
+        subjectName={payload.run.subjectName}
+        summary={summary}
+        visibility={visibility}
+        provisional={metrics.provisional}
+      />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <PlainMetric
-          label="You appeared"
-          value={`${visibility.numerator} searches`}
-          detail={`Out of ${visibility.denominator} grounded discovery searches`}
-          tone="positive"
+          label="Buyer-question reach"
+          value={`${summary.reachedDiscoveryQuestionCount}/${summary.evaluatedDiscoveryQuestionCount}`}
+          detail="Distinct discovery questions where at least one grounded AI answer mentioned you"
+          tone={summary.reachedDiscoveryQuestionCount > 0 ? "positive" : "negative"}
         />
         <PlainMetric
-          label="You were missing"
-          value={`${missedRows.length} searches`}
-          detail="Completed searches that did not mention your brand"
-          tone={missedRows.length > 0 ? "negative" : "positive"}
+          label="Mixed provider signals"
+          value={`${summary.mixedCount} questions`}
+          detail="Questions where grounded providers disagreed on whether to mention you"
+          tone={summary.mixedCount > 0 ? "negative" : "positive"}
+        />
+        <PlainMetric
+          label="Unanimous misses"
+          value={`${summary.unanimousMissCount} questions`}
+          detail="Distinct questions where no grounded provider mentioned you"
+          tone={summary.unanimousMissCount > 0 ? "negative" : "positive"}
         />
         <PlainMetric
           label="Your site was cited"
           value={percent(metrics.claimedDomainCitationRate.value)}
           detail={`${metrics.claimedDomainCitationRate.numerator} of ${metrics.claimedDomainCitationRate.denominator} grounded answers`}
         />
-        <PlainMetric
-          label="Positive mentions"
-          value={percent(metrics.sentiment.positive.value)}
-          detail={`${metrics.sentiment.positive.numerator} of ${metrics.sentiment.denominator} brand mentions`}
-        />
       </div>
 
-      <p className="rounded-2xl bg-white/[0.025] px-4 py-3 text-pretty text-xs leading-5 text-zinc-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
-        Based on {visibility.denominator} grounded discovery answers. {unscoredDiscoveryCount}{" "}
-        failed or ungrounded discovery answers are excluded rather than counted as misses.
-        {metrics.provisional
-          ? " Treat these percentages as directional because overall answer coverage was below 90%."
-          : " Overall answer coverage met the 90% reliability threshold."}
-      </p>
+      <OpportunityThemesSection themes={themes} />
 
-      {comparison ? <BaselineComparison comparison={comparison} /> : null}
+      <ProviderAgreement
+        entries={providerEntries}
+        overallVisibility={visibility.value}
+        summary={summary}
+      />
 
-      <ActionPlanSection items={payload.actionPlan} />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <SearchOutcomeList
-          title="Where you appeared"
-          description="Questions where the AI mentioned your brand without being prompted."
-          rows={appearedRows}
-          empty="Your brand did not appear in any grounded discovery searches."
-          outcome="appeared"
-        />
-        <SearchOutcomeList
-          title="Where you did not appear"
-          description="Completed searches where the AI did not mention your brand."
-          rows={missedRows}
-          empty="Your brand appeared in every grounded discovery search."
-          outcome="missed"
-        />
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <CompetitorComparison
           subjectName={payload.run.subjectName}
-          subjectCount={appearedRows.length}
+          subjectCount={visibility.numerator}
+          subjectQuestionCount={summary.reachedDiscoveryQuestionCount}
           competitors={competitors}
           denominator={discoveryRows.length}
         />
-        <ProviderBreakdown entries={providerEntries} />
+        <SourceIntelligence sources={sources} />
       </div>
+
+      <ActionPlanSection
+        evidenceQuestions={evidenceQuestions}
+        items={payload.actionPlan}
+      />
+
+      {comparison ? <BaselineComparison comparison={comparison} /> : null}
+
+      <ReliabilityPanel
+        metrics={metrics}
+        summary={summary}
+        unscoredDiscoveryCount={unscoredDiscoveryCount}
+      />
     </section>
   );
 }
 
-function ActionPlanSection({ items }: { items: ResultsPayload["actionPlan"] }) {
+function ExecutiveVerdict({
+  subjectName,
+  summary,
+  visibility,
+  provisional,
+}: {
+  subjectName: string;
+  summary: InsightSummary;
+  visibility: RatioMetric;
+  provisional: boolean;
+}) {
+  const verdict = executiveVerdict(subjectName, summary, visibility);
+
+  return (
+    <Card className="bg-[#0b0e0c] shadow-[0_20px_60px_rgba(0,0,0,0.22),inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+      <CardContent className="p-6 sm:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="eyebrow">Executive verdict</p>
+              <Badge variant={provisional ? "warning" : "success"}>
+                {provisional ? "Directional coverage" : "Coverage threshold met"}
+              </Badge>
+            </div>
+            <h2
+              id="results-heading"
+              className="mt-4 text-balance text-2xl font-semibold tracking-[-0.035em] text-white sm:text-3xl"
+            >
+              {verdict}
+            </h2>
+            <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-zinc-400">
+              Reached {summary.reachedDiscoveryQuestionCount} of{" "}
+              {summary.evaluatedDiscoveryQuestionCount} evaluated buyer questions across{" "}
+              {summary.groundedProviderCount} {plural(summary.groundedProviderCount, "grounded provider")}. Question reach and provider breadth are counted separately.
+            </p>
+          </div>
+          <div className="shrink-0 lg:text-right">
+            <p className="text-5xl font-semibold tracking-[-0.06em] text-white tabular-nums">
+              {percent(visibility.value)}
+            </p>
+            <p className="mt-1 text-xs text-zinc-400">
+              of grounded discovery answers
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function OpportunityThemesSection({ themes }: { themes: OpportunityTheme[] }) {
+  return (
+    <section aria-labelledby="opportunity-themes-heading">
+      <div className="mb-4">
+        <p className="eyebrow">Opportunity themes</p>
+        <h2
+          id="opportunity-themes-heading"
+          className="mt-2 text-xl font-semibold tracking-[-0.025em] text-white"
+        >
+          Where visibility breaks down
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+          Ranked by missed grounded provider answers, grouped into distinct buyer-question themes.
+        </p>
+      </div>
+      {themes.length ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          {themes.map((theme, index) => (
+            <Card key={theme.category} className="bg-[#0b0e0c]">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-amber-300/12 text-xs font-semibold text-amber-200">
+                    {index + 1}
+                  </span>
+                  <Badge variant="secondary">
+                    {theme.questionCount} {plural(theme.questionCount, "question")}
+                  </Badge>
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-zinc-100">
+                  {theme.category}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  Missed in {theme.missedProviderAnswerCount} of{" "}
+                  {theme.groundedProviderAnswerCount} grounded provider answers.
+                </p>
+                <p className="mt-3 text-xs leading-5 text-zinc-400">
+                  {theme.unanimousMissCount > 0
+                    ? `${theme.unanimousMissCount} unanimous ${plural(theme.unanimousMissCount, "miss")}. `
+                    : ""}
+                  {theme.mixedCount > 0
+                    ? `${theme.mixedCount} mixed-signal ${plural(theme.mixedCount, "question")}.`
+                    : ""}
+                  {theme.topCompetitor
+                    ? ` Most frequent competitor: ${theme.topCompetitor}.`
+                    : ""}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card className="bg-[#0b0e0c]">
+          <CardContent className="p-5 text-sm text-zinc-400">
+            No question theme contained a grounded visibility gap.
+          </CardContent>
+        </Card>
+      )}
+    </section>
+  );
+}
+
+function ProviderAgreement({
+  entries,
+  overallVisibility,
+  summary,
+}: {
+  entries: Array<{ provider: Provider; metrics: MetricsPayload }>;
+  overallVisibility: number | null;
+  summary: InsightSummary;
+}) {
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader>
+        <div className="flex items-start gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-300/10 text-sky-200">
+            <Network aria-hidden="true" className="size-4" />
+          </div>
+          <div>
+            <CardTitle as="h2">AI agreement and provider differences</CardTitle>
+            <CardDescription className="mt-1">
+              Agreement is measured per distinct question. Provider rates describe mention behavior, not answer accuracy.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <AgreementStat label="All mentioned you" value={summary.unanimousMentionCount} />
+          <AgreementStat label="Providers disagreed" value={summary.mixedCount} />
+          <AgreementStat label="All missed you" value={summary.unanimousMissCount} />
+          <AgreementStat label="Partial provider coverage" value={summary.partialCoverageCount} />
+        </div>
+        <div className="space-y-2">
+          {entries.map(({ provider, metrics }) => {
+            const visibility = metrics.discoveryVisibility;
+            const delta =
+              visibility.value === null || overallVisibility === null
+                ? null
+                : visibility.value - overallVisibility;
+            return (
+              <div
+                key={provider}
+                className="flex flex-col gap-2 rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-medium text-zinc-200">
+                    {providerLabels[provider]}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-400 tabular-nums">
+                    {visibility.numerator} of {visibility.denominator} grounded discovery answers
+                  </p>
+                </div>
+                <div className="sm:text-right">
+                  <p className="text-xl font-semibold text-white tabular-nums">
+                    {percent(visibility.value)}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-400">
+                    {providerDifference(delta)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AgreementStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl bg-white/[0.025] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]">
+      <p className="text-xs text-zinc-400">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-white tabular-nums">
+        {value}
+      </p>
+      <p className="mt-1 text-xs text-zinc-400">distinct questions</p>
+    </div>
+  );
+}
+
+function SourceIntelligence({ sources }: { sources: SourceSignal[] }) {
+  const recurringSources = sources.filter(
+    (source) => source.questionCount > 1 || source.providerCount > 1,
+  );
+
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-zinc-300">
+            <BookOpenText aria-hidden="true" className="size-4" />
+          </div>
+          <div>
+            <CardTitle as="h2" className="text-base">Recurring cited domains</CardTitle>
+            <CardDescription className="mt-1">
+              External domains repeatedly cited in grounded discovery answers. Recurrence does not prove source quality or influence.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {recurringSources.slice(0, 6).map((source) => (
+          <div
+            key={source.domain}
+            className="rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+          >
+            <a
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-200 underline-offset-4 hover:text-white hover:underline"
+              href={source.url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {source.domain}
+              <ExternalLink aria-hidden="true" className="size-3" />
+            </a>
+            <p className="mt-1 text-xs leading-5 text-zinc-400">
+              {source.questionCount} {plural(source.questionCount, "question")} · {source.providerCount} {plural(source.providerCount, "provider")} · {source.missedAnswerCount} missed answer {plural(source.missedAnswerCount, "event")}
+            </p>
+          </div>
+        ))}
+        {recurringSources.length === 0 ? (
+          <p className="rounded-xl bg-white/[0.025] p-4 text-sm text-zinc-400">
+            No recurring external source domains were detected.
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReliabilityPanel({
+  metrics,
+  summary,
+  unscoredDiscoveryCount,
+}: {
+  metrics: MetricsPayload;
+  summary: InsightSummary;
+  unscoredDiscoveryCount: number;
+}) {
+  return (
+    <Card className="bg-[#0b0e0c]">
+      <CardHeader>
+        <div className="flex items-start gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-300/10 text-emerald-300">
+            <ShieldCheck aria-hidden="true" className="size-4" />
+          </div>
+          <div>
+            <CardTitle as="h2">Reliability, coverage, and limits</CardTitle>
+            <CardDescription className="mt-1">
+              Execution quality for this benchmark—not a claim that every AI answer is factually correct.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ReliabilityStat label="Distinct questions" value={summary.discoveryQuestionCount} />
+          <ReliabilityStat label="Grounded provider breadth" value={summary.groundedProviderCount} />
+          <ReliabilityStat label="Grounded answers" value={metrics.coverage.numerator} />
+          <ReliabilityStat label="Excluded discovery answers" value={unscoredDiscoveryCount} />
+        </div>
+        <p className="mt-4 text-pretty text-xs leading-5 text-zinc-400">
+          {metrics.provisional
+            ? "Overall answer coverage was below 90%, so percentages should be treated as directional."
+            : "Overall answer coverage met the 90% reliability threshold."}{" "}
+          Failed or ungrounded answers are excluded rather than counted as brand misses.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReliabilityStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl bg-white/[0.025] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]">
+      <p className="text-xs text-zinc-400">{label}</p>
+      <p className="mt-2 text-xl font-semibold text-white tabular-nums">{value}</p>
+    </div>
+  );
+}
+
+function ActionPlanSection({
+  evidenceQuestions,
+  items,
+}: {
+  evidenceQuestions: Map<string, QuestionInsight<ResultRow>>;
+  items: ResultsPayload["actionPlan"];
+}) {
+  const primary = items.slice(0, 3);
+  const additional = items.slice(3);
+
   return (
     <Card className="border border-emerald-300/15 bg-emerald-300/[0.025]">
       <CardHeader>
-        <p className="eyebrow">Evidence-backed action plan</p>
-        <CardTitle className="text-xl">What to do next</CardTitle>
-        <CardDescription>Ranked actions derived from the stored answers and citations below. They identify opportunities, not guaranteed ranking gains.</CardDescription>
+        <p className="eyebrow">Prioritized action plan</p>
+        <CardTitle as="h2" className="text-xl">What to do next</CardTitle>
+        <CardDescription>
+          The three highest-priority actions, linked to distinct buyer questions and their stored evidence. Opportunities do not guarantee ranking gains.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {items.length ? items.map((item) => (
-          <article key={item.id} className="rounded-2xl bg-black/20 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
-            <div className="flex items-start gap-4">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-sm font-semibold text-emerald-950">{item.rank}</span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-medium text-zinc-100">{item.title}</h3>
-                  <Badge variant="secondary">{item.confidence} confidence</Badge>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">{item.action}</p>
-                <p className="mt-2 text-xs leading-5 text-zinc-400">Why: {item.rationale}</p>
-                <div className="mt-3 flex flex-wrap gap-3 text-xs">
-                  {item.evidenceResultIds.slice(0, 4).map((id, index) => <a key={id} href={`#evidence-${id}`} className="text-emerald-300 hover:text-emerald-200">Answer {index + 1}</a>)}
-                  {item.sourceUrls.slice(0, 3).map((url) => <a key={url} href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-zinc-300 hover:text-white">Source <ExternalLink className="size-3" /></a>)}
-                </div>
-              </div>
+        {primary.length ? (
+          primary.map((item) => (
+            <ActionPlanItem
+              evidenceQuestions={evidenceQuestions}
+              item={item}
+              key={item.id}
+            />
+          ))
+        ) : (
+          <p className="rounded-xl bg-white/[0.03] p-4 text-sm text-zinc-400">
+            This run did not contain enough stored evidence for a responsible action plan.
+          </p>
+        )}
+        {additional.length ? (
+          <details className="group rounded-2xl bg-black/15 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-sm font-medium text-zinc-200 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-300/60">
+              Show {additional.length} additional {plural(additional.length, "action")}
+              <ChevronDown aria-hidden="true" className="size-4 text-zinc-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="space-y-3 border-t border-white/[0.07] p-3">
+              {additional.map((item) => (
+                <ActionPlanItem
+                  evidenceQuestions={evidenceQuestions}
+                  item={item}
+                  key={item.id}
+                />
+              ))}
             </div>
-          </article>
-        )) : <p className="rounded-xl bg-white/[0.03] p-4 text-sm text-zinc-400">This run did not contain enough stored evidence for a responsible action plan.</p>}
+          </details>
+        ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function ActionPlanItem({
+  evidenceQuestions,
+  item,
+}: {
+  evidenceQuestions: Map<string, QuestionInsight<ResultRow>>;
+  item: ResultsPayload["actionPlan"][number];
+}) {
+  const linkedQuestions = [
+    ...new Map(
+      item.evidenceResultIds.flatMap((resultId) => {
+        const question = evidenceQuestions.get(resultId);
+        return question
+          ? [[question.question.id, question] as const]
+          : [];
+      }),
+    ).values(),
+  ];
+
+  return (
+    <article className="rounded-2xl bg-black/20 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+      <div className="flex items-start gap-4">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-sm font-semibold text-emerald-950">
+          {item.rank}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-medium text-zinc-100">{item.title}</h3>
+            <Badge variant="secondary">{item.confidence} confidence</Badge>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">{item.action}</p>
+          <p className="mt-2 text-xs leading-5 text-zinc-400">
+            Why: {item.rationale}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+            {linkedQuestions.slice(0, 4).map((question, index) => (
+              <a
+                aria-label={`View evidence for ${question.question.text}`}
+                className="text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+                href={`#question-evidence-${question.question.id}`}
+                key={question.question.id}
+              >
+                Evidence question {index + 1}
+              </a>
+            ))}
+            {item.sourceUrls.slice(0, 3).map((url, index) => (
+              <a
+                aria-label={`Open source ${index + 1} for ${item.title}`}
+                className="inline-flex items-center gap-1 text-zinc-300 underline-offset-4 hover:text-white hover:underline"
+                href={url}
+                key={url}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Source {index + 1} <ExternalLink aria-hidden="true" className="size-3" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -667,9 +1033,20 @@ function BaselineComparison({ comparison }: { comparison: ComparisonPayload }) {
   ] as const;
   return (
     <Card className="bg-[#0b0e0c]">
-      <CardHeader><div className="flex items-center gap-3"><TrendingUp className="size-5 text-emerald-300" /><div><CardTitle className="text-base">Change from baseline</CardTitle><CardDescription>Same questions, measured again after implementation.</CardDescription></div></div></CardHeader>
-      <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {entries.map(([label, metric, ratio]) => <div key={label} className="rounded-xl bg-white/[0.03] p-4"><p className="text-xs text-zinc-400">{label}</p><p className="mt-2 text-xl font-semibold tabular-nums">{ratio ? percent(metric.current) : metric.current}</p><p className={`mt-1 text-xs tabular-nums ${metric.delta !== null && metric.delta > 0 ? "text-emerald-300" : metric.delta !== null && metric.delta < 0 ? "text-red-300" : "text-zinc-400"}`}>{formatDelta(metric.delta, ratio)}</p></div>)}
+      <CardHeader><div className="flex items-center gap-3"><TrendingUp className="size-5 text-emerald-300" /><div><CardTitle as="h2" className="text-base">Change from baseline</CardTitle><CardDescription>Same questions, measured again after implementation.</CardDescription></div></div></CardHeader>
+      <CardContent>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {entries.map(([label, metric, ratio]) => <div key={label} className="rounded-xl bg-white/[0.03] p-4"><p className="text-xs text-zinc-400">{label}</p><p className="mt-2 text-xl font-semibold tabular-nums">{ratio ? percent(metric.current) : metric.current}</p><p className={`mt-1 text-xs tabular-nums ${metric.delta !== null && metric.delta > 0 ? "text-emerald-300" : metric.delta !== null && metric.delta < 0 ? "text-red-300" : "text-zinc-400"}`}>{formatDelta(metric.delta, ratio)}</p></div>)}
+        </div>
+        {comparison.modelChanges.length ? (
+          <p className="mt-4 rounded-xl bg-amber-300/[0.06] px-4 py-3 text-xs leading-5 text-amber-100">
+            Model versions changed for {comparison.modelChanges.map(({ key }) => humanize(key)).join(", ")}. Treat deltas as directional because both product changes and model changes may contribute.
+          </p>
+        ) : (
+          <p className="mt-4 text-xs leading-5 text-zinc-400">
+            Provider model versions were unchanged between the baseline and this run.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -715,113 +1092,30 @@ function PlainMetric({
   );
 }
 
-function SearchOutcomeList({
-  title,
-  description,
-  rows,
-  empty,
-  outcome,
-}: {
-  title: string;
-  description: string;
-  rows: ResultRow[];
-  empty: string;
-  outcome: "appeared" | "missed";
-}) {
-  const shown = rows.slice(0, 6);
-
-  return (
-    <Card className="bg-[#0b0e0c]">
-      <CardHeader className="pb-4">
-        <div className="flex items-start gap-3">
-          <div
-            className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl ${
-              outcome === "appeared"
-                ? "bg-emerald-300/10 text-emerald-300"
-                : "bg-amber-300/10 text-amber-200"
-            }`}
-          >
-            {outcome === "appeared" ? (
-              <CheckCircle2 className="size-4" />
-            ) : (
-              <CircleX className="size-4" />
-            )}
-          </div>
-          <div>
-            <CardTitle className="text-base">{title}</CardTitle>
-            <CardDescription className="mt-1 text-pretty leading-5">
-              {description}
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {shown.length ? (
-          shown.map((row) => (
-            <div
-              key={row.job?.id ?? row.question.id}
-              className="rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
-            >
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                {row.job ? (
-                  <Badge variant="outline">{providerLabels[row.job.provider]}</Badge>
-                ) : null}
-                {outcome === "appeared" && row.result?.prominence ? (
-                  <span className="text-[10px] capitalize text-zinc-400">
-                    {humanize(row.result.prominence)} mention
-                  </span>
-                ) : null}
-                {outcome === "appeared" && row.result?.sentiment ? (
-                  <span className="text-[10px] capitalize text-zinc-400">
-                    {row.result.sentiment} tone
-                  </span>
-                ) : null}
-                {outcome === "appeared" && row.result?.ownedDomainCited ? (
-                  <span className="text-[10px] text-emerald-300">
-                    Your site was cited
-                  </span>
-                ) : null}
-              </div>
-              <p className="text-pretty text-sm leading-6 text-zinc-200">
-                {row.question.text}
-              </p>
-              {outcome === "missed" && row.result?.competitorMentions.length ? (
-                <p className="mt-2 text-pretty text-[11px] leading-5 text-zinc-400">
-                  Mentioned instead: {uniqueCompetitorNames(row).slice(0, 3).join(", ")}
-                </p>
-              ) : null}
-            </div>
-          ))
-        ) : (
-          <p className="rounded-xl bg-white/[0.025] px-4 py-6 text-center text-sm text-zinc-400">
-            {empty}
-          </p>
-        )}
-        {rows.length > shown.length ? (
-          <p className="pt-2 text-xs text-zinc-400">
-            +{rows.length - shown.length} more in the full answer evidence below.
-          </p>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
-
 function CompetitorComparison({
   subjectName,
   subjectCount,
+  subjectQuestionCount,
   competitors,
   denominator,
 }: {
   subjectName: string;
   subjectCount: number;
-  competitors: Array<{ name: string; count: number }>;
+  subjectQuestionCount: number;
+  competitors: CompetitorSignal[];
   denominator: number;
 }) {
   const entries = [
-    { name: subjectName, count: subjectCount, subject: true },
+    {
+      name: subjectName,
+      answerCount: subjectCount,
+      questionCount: subjectQuestionCount,
+      subject: true,
+    },
     ...competitors.slice(0, 7).map((competitor) => ({
-      ...competitor,
+      name: competitor.name,
+      answerCount: competitor.answerCount,
+      questionCount: competitor.questionCount,
       subject: false,
     })),
   ];
@@ -834,16 +1128,16 @@ function CompetitorComparison({
             <Users className="size-4" />
           </div>
           <div>
-            <CardTitle className="text-base">You versus competitors</CardTitle>
+            <CardTitle as="h2" className="text-base">Competitor mention frequency</CardTitle>
             <CardDescription className="mt-1 text-pretty leading-5">
-              How often each name appeared across grounded discovery searches.
+              Answer-event frequency plus the number of distinct buyer questions each name reached.
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {entries.map((entry) => {
-          const value = denominator > 0 ? entry.count / denominator : 0;
+          const value = denominator > 0 ? entry.answerCount / denominator : 0;
           return (
             <div key={`${entry.subject ? "subject" : "competitor"}:${entry.name}`}>
               <div className="mb-1.5 flex items-center justify-between gap-4 text-xs">
@@ -851,7 +1145,7 @@ function CompetitorComparison({
                   {entry.name}{entry.subject ? " (you)" : ""}
                 </span>
                 <span className="shrink-0 font-mono text-zinc-400 tabular-nums">
-                  {entry.count}/{denominator} · {percent(value)}
+                  {entry.answerCount}/{denominator} · {percent(value)}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/[0.05]">
@@ -860,6 +1154,9 @@ function CompetitorComparison({
                   style={{ width: `${Math.round(value * 100)}%` }}
                 />
               </div>
+              <p className="mt-1.5 text-xs text-zinc-400">
+                {entry.questionCount} distinct {plural(entry.questionCount, "question")}
+              </p>
             </div>
           );
         })}
@@ -873,172 +1170,175 @@ function CompetitorComparison({
   );
 }
 
-function ProviderBreakdown({
-  entries,
+function QuestionEvidenceRow({
+  insight,
 }: {
-  entries: Array<{ provider: Provider; metrics: MetricsPayload }>;
+  insight: QuestionInsight<ResultRow>;
 }) {
+  const rows = [...insight.rows].sort(
+    (left, right) =>
+      providerOrder.indexOf(left.job?.provider ?? "openai") -
+      providerOrder.indexOf(right.job?.provider ?? "openai"),
+  );
+  const agreement = agreementPresentation(insight.agreement);
+
   return (
-    <Card className="bg-[#0b0e0c]">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base">Results by AI provider</CardTitle>
-        <CardDescription className="mt-1 text-pretty leading-5">
-          How often each provider mentioned you in grounded discovery answers.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {entries.map(({ provider, metrics }) => {
-          const visibility = metrics.discoveryVisibility;
-          return (
-            <div
-              key={provider}
-              className="flex items-center justify-between gap-4 rounded-xl bg-white/[0.025] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
-            >
-              <div>
-                <p className="text-sm font-medium text-zinc-200">
-                  {providerLabels[provider]}
-                </p>
-                <p className="mt-1 text-[11px] text-zinc-400 tabular-nums">
-                  {visibility.numerator} of {visibility.denominator} searches
-                </p>
-              </div>
-              <p className="text-xl font-semibold text-white tabular-nums">
-                {percent(visibility.value)}
-              </p>
+    <details
+      className="group scroll-mt-24 rounded-2xl bg-white/[0.025] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)] open:bg-white/[0.04]"
+      id={`question-evidence-${insight.question.id}`}
+    >
+      <summary className="cursor-pointer list-none rounded-2xl px-4 py-4 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-300/60 sm:px-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="mb-2 flex flex-wrap gap-2">
+              <Badge variant="secondary">
+                {questionTypeLabel(insight.question.cohort)}
+              </Badge>
+              <Badge variant={agreement.variant}>{agreement.label}</Badge>
+              {insight.unavailableProviderCount > 0 ? (
+                <Badge variant="warning">
+                  {insight.unavailableProviderCount} unavailable
+                </Badge>
+              ) : null}
             </div>
-          );
-        })}
-      </CardContent>
-    </Card>
-  );
-}
-
-function rankCompetitors(
-  rows: ResultRow[],
-  configuredCompetitors: string[],
-): Array<{ name: string; count: number }> {
-  const counts = new Map<string, { name: string; count: number }>();
-
-  for (const name of configuredCompetitors) {
-    const key = normalizeEntityName(name);
-    if (key) counts.set(key, { name, count: 0 });
-  }
-
-  for (const row of rows) {
-    const seen = new Set<string>();
-
-    for (const mention of row.result?.competitorMentions ?? []) {
-      const key = normalizeEntityName(mention.name);
-      if (!key || seen.has(key)) continue;
-      seen.add(key);
-      const current = counts.get(key);
-      counts.set(key, {
-        name: current?.name ?? mention.name,
-        count: (current?.count ?? 0) + 1,
-      });
-    }
-  }
-
-  return [...counts.values()].sort(
-    (left, right) => right.count - left.count || left.name.localeCompare(right.name),
-  );
-}
-
-function uniqueCompetitorNames(row: ResultRow): string[] {
-  return [
-    ...new Map(
-      (row.result?.competitorMentions ?? []).map((mention) => [
-        normalizeEntityName(mention.name),
-        mention.name,
-      ]),
-    ).values(),
-  ];
-}
-
-function normalizeEntityName(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/\p{M}+/gu, "")
-    .toLocaleLowerCase("en-US")
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
-}
-
-function AnswerRow({ row }: { row: ResultRow }) {
-  const answer = row.result;
-  return (
-    <details id={answer ? `evidence-${answer.id}` : undefined} className="group scroll-mt-24 rounded-2xl bg-white/[0.025] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.065)] open:bg-white/[0.04]">
-      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 marker:hidden">
-        <div className="min-w-0">
-          <div className="mb-2 flex flex-wrap gap-2">
-            <Badge variant="secondary">
-              {questionTypeLabel(row.question.cohort)}
-            </Badge>
-            {row.job ? (
-              <Badge variant="outline">{providerLabels[row.job.provider]}</Badge>
-            ) : null}
-            {answer?.scoreEligible ? <Badge variant="success">Grounded answer</Badge> : answer ? <Badge variant="warning">Not counted</Badge> : <Badge variant="secondary">Pending</Badge>}
+            <p className="break-words text-pretty text-sm font-medium leading-6 text-zinc-200">
+              {insight.question.text}
+            </p>
           </div>
-          <p className="break-words text-pretty text-sm font-medium leading-6 text-zinc-200">{row.question.text}</p>
+          <ChevronDown
+            aria-hidden="true"
+            className="mt-1 size-4 shrink-0 text-zinc-400 transition-transform group-open:rotate-180"
+          />
         </div>
-        <span aria-hidden="true" className="mt-1 shrink-0 text-zinc-400 transition-transform group-open:rotate-45">+</span>
+        <div className="mt-4 grid gap-3 text-xs sm:grid-cols-3">
+          <QuestionSignal
+            label="Brand outcome"
+            value={`${insight.mentionedProviderCount} of ${insight.eligibleProviderCount} grounded AIs mentioned you`}
+          />
+          <QuestionSignal
+            label="Leading competitor"
+            value={
+              insight.leadingCompetitors.length
+                ? insight.leadingCompetitors.map(({ name }) => name).join(", ")
+                : "None detected"
+            }
+          />
+          <QuestionSignal
+            label="Key cited domain"
+            value={insight.keySources[0]?.domain ?? "No valid source returned"}
+          />
+        </div>
       </summary>
-      <div className="border-t border-white/[0.07] px-4 py-4">
-        {answer ? (
-          <>
-            <p className="whitespace-pre-wrap text-pretty text-sm leading-7 text-zinc-400">{answer.answerText}</p>
-            {answer.sources.length ? (
-              <div className="mt-5">
-                <p className="eyebrow mb-3">Sources</p>
-                <ul className="space-y-2">
-                  {answer.sources.filter((source) => isSafeUrl(source.url)).map((source) => (
+      <div className="space-y-3 border-t border-white/[0.07] p-3 sm:p-4">
+        {rows.map((row) => (
+          <ProviderAnswer key={row.job?.id ?? `${row.question.id}:pending`} row={row} />
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function QuestionSignal({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-black/15 px-3 py-2.5">
+      <p className="text-zinc-400">{label}</p>
+      <p className="mt-1 leading-5 text-zinc-300">{value}</p>
+    </div>
+  );
+}
+
+function ProviderAnswer({ row }: { row: ResultRow }) {
+  const answer = row.result;
+  const providerName = row.job ? providerLabels[row.job.provider] : "Provider pending";
+
+  return (
+    <article
+      className="rounded-xl bg-black/20 p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+      id={answer ? `evidence-${answer.id}` : undefined}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-medium text-zinc-200">{providerName}</h3>
+        <div className="flex flex-wrap gap-2">
+          {answer?.scoreEligible ? (
+            <Badge variant={answer.targetMentioned ? "success" : "warning"}>
+              {answer.targetMentioned ? "Brand mentioned" : "Brand not mentioned"}
+            </Badge>
+          ) : answer ? (
+            <Badge variant="warning">Not counted</Badge>
+          ) : (
+            <Badge variant="secondary">Unavailable</Badge>
+          )}
+        </div>
+      </div>
+      {answer ? (
+        <>
+          <p className="mt-4 whitespace-pre-wrap text-pretty text-sm leading-7 text-zinc-400">
+            {answer.answerText}
+          </p>
+          {answer.sources.length ? (
+            <div className="mt-5">
+              <p className="eyebrow mb-3">Sources cited by {providerName}</p>
+              <ul className="space-y-2">
+                {answer.sources
+                  .filter((source) => isSafeUrl(source.url))
+                  .map((source) => (
                     <li key={source.url}>
-                      <a href={source.url} target="_blank" rel="noreferrer" className="flex items-start gap-2 text-xs leading-5 text-emerald-300 hover:text-emerald-200">
-                        <ExternalLink className="mt-0.5 size-3 shrink-0" />
-                        <span className="min-w-0 [overflow-wrap:anywhere]">{source.title ?? source.publisher ?? new URL(source.url).hostname}</span>
+                      <a
+                        className="flex items-start gap-2 text-xs leading-5 text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+                        href={source.url}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        <ExternalLink aria-hidden="true" className="mt-0.5 size-3 shrink-0" />
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          {source.title ?? source.publisher ?? new URL(source.url).hostname}
+                        </span>
                       </a>
                     </li>
                   ))}
-                </ul>
+              </ul>
+            </div>
+          ) : (
+            <p className="mt-4 text-xs text-amber-200">
+              No valid grounding sources were returned.
+            </p>
+          )}
+          {answer.requiredAttribution.length ? (
+            <div className="mt-5">
+              <p className="eyebrow mb-3">Required provider attribution</p>
+              <div className="space-y-3">
+                {answer.requiredAttribution.map((attribution, index) =>
+                  attribution.text ? (
+                    <iframe
+                      className="h-40 w-full rounded-xl border-0 bg-white"
+                      key={`${attribution.label}:${index}`}
+                      referrerPolicy="no-referrer"
+                      sandbox="allow-popups allow-popups-to-escape-sandbox"
+                      srcDoc={attribution.text}
+                      title={attribution.label}
+                    />
+                  ) : attribution.url && isSafeUrl(attribution.url) ? (
+                    <a
+                      className="text-xs text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+                      href={attribution.url}
+                      key={`${attribution.label}:${index}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {attribution.label}
+                    </a>
+                  ) : null,
+                )}
               </div>
-            ) : (
-              <p className="mt-4 text-xs text-amber-200">No valid grounding sources were returned.</p>
-            )}
-            {answer.requiredAttribution.length ? (
-              <div className="mt-5">
-                <p className="eyebrow mb-3">Required provider attribution</p>
-                <div className="space-y-3">
-                  {answer.requiredAttribution.map((attribution, index) =>
-                    attribution.text ? (
-                      <iframe
-                        key={`${attribution.label}:${index}`}
-                        title={attribution.label}
-                        srcDoc={attribution.text}
-                        sandbox="allow-popups allow-popups-to-escape-sandbox"
-                        referrerPolicy="no-referrer"
-                        className="h-28 w-full rounded-xl border-0 bg-white"
-                      />
-                    ) : attribution.url && isSafeUrl(attribution.url) ? (
-                      <a
-                        key={`${attribution.label}:${index}`}
-                        href={attribution.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-emerald-300 hover:text-emerald-200"
-                      >
-                        {attribution.label}
-                      </a>
-                    ) : null,
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <p className="text-sm text-zinc-400">{row.job?.errorMessage ?? "This provider call has not finished."}</p>
-        )}
-      </div>
-    </details>
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <p className="mt-3 text-sm text-zinc-400">
+          {row.job?.errorMessage ?? "This provider call has not finished."}
+        </p>
+      )}
+    </article>
   );
 }
 
@@ -1115,6 +1415,58 @@ function questionTypeLabel(value: string) {
   return labels[value] ?? humanize(value);
 }
 
+function executiveVerdict(
+  subjectName: string,
+  summary: InsightSummary,
+  visibility: RatioMetric,
+) {
+  if (visibility.denominator === 0 || summary.evaluatedDiscoveryQuestionCount === 0) {
+    return "There is not enough grounded discovery evidence for a verdict yet.";
+  }
+  if (summary.reachedDiscoveryQuestionCount === 0) {
+    return `${subjectName} was not surfaced in any evaluated buyer question.`;
+  }
+  if (
+    summary.unanimousMentionCount === summary.evaluatedDiscoveryQuestionCount
+  ) {
+    return `${subjectName} was consistently visible across every evaluated buyer question.`;
+  }
+  if (summary.mixedCount > 0 || summary.unanimousMissCount > 0) {
+    return `${subjectName} has uneven visibility across buyer questions and AI providers.`;
+  }
+  return `${subjectName} reached some buyer questions, with clear room to expand coverage.`;
+}
+
+function providerDifference(value: number | null) {
+  if (value === null) return "No overall comparison";
+  if (Math.abs(value) < 0.005) return "Matches the overall rate";
+  return `${Math.abs(value * 100).toFixed(0)} points ${value > 0 ? "above" : "below"} overall`;
+}
+
+function agreementPresentation(agreement: QuestionInsight["agreement"]): {
+  label: string;
+  variant: "secondary" | "success" | "warning";
+} {
+  if (agreement === "unanimous_mention") {
+    return { label: "All grounded AIs mentioned you", variant: "success" };
+  }
+  if (agreement === "unanimous_miss") {
+    return { label: "All grounded AIs missed you", variant: "warning" };
+  }
+  if (agreement === "mixed") {
+    return { label: "Mixed provider result", variant: "warning" };
+  }
+  if (agreement === "partial") {
+    return { label: "Partial provider coverage", variant: "warning" };
+  }
+  return { label: "Insufficient grounded evidence", variant: "secondary" };
+}
+
+function plural(count: number, singular: string) {
+  if (count === 1) return singular;
+  return singular.endsWith("s") ? `${singular}es` : `${singular}s`;
+}
+
 function percent(value: number | null) {
   return value === null ? "—" : `${Math.round(value * 100)}%`;
 }
@@ -1126,8 +1478,4 @@ function isSafeUrl(value: string) {
   } catch {
     return false;
   }
-}
-
-function isProvider(value: string): value is Provider {
-  return providerOrder.includes(value as Provider);
 }

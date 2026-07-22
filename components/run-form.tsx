@@ -68,6 +68,9 @@ export function RunForm({
         description?: string;
         aliases?: string[];
         sourceUrl?: string | null;
+        sourceType?: "website" | "app-store";
+        developer?: string;
+        developerWebsite?: string | null;
         populated?: boolean;
         error?: string;
       };
@@ -80,7 +83,9 @@ export function RunForm({
       }));
       setSuggestionMessage(
         data.populated
-          ? `Suggested from ${data.sourceUrl ? new URL(data.sourceUrl).hostname : "the public homepage"}. Review everything before running.`
+          ? data.sourceType === "app-store"
+            ? `Suggested from the linked App Store listing${data.developer ? ` by ${data.developer}` : ""}. Review everything before running.`
+            : `Suggested from ${data.sourceUrl ? new URL(data.sourceUrl).hostname : "the public homepage"}. Review everything before running.`
           : "We could not find a usable public description. Add the category, ideal customer, and main use cases below.",
       );
     } catch (caught) {

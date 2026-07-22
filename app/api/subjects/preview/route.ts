@@ -4,6 +4,11 @@ import { lookup } from "node:dns/promises";
 import { parse as parseDomain } from "tldts";
 
 import { normalizeCanonicalDomain } from "@/lib/ai/matching";
+import {
+  buildAppStoreSuggestion,
+  parseAppStoreListingUrl,
+  type AppStoreLookupResult,
+} from "@/lib/app-store-preview";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 import { isSameOrigin, jsonError } from "@/lib/http";
 
@@ -24,10 +29,10 @@ export async function POST(request: Request) {
     | { subjectName?: unknown; canonicalDomain?: unknown }
     | null;
   const subjectName = typeof body?.subjectName === "string" ? body.subjectName.trim() : "";
+  const submittedLocation =
+    typeof body?.canonicalDomain === "string" ? body.canonicalDomain.trim() : "";
   const hostname =
-    typeof body?.canonicalDomain === "string"
-      ? normalizeCanonicalDomain(body.canonicalDomain)
-      : null;
+    submittedLocation ? normalizeCanonicalDomain(submittedLocation) : null;
 
   if (!subjectName || !hostname) {
     return jsonError("Enter a valid brand name and public domain.", 400, "invalid_subject");
@@ -39,7 +44,25 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { response, finalUrl } = await fetchHomepage(hostname, parsed.domain);
+    const appStoreListing = parseAppStoreListingUrl(submittedLocation);
+    if (appStoreListing) {
+      const appSuggestion = await lookupAppStoreListing(
+        appStoreListing.id,
+        appStoreListing.country,
+        subjectName,
+      );
+      if (appSuggestion) {
+        return Response.json({
+          ...appSuggestion,
+          sourceUrl: appSuggestion.sourceUrl ?? appStoreListing.url,
+          populated: true,
+          sourceType: "app-store",
+        });
+      }
+    }
+
+    const submittedUrl = normalizeSubmittedUrl(submittedLocation, hostname);
+    const { response, finalUrl } = await fetchHomepage(submittedUrl, parsed.domain);
     const html = await readLimitedHtml(response);
     const description =
       readMeta(html, "description") ||
@@ -65,6 +88,7 @@ export async function POST(request: Request) {
       aliases,
       sourceUrl: finalUrl,
       populated: Boolean(cleanDescription || aliases.length > 1),
+      sourceType: "website",
     });
   } catch (error) {
     console.warn("[subject-preview] Homepage metadata unavailable.", {
@@ -80,8 +104,45 @@ export async function POST(request: Request) {
   }
 }
 
-async function fetchHomepage(hostname: string, registrableDomain: string) {
-  let currentUrl = new URL(`https://${hostname}`);
+async function lookupAppStoreListing(
+  id: string,
+  country: string,
+  subjectName: string,
+) {
+  const lookupUrl = new URL("https://itunes.apple.com/lookup");
+  lookupUrl.searchParams.set("id", id);
+  lookupUrl.searchParams.set("country", country);
+  lookupUrl.searchParams.set("entity", "software");
+  const response = await fetch(lookupUrl, {
+    headers: { accept: "application/json" },
+    signal: AbortSignal.timeout(8_000),
+  });
+  if (!response.ok) return null;
+  const payload = (await response.json()) as {
+    resultCount?: number;
+    results?: AppStoreLookupResult[];
+  };
+  const result = payload.results?.find(
+    (item) => item.wrapperType === "software" || item.kind === "software",
+  );
+  return result ? buildAppStoreSuggestion(result, subjectName) : null;
+}
+
+function normalizeSubmittedUrl(value: string, hostname: string) {
+  const candidate = /^[a-z][a-z\d+.-]*:\/\//iu.test(value)
+    ? value
+    : `https://${value}`;
+  try {
+    const url = new URL(candidate);
+    url.hash = "";
+    return url;
+  } catch {
+    return new URL(`https://${hostname}`);
+  }
+}
+
+async function fetchHomepage(initialUrl: URL, registrableDomain: string) {
+  let currentUrl = initialUrl;
 
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
     await assertSafePublicUrl(currentUrl, registrableDomain);

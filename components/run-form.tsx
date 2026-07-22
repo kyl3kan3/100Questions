@@ -29,6 +29,7 @@ export function RunForm({
   const [pending, setPending] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestionMessage, setSuggestionMessage] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
   const [values, setValues] = useState({
     subjectName: "",
@@ -52,6 +53,7 @@ export function RunForm({
     }
 
     setError(null);
+    setSuggestionMessage(null);
     setSuggesting(true);
     try {
       const response = await fetch("/api/subjects/preview", {
@@ -65,18 +67,32 @@ export function RunForm({
       const data = (await response.json()) as {
         description?: string;
         aliases?: string[];
+        sourceUrl?: string | null;
+        populated?: boolean;
         error?: string;
       };
 
-      if (response.ok) {
-        setValues((current) => ({
-          ...current,
-          description: current.description || data.description || "",
-          aliases: current.aliases || data.aliases?.join("\n") || current.subjectName,
-        }));
-      }
-    } catch {
-      // Suggestions are optional; the editable form remains available.
+      if (!response.ok) throw new Error(data.error ?? "Website details could not be read.");
+      setValues((current) => ({
+        ...current,
+        description: current.description || data.description || "",
+        aliases: current.aliases || data.aliases?.join("\n") || current.subjectName,
+      }));
+      setSuggestionMessage(
+        data.populated
+          ? `Suggested from ${data.sourceUrl ? new URL(data.sourceUrl).hostname : "the public homepage"}. Review everything before running.`
+          : "We could not find a usable public description. Add the category, ideal customer, and main use cases below.",
+      );
+    } catch (caught) {
+      setValues((current) => ({
+        ...current,
+        aliases: current.aliases || current.subjectName,
+      }));
+      setSuggestionMessage(
+        caught instanceof Error
+          ? `${caught.message} You can enter the details manually below.`
+          : "Website details could not be read. Enter them manually below.",
+      );
     } finally {
       setSuggesting(false);
       setStep(2);
@@ -130,7 +146,7 @@ export function RunForm({
           </CardTitle>
           <CardDescription>
             {step === 1
-              ? "Start with the brand and website. We will suggest the rest from the public homepage."
+              ? "Start with the brand and website. We will suggest a description and aliases from the public homepage, then you can add competitors."
               : "Edit the suggested context and add the competitors buyers are likely to compare."}
           </CardDescription>
         </CardHeader>
@@ -146,6 +162,7 @@ export function RunForm({
             </div>
           ) : (
             <>
+              {suggestionMessage ? <p className="rounded-xl bg-emerald-300/[0.06] px-4 py-3 text-xs leading-5 text-emerald-100 shadow-[inset_0_0_0_1px_rgba(110,231,183,0.12)]">{suggestionMessage}</p> : null}
               <Field label="Category and use-case description" htmlFor="description">
                 <Textarea id="description" value={values.description} onChange={(event) => update("description", event.target.value)} placeholder="A product analytics platform for B2B SaaS teams that need privacy-friendly funnels, retention cohorts, and warehouse-native reporting." required minLength={20} maxLength={2000} rows={5} />
                 <p className="mt-2 text-xs leading-5 text-zinc-400">This becomes the neutral brief used to generate discovery questions.</p>

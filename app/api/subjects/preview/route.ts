@@ -10,6 +10,7 @@ import { isSameOrigin, jsonError } from "@/lib/http";
 export const runtime = "nodejs";
 
 const MAX_HTML_BYTES = 256_000;
+const MAX_REDIRECTS = 4;
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
@@ -38,32 +39,123 @@ export async function POST(request: Request) {
   }
 
   try {
-    const addresses = await lookup(hostname, { all: true, verbatim: true });
-    if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
-      return jsonError("That domain cannot be previewed.", 400, "unsafe_domain");
-    }
-
-    const response = await fetch(`https://${hostname}`, {
-      headers: { "user-agent": "100QuestionsBot/1.0 (+https://100questions.ai)" },
-      redirect: "manual",
-      signal: AbortSignal.timeout(6_000),
-    });
-
-    if (!response.ok) throw new Error("Homepage unavailable");
-    const declaredLength = Number(response.headers.get("content-length") ?? 0);
-    if (declaredLength > MAX_HTML_BYTES) throw new Error("Homepage too large");
-    const html = (await response.text()).slice(0, MAX_HTML_BYTES);
-    const description = readMeta(html, "description") || readMeta(html, "og:description");
-    const siteName = readMeta(html, "og:site_name");
+    const { response, finalUrl } = await fetchHomepage(hostname, parsed.domain);
+    const html = await readLimitedHtml(response);
+    const description =
+      readMeta(html, "description") ||
+      readMeta(html, "og:description") ||
+      readMeta(html, "twitter:description") ||
+      readJsonLdString(html, "description");
+    const siteName =
+      readMeta(html, "og:site_name") ||
+      readJsonLdString(html, "alternateName") ||
+      readJsonLdString(html, "name");
     const title = readTitle(html);
+    const aliases = [
+      ...new Set(
+        [subjectName, cleanText(siteName), cleanTitle(title)]
+          .filter(Boolean)
+          .filter((value) => value.length <= 120),
+      ),
+    ].slice(0, 6);
+    const cleanDescription = cleanText(description).slice(0, 2_000);
 
     return Response.json({
-      description: cleanText(description).slice(0, 2_000),
-      aliases: [...new Set([subjectName, cleanText(siteName), cleanTitle(title)].filter(Boolean))].slice(0, 6),
+      description: cleanDescription,
+      aliases,
+      sourceUrl: finalUrl,
+      populated: Boolean(cleanDescription || aliases.length > 1),
     });
-  } catch {
-    return Response.json({ description: "", aliases: [subjectName] });
+  } catch (error) {
+    console.warn("[subject-preview] Homepage metadata unavailable.", {
+      hostname,
+      message: error instanceof Error ? error.message : "Unknown preview failure",
+    });
+    return Response.json({
+      description: "",
+      aliases: [subjectName],
+      sourceUrl: null,
+      populated: false,
+    });
   }
+}
+
+async function fetchHomepage(hostname: string, registrableDomain: string) {
+  let currentUrl = new URL(`https://${hostname}`);
+
+  for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
+    await assertSafePublicUrl(currentUrl, registrableDomain);
+    const response = await fetch(currentUrl, {
+      headers: {
+        accept: "text/html,application/xhtml+xml",
+        "user-agent": "Mozilla/5.0 (compatible; 100QuestionsBot/1.0; +https://100questionsai.com)",
+      },
+      redirect: "manual",
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location || redirectCount === MAX_REDIRECTS) {
+        throw new Error("Homepage redirect could not be followed");
+      }
+      currentUrl = new URL(location, currentUrl);
+      continue;
+    }
+
+    if (!response.ok) throw new Error("Homepage unavailable");
+    return { response, finalUrl: currentUrl.href };
+  }
+
+  throw new Error("Too many homepage redirects");
+}
+
+async function assertSafePublicUrl(url: URL, registrableDomain: string) {
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    (url.port && url.port !== "443")
+  ) {
+    throw new Error("Unsafe homepage URL");
+  }
+
+  const parsed = parseDomain(url.hostname, { allowPrivateDomains: false });
+  if (parsed.domain !== registrableDomain || parsed.isIp || parsed.isPrivate) {
+    throw new Error("Cross-domain homepage redirect rejected");
+  }
+
+  const addresses = await lookup(url.hostname, { all: true, verbatim: true });
+  if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new Error("Unsafe homepage address");
+  }
+}
+
+async function readLimitedHtml(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.toLocaleLowerCase("en-US").includes("text/html")) {
+    throw new Error("Homepage did not return HTML");
+  }
+
+  const declaredLength = Number(response.headers.get("content-length") ?? 0);
+  if (declaredLength > MAX_HTML_BYTES) throw new Error("Homepage too large");
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytesRead = 0;
+  let html = "";
+  while (bytesRead < MAX_HTML_BYTES) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytesRead += value.byteLength;
+    html += decoder.decode(value, { stream: true });
+    if (bytesRead >= MAX_HTML_BYTES) {
+      await reader.cancel();
+      break;
+    }
+  }
+  return html.slice(0, MAX_HTML_BYTES);
 }
 
 function readMeta(html: string, name: string) {
@@ -75,6 +167,18 @@ function readMeta(html: string, name: string) {
 
 function readTitle(html: string) {
   return /<title[^>]*>([^<]*)<\/title>/iu.exec(html)?.[1] ?? "";
+}
+
+function readJsonLdString(html: string, property: string) {
+  const escaped = property.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const match = new RegExp(`"${escaped}"\\s*:\\s*("(?:\\\\.|[^"\\\\])*")`, "iu").exec(html)?.[1];
+  if (!match) return "";
+  try {
+    const value = JSON.parse(match) as unknown;
+    return typeof value === "string" ? value : "";
+  } catch {
+    return "";
+  }
 }
 
 function cleanTitle(value: string) {

@@ -346,7 +346,7 @@ export default function Home() {
             ))}
           </div>
           <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-zinc-500">
-            Introductory price is limited to the first purchase. Credits are valid for 12 months. Normal single-benchmark price after the introductory purchase is $29. Taxes may apply.
+            Introductory price is limited to the first purchase. Credits are valid for 12 months. Normal single-benchmark price after the introductory purchase is $15. Taxes may apply.
           </p>
         </div>
       </section>
@@ -359,7 +359,7 @@ export default function Home() {
               Buy one run. Review 30 days of evidence.
             </h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
-              Packages start at $19. Stripe confirms the price and applicable taxes before payment.
+              Packages start at $9. Stripe confirms the price and applicable taxes before payment.
             </p>
             <p className="mt-2 text-sm text-zinc-500">
               Need details first?{" "}

@@ -53,4 +53,4 @@ A run is a time-stamped directional snapshot because web search and model respon
 
 Runs are private to their authenticated owner. The product retains the frozen questions, normalized answers and sources, relevant model and prompt versions, metric labels, usage, and exclusion reasons. Complete raw provider payloads are not retained. The default answer-retention window is 30 days.
 
-The billing model sells prepaid benchmark credits through Stripe-hosted Checkout. It is not a subscription. A first benchmark is $29; later packages are $39 for one, $99 for three, and $249 for ten. Credits are valid for 12 months, and Stripe confirms the final amount and applicable taxes before payment.
+The billing model sells prepaid benchmark credits through Stripe-hosted Checkout. It is not a subscription. A first benchmark is $9; later packages are $15 for one, $39 for three, and $99 for ten. Credits are valid for 12 months, and Stripe confirms the final amount and applicable taxes before payment.

@@ -21,7 +21,7 @@ Canonical site: https://100questionsai.com/
 - Metrics are marked provisional below 90% coverage.
 - Results are time-stamped, directional API-grounded snapshots and do not claim parity with consumer chat products.
 - Runs are private to the authenticated owner. The default answer-retention window is 30 days.
-- Billing uses prepaid benchmark credits, not a subscription: $29 for a first benchmark, then $39 for one, $99 for three, or $249 for ten. Credits are valid for 12 months.
+- Billing uses prepaid benchmark credits, not a subscription: $9 for a first benchmark, then $15 for one, $39 for three, or $99 for ten. Credits are valid for 12 months.
 
 ## Important limitation
 

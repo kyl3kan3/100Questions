@@ -190,8 +190,8 @@ stored.
 
 - Stripe-hosted Checkout runs in one-time `payment` mode against four server-configured
   package Prices. The browser submits a package key and cannot choose an arbitrary Price or grant.
-- Packages are $19 for an introductory first benchmark, $29 for later single benchmarks,
-  $79 for three, and $199 for ten. A signed paid Checkout Session grants the package's fixed
+- Packages are $9 for an introductory first benchmark, $15 for later single benchmarks,
+  $39 for three, and $99 for ten. A signed paid Checkout Session grants the package's fixed
   credit quantity. One credit starts one fixed v2 benchmark run.
 - Purchased credits expire 12 months after purchase. Available balance and run reservation
   use FIFO lot accounting so an expired older purchase cannot consume a newer valid balance.

@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 
+import { cookies } from "next/headers";
+
 import { auth } from "@/lib/auth/server";
 import {
   getBillingCustomerForUser,
@@ -18,6 +20,7 @@ import {
   isSameOriginRequest,
   isStripeWebhookConfigured,
 } from "@/lib/billing/stripe";
+import { buildDataFastCheckoutMetadata } from "@/lib/datafast-attribution";
 
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,80}$/;
 
@@ -104,9 +107,15 @@ export async function POST(request: Request) {
       });
     }
     const origin = getApplicationOrigin(request);
+    const cookieStore = await cookies();
+    const dataFastMetadata = buildDataFastCheckoutMetadata({
+      visitorId: cookieStore.get("datafast_visitor_id")?.value,
+      sessionId: cookieStore.get("datafast_session_id")?.value,
+    });
     const checkoutSession = await stripe.checkout.sessions.create(
       {
         mode: "payment",
+        integration_identifier: "100_questions_checkout_qmvkzjra",
         managed_payments: { enabled: false },
         line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
         client_reference_id: session.user.id,
@@ -116,6 +125,7 @@ export async function POST(request: Request) {
           billingPackage: billingPackage.id,
           creditGrant: String(billingPackage.credits),
           creditGrantVersion: "v2",
+          ...dataFastMetadata,
         },
         success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard?checkout=cancelled`,

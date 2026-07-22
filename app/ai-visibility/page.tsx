@@ -12,9 +12,9 @@ import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
 const pageUrl = absoluteUrl("/ai-visibility");
 
 export const metadata: Metadata = {
-  title: "AI Visibility: Measure Brand Visibility in AI Search",
+  title: "AI Visibility: What It Is, How to Measure and Improve It",
   description:
-    "Learn what AI visibility means, how to measure brand mentions, citations, prominence, competitor share of voice, and coverage across AI search answers.",
+    "AI visibility measures how often your brand appears in AI answers. Learn the core metrics, see a worked example, and find practical ways to improve it.",
   keywords: [
     "AI visibility",
     "AI search visibility",
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "What Is AI Visibility? A Practical Measurement Guide",
+    title: "AI Visibility: What It Is, How to Measure and Improve It",
     description:
-      "A clear framework for measuring brand mentions, prominence, competitors, citations, and coverage across AI answers.",
+      "Learn the core AI visibility metrics, see a worked example, and find practical ways to improve your brand's presence in AI answers.",
     url: pageUrl,
     type: "article",
     publishedTime: SITE_UPDATED_AT,
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "What Is AI Visibility?",
+    title: "AI Visibility: A Practical Measurement Guide",
     description:
-      "Measure how often AI answers mention your brand, cite your site, and surface competitors.",
+      "Measure brand mentions, prominence, citations, competitors, and coverage across AI answers.",
     images: [SOCIAL_IMAGE],
   },
 };
@@ -101,6 +101,34 @@ const measurementSteps = [
   },
 ] as const;
 
+const improvementSteps = [
+  {
+    title: "Make your entity unambiguous",
+    description:
+      "Use consistent company, product, category, and audience language across your site and trusted profiles so answer systems can resolve who you are.",
+  },
+  {
+    title: "Publish evidence worth citing",
+    description:
+      "Add original data, concrete examples, methodology, comparisons, and clear product facts that can support an answer instead of repeating generic claims.",
+  },
+  {
+    title: "Strengthen third-party corroboration",
+    description:
+      "Earn accurate coverage and references from relevant independent sources. Your own website is necessary, but it is not the only evidence AI search retrieves.",
+  },
+  {
+    title: "Keep important pages accessible",
+    description:
+      "Use descriptive titles and headings, internal links, crawlable text, structured data, and fast public pages so search and answer systems can retrieve the facts.",
+  },
+  {
+    title: "Measure the same questions again",
+    description:
+      "Re-run a frozen question set after meaningful changes. Compare direction and evidence over time instead of treating one generated answer as a permanent rank.",
+  },
+] as const;
+
 export default function AiVisibilityGuidePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -108,9 +136,9 @@ export default function AiVisibilityGuidePage() {
       {
         "@type": "Article",
         "@id": `${pageUrl}#article`,
-        headline: "What Is AI Visibility? How to Measure Brand Visibility in AI Search",
+        headline: "AI Visibility: What It Is, How to Measure and Improve It",
         description:
-          "A practical framework for measuring brand mentions, prominence, competitor share of voice, citations, and coverage across AI answers.",
+          "A practical guide to AI visibility metrics, interpretation, measurement, and improvement, with a worked brand example.",
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
@@ -167,13 +195,13 @@ export default function AiVisibilityGuidePage() {
                 AI visibility guide
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                What is AI visibility, and how should a brand measure it?
+                AI visibility: what it is, how to measure it, and how to improve it
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                AI visibility describes how often and how prominently a brand appears
-                when AI systems answer relevant category and buyer questions. A useful
-                measurement also shows competitors, citations, missing answers, and the
-                exact evidence behind every percentage.
+                AI visibility measures how often and how prominently your brand appears
+                when systems such as ChatGPT, Claude, Gemini, and Grok answer relevant
+                buyer questions. This guide explains the metrics, shows a worked
+                example, and outlines practical ways to improve your visibility.
               </p>
             </div>
           </header>
@@ -192,6 +220,49 @@ export default function AiVisibilityGuidePage() {
                   question. But a mention alone does not show whether the brand led the
                   answer, trailed competitors, earned a citation, or appeared in a run
                   where most other answers failed. Those signals need separate metrics.
+                </p>
+              </div>
+            </section>
+
+            <section aria-labelledby="example-heading">
+              <p className="eyebrow">Worked example</p>
+              <h2
+                id="example-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                What an AI visibility result looks like
+              </h2>
+              <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-400">
+                Imagine a benchmark that collects 100 planned answers from one shared
+                25-question set across four AI providers. The figures below are an
+                illustrative example, not a customer result.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  ["35%", "Discovery visibility", "28 of 80 neutral discovery answers mention the brand."],
+                  ["15%", "Owned citation rate", "12 of 80 eligible answers cite the brand's domain."],
+                  ["31%", "Competitor share of voice", "The brand earns 28 of 90 tracked brand mentions."],
+                  ["94%", "Answer coverage", "94 of 100 planned provider answers finish with usable output."],
+                ].map(([value, label, detail]) => (
+                  <div
+                    key={label}
+                    className="rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                  >
+                    <p className="text-3xl font-semibold tracking-[-0.04em] text-emerald-300">
+                      {value}
+                    </p>
+                    <h3 className="mt-3 font-semibold text-zinc-100">{label}</h3>
+                    <p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 rounded-[22px] border border-emerald-300/15 bg-emerald-300/[0.035] p-6">
+                <p className="text-sm leading-6 text-zinc-300">
+                  <strong className="text-white">How to read it:</strong> 35% visibility
+                  is not a universal grade. It is a baseline for this question set,
+                  provider mix, and date. The 94% coverage figure shows that the
+                  comparison is mostly complete, while the citations and competitor
+                  mentions explain what sits behind the headline score.
                 </p>
               </div>
             </section>
@@ -240,6 +311,37 @@ export default function AiVisibilityGuidePage() {
                   </li>
                 ))}
               </ol>
+            </section>
+
+            <section aria-labelledby="improve-heading">
+              <p className="eyebrow">Practical improvement</p>
+              <h2
+                id="improve-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                How to improve AI visibility
+              </h2>
+              <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-400">
+                There is no single AI ranking factor to optimize. Improve the clarity,
+                evidence, accessibility, and independent corroboration that answer
+                systems can retrieve, then measure whether the same questions change.
+              </p>
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                {improvementSteps.map(({ title, description }, index) => (
+                  <div
+                    key={title}
+                    className="grid grid-cols-[2.5rem_1fr] gap-4 rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                  >
+                    <span className="font-mono text-sm text-emerald-300">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-zinc-100">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
 
             <section aria-labelledby="seo-comparison-heading">

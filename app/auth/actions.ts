@@ -1,10 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { isNeonAuthCookieName } from "@/lib/auth/cookies";
 import {
   getAuthFailureLogContext,
   getSignInFailureMessage,
@@ -91,7 +89,6 @@ export async function signInWithEmail(
 
   redirect("/dashboard");
 }
-
 export async function signUpWithEmail(
   _previousState: AuthActionState,
   formData: FormData,
@@ -120,24 +117,4 @@ export async function signUpWithEmail(
   }
 
   redirect("/dashboard");
-}
-
-export async function signOut(): Promise<never> {
-  const { error } = await auth.signOut();
-  const cookieStore = await cookies();
-
-  // Signing out should still remove this browser's session when the upstream
-  // auth service is temporarily unavailable or omits a cached-session cookie.
-  for (const cookie of cookieStore.getAll()) {
-    if (isNeonAuthCookieName(cookie.name)) cookieStore.delete(cookie.name);
-  }
-
-  if (error) {
-    console.warn("[auth] Upstream sign-out failed; local session was cleared.", {
-      code: error.code,
-      status: error.status,
-    });
-  }
-
-  redirect("/");
 }

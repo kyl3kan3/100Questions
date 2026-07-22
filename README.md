@@ -51,12 +51,12 @@ confirmation, workflow accounting, and Gateway-level spending controls.
 
 ## Stripe setup
 
-1. Create four one-time Stripe Prices: $29 introductory, $39 single, $99 three-pack, and $249 ten-pack.
+1. Create four one-time Stripe Prices: $19 introductory, $29 single, $79 three-pack, and $199 ten-pack.
 2. Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_INTRO`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_THREE`, and `STRIPE_PRICE_TEN`.
 3. Forward these Stripe events to `/api/stripe/webhook` and set the resulting signing secret as `STRIPE_WEBHOOK_SECRET`: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`.
 4. Configure Stripe Tax for automatic tax calculation and enable the Stripe Customer Portal for billing history.
 
-The browser submits only a package key; the server maps it to a configured Stripe Price and fixed credit grant. The $29 introductory package is enforced as a user's first purchase. Signed Checkout events grant 1, 3, or 10 credits, and each credit expires 12 months after purchase. Billing is fail-closed unless every package Price and the webhook configuration are present. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and timely reinstatements restore exactly the frozen amount.
+The browser submits only a package key; the server maps it to a configured Stripe Price and fixed credit grant. The $19 introductory package is enforced as a user's first purchase. Signed Checkout events grant 1, 3, or 10 credits, and each credit expires 12 months after purchase. Billing is fail-closed unless every package Price and the webhook configuration are present. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and timely reinstatements restore exactly the frozen amount.
 
 For local webhook testing:
 

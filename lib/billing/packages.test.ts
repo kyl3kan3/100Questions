@@ -13,6 +13,13 @@ describe("billing packages", () => {
     expect(getBillingPackage("ten")?.credits).toBe(10);
   });
 
+  it("uses the public launch pricing", () => {
+    expect(getBillingPackage("intro")?.priceCents).toBe(1_900);
+    expect(getBillingPackage("single")?.priceCents).toBe(2_900);
+    expect(getBillingPackage("three")?.priceCents).toBe(7_900);
+    expect(getBillingPackage("ten")?.priceCents).toBe(19_900);
+  });
+
   it("only offers the introductory package before a purchase", () => {
     expect(getPublicBillingPackages(false).map(({ id }) => id)).toContain("intro");
     expect(getPublicBillingPackages(false).map(({ id }) => id)).not.toContain("single");
@@ -21,6 +28,6 @@ describe("billing packages", () => {
   });
 
   it("formats public whole-dollar prices", () => {
-    expect(formatPackagePrice(9_900)).toBe("$99");
+    expect(formatPackagePrice(7_900)).toBe("$79");
   });
 });

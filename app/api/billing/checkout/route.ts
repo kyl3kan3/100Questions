@@ -116,8 +116,6 @@ export async function POST(request: Request) {
           creditGrant: String(billingPackage.credits),
           creditGrantVersion: "v2",
         },
-        automatic_tax: { enabled: true },
-        invoice_creation: { enabled: true },
         success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard?checkout=cancelled`,
       },
@@ -150,6 +148,24 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
+
+    const stripeError =
+      typeof error === "object" && error !== null
+        ? (error as Record<string, unknown>)
+        : {};
+    console.error("[billing] Stripe Checkout creation failed.", {
+      name: error instanceof Error ? error.name : "UnknownError",
+      type: typeof stripeError.type === "string" ? stripeError.type : undefined,
+      code: typeof stripeError.code === "string" ? stripeError.code : undefined,
+      statusCode:
+        typeof stripeError.statusCode === "number"
+          ? stripeError.statusCode
+          : undefined,
+      requestId:
+        typeof stripeError.requestId === "string"
+          ? stripeError.requestId
+          : undefined,
+    });
 
     return Response.json(
       { error: "Unable to start Stripe Checkout" },

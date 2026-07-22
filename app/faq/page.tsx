@@ -91,7 +91,7 @@ const faqs = [
     id: "price-subscription",
     question: "Is 100 Questions a subscription?",
     answer:
-      "No. The first benchmark is $29, three benchmarks are $99, and ten are $249. After the introductory purchase, a single benchmark is $39. Every credit buys the same complete benchmark, remains valid for 12 months, and is purchased through Stripe-hosted Checkout. Taxes may apply.",
+      "No. The first benchmark is $19, three benchmarks are $79, and ten are $199. After the introductory purchase, a single benchmark is $29. Every credit buys the same complete benchmark, remains valid for 12 months, and is purchased through Stripe-hosted Checkout. Taxes may apply.",
   },
   {
     id: "required-input",

@@ -7,7 +7,12 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
+import {
+  absoluteUrl,
+  SITE_NAME,
+  SITE_UPDATED_AT,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 const pageUrl = absoluteUrl("/generative-engine-optimization");
 
@@ -31,7 +36,9 @@ export const metadata: Metadata = {
     description:
       "Improve how AI answer systems understand, retrieve, and cite your brand without abandoning the fundamentals of SEO.",
     url: pageUrl,
+    siteName: SITE_NAME,
     type: "article",
+    locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
     images: [SOCIAL_IMAGE],

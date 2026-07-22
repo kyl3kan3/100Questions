@@ -26,12 +26,18 @@ import {
   formatPackagePrice,
   getPublicBillingPackages,
 } from "@/lib/billing/packages";
-import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
+import {
+  absoluteUrl,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+  SITE_UPDATED_AT,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Actionable AI Visibility Audit for Your Brand",
-  description:
-    "Find where web-grounded AI models overlook your brand, why competitors appear instead, and what to fix next—with evidence and no subscription.",
+  title: { absolute: SITE_TITLE },
+  description: SITE_DESCRIPTION,
   keywords: [
     "AI visibility tool",
     "AI search visibility",
@@ -43,18 +49,18 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: absoluteUrl() },
   openGraph: {
-    title: "100 Questions — AI Visibility Benchmark",
-    description:
-      "Compare your brand's visibility across OpenAI, Claude, Gemini, and Grok with shared questions, source evidence, and transparent metrics.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     url: absoluteUrl(),
+    siteName: SITE_NAME,
     type: "website",
+    locale: "en_US",
     images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "100 Questions — AI Visibility Benchmark",
-    description:
-      "25 shared questions, four AI providers, and 100 planned web-grounded answers.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: [SOCIAL_IMAGE],
   },
 };

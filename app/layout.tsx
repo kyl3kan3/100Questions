@@ -6,7 +6,9 @@ import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
 import {
   absoluteUrl,
+  SITE_DESCRIPTION,
   SITE_NAME,
+  SITE_TITLE,
   SITE_URL,
   SOCIAL_IMAGE,
 } from "@/lib/site";
@@ -28,11 +30,10 @@ const GOOGLE_ANALYTICS_ID = "G-9S1WQ6LGPR";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "100 Questions — AI Visibility Benchmark",
+    default: SITE_TITLE,
     template: "%s · 100 Questions",
   },
-  description:
-    "Compare 100 planned web-grounded provider answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok—with transparent, directional results.",
+  description: SITE_DESCRIPTION,
   applicationName: "100 Questions",
   authors: [{ name: "100 Questions" }],
   creator: "100 Questions",
@@ -57,16 +58,10 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl() },
   formatDetection: { email: false, address: false, telephone: false },
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-      { url: "/logo-mark.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/favicon.ico",
+    icon: [{ url: "/favicon-v2.ico", sizes: "any", type: "image/x-icon" }],
     apple: [
       {
-        url: "/apple-touch-icon.png",
+        url: "/apple-touch-icon.png?v=2",
         sizes: "180x180",
         type: "image/png",
       },
@@ -97,9 +92,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "100 Questions — AI Visibility Benchmark",
-    description:
-      "Compare 100 planned web-grounded provider answers to 25 shared questions across OpenAI, Claude, Gemini, and Grok.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     url: absoluteUrl(),
     siteName: SITE_NAME,
     type: "website",
@@ -108,9 +102,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "100 Questions — AI Visibility Benchmark",
-    description:
-      "25 shared questions, four AI models, and 100 planned provider answers for a directional visibility benchmark.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: [SOCIAL_IMAGE],
   },
 };

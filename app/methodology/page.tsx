@@ -32,7 +32,9 @@ export const metadata: Metadata = {
     description:
       "Question construction, grounding eligibility, metric definitions, and the limits of a directional AI visibility benchmark.",
     url: methodologyUrl,
+    siteName: SITE_NAME,
     type: "article",
+    locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
     images: [SOCIAL_IMAGE],

@@ -26,7 +26,9 @@ export const metadata: Metadata = {
     description:
       "Plain-language answers about providers, questions, sources, scoring, privacy, and benchmark limitations.",
     url: faqUrl,
+    siteName: SITE_NAME,
     type: "website",
+    locale: "en_US",
     images: [SOCIAL_IMAGE],
   },
   twitter: {

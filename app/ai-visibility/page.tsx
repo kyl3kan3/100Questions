@@ -7,7 +7,12 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { absoluteUrl, SITE_UPDATED_AT, SOCIAL_IMAGE } from "@/lib/site";
+import {
+  absoluteUrl,
+  SITE_NAME,
+  SITE_UPDATED_AT,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility");
 
@@ -31,7 +36,9 @@ export const metadata: Metadata = {
     description:
       "Learn the core AI visibility metrics, see a worked example, and find practical ways to improve your brand's presence in AI answers.",
     url: pageUrl,
+    siteName: SITE_NAME,
     type: "article",
+    locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: SITE_UPDATED_AT,
     images: [SOCIAL_IMAGE],

@@ -149,6 +149,22 @@ type ComparisonPayload = {
     competitorMentions: { baseline: number; current: number; delta: number };
   };
   modelChanges: Array<{ key: string; baseline: string | null; current: string | null }>;
+  history: Array<{
+    runId: string;
+    completedAt: string | null;
+    status: string;
+    metrics: {
+      visibility: number | null;
+      citations: number | null;
+      coverage: number | null;
+      competitorMentions: number;
+    };
+    modelChanges: Array<{
+      key: string;
+      baseline: string | null;
+      current: string | null;
+    }>;
+  }>;
 };
 
 const terminalStatuses = new Set(["complete", "partial", "failed", "cancelled"]);
@@ -1033,8 +1049,26 @@ function BaselineComparison({ comparison }: { comparison: ComparisonPayload }) {
   ] as const;
   return (
     <Card className="bg-[#0b0e0c]">
-      <CardHeader><div className="flex items-center gap-3"><TrendingUp className="size-5 text-emerald-300" /><div><CardTitle as="h2" className="text-base">Change from baseline</CardTitle><CardDescription>Same questions, measured again after implementation.</CardDescription></div></div></CardHeader>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <TrendingUp className="size-5 text-emerald-300" />
+          <div>
+            <CardTitle as="h2" className="text-base">Benchmark history</CardTitle>
+            <CardDescription>
+              The same frozen questions measured across reruns, with model updates called out.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
       <CardContent>
+        <BenchmarkTrend history={comparison.history} />
+        <div className="my-6 border-t border-white/[0.07]" />
+        <div className="mb-3">
+          <p className="text-sm font-medium text-zinc-200">Change from previous run</p>
+          <p className="mt-1 text-pretty text-xs leading-5 text-zinc-400">
+            Directional movement between the latest snapshot and its direct baseline.
+          </p>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {entries.map(([label, metric, ratio]) => <div key={label} className="rounded-xl bg-white/[0.03] p-4"><p className="text-xs text-zinc-400">{label}</p><p className="mt-2 text-xl font-semibold tabular-nums">{ratio ? percent(metric.current) : metric.current}</p><p className={`mt-1 text-xs tabular-nums ${metric.delta !== null && metric.delta > 0 ? "text-emerald-300" : metric.delta !== null && metric.delta < 0 ? "text-red-300" : "text-zinc-400"}`}>{formatDelta(metric.delta, ratio)}</p></div>)}
         </div>
@@ -1050,6 +1084,197 @@ function BaselineComparison({ comparison }: { comparison: ComparisonPayload }) {
       </CardContent>
     </Card>
   );
+}
+
+type HistoryPoint = ComparisonPayload["history"][number];
+type HistoryMetric = "visibility" | "citations" | "coverage";
+
+const historySeries: Array<{
+  key: HistoryMetric;
+  label: string;
+  color: string;
+}> = [
+  { key: "visibility", label: "Visibility", color: "#6ee7b7" },
+  { key: "citations", label: "Owned citations", color: "#7dd3fc" },
+  { key: "coverage", label: "Coverage", color: "#fcd34d" },
+];
+
+function BenchmarkTrend({ history }: { history: HistoryPoint[] }) {
+  const width = 640;
+  const height = 220;
+  const left = 44;
+  const right = 18;
+  const top = 18;
+  const bottom = 32;
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+  const x = (index: number) =>
+    left + (history.length === 1 ? plotWidth / 2 : (index / (history.length - 1)) * plotWidth);
+  const y = (value: number) => top + (1 - value) * plotHeight;
+
+  return (
+    <div>
+      <div className="rounded-2xl bg-white/[0.025] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)] sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          {historySeries.map((series) => (
+            <span className="inline-flex items-center gap-2 text-xs text-zinc-300" key={series.key}>
+              <span
+                aria-hidden="true"
+                className="size-2 rounded-full"
+                style={{ backgroundColor: series.color }}
+              />
+              {series.label}
+            </span>
+          ))}
+        </div>
+        <svg
+          aria-labelledby="benchmark-trend-title benchmark-trend-description"
+          className="h-auto w-full overflow-visible"
+          role="img"
+          viewBox={`0 0 ${width} ${height}`}
+        >
+          <title id="benchmark-trend-title">Benchmark metrics over time</title>
+          <desc id="benchmark-trend-description">
+            Visibility, owned citation rate, and answer coverage for each rerun of the same question set.
+          </desc>
+          {[0, 0.5, 1].map((tick) => (
+            <g key={tick}>
+              <line
+                stroke="rgba(255,255,255,0.08)"
+                strokeDasharray={tick === 0 ? undefined : "4 6"}
+                x1={left}
+                x2={width - right}
+                y1={y(tick)}
+                y2={y(tick)}
+              />
+              <text
+                fill="#71717a"
+                fontSize="11"
+                textAnchor="end"
+                x={left - 9}
+                y={y(tick) + 4}
+              >
+                {Math.round(tick * 100)}%
+              </text>
+            </g>
+          ))}
+          {historySeries.map((series) => (
+            <g key={series.key}>
+              {metricSegments(history, series.key, x, y).map((segment, index) => (
+                <path
+                  d={segment.map((point, pointIndex) => `${pointIndex ? "L" : "M"} ${point.x} ${point.y}`).join(" ")}
+                  fill="none"
+                  key={`${series.key}-${index}`}
+                  stroke={series.color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                />
+              ))}
+              {history.map((snapshot, index) => {
+                const value = snapshot.metrics[series.key];
+                if (value === null) return null;
+                return (
+                  <circle
+                    cx={x(index)}
+                    cy={y(value)}
+                    fill="#0b0e0c"
+                    key={`${series.key}-${snapshot.runId}`}
+                    r="4"
+                    stroke={series.color}
+                    strokeWidth="2.5"
+                  >
+                    <title>
+                      {series.label}: {percent(value)} on {formatSnapshotDate(snapshot.completedAt)}
+                    </title>
+                  </circle>
+                );
+              })}
+            </g>
+          ))}
+          <text fill="#71717a" fontSize="11" x={left} y={height - 7}>
+            {formatSnapshotDate(history[0]?.completedAt ?? null)}
+          </text>
+          <text
+            fill="#71717a"
+            fontSize="11"
+            textAnchor="end"
+            x={width - right}
+            y={height - 7}
+          >
+            {formatSnapshotDate(history.at(-1)?.completedAt ?? null)}
+          </text>
+        </svg>
+      </div>
+
+      <ol className="mt-3 grid grid-flow-col auto-cols-[minmax(13rem,1fr)] gap-2 overflow-x-auto pb-2">
+        {history.map((snapshot, index) => {
+          const current = index === history.length - 1;
+          return (
+            <li
+              className="rounded-2xl bg-white/[0.025] p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]"
+              key={snapshot.runId}
+            >
+              <Link
+                className="block min-h-28 rounded-lg p-3 transition-[background-color] duration-150 hover:bg-white/[0.035] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/60"
+                href={`/runs/${snapshot.runId}`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs text-zinc-400">
+                    {formatSnapshotDate(snapshot.completedAt)}
+                  </p>
+                  {current ? <Badge variant="success">Current</Badge> : null}
+                </div>
+                <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-white tabular-nums">
+                  {percent(snapshot.metrics.visibility)}
+                </p>
+                <p className="text-xs text-zinc-400">visibility</p>
+                <p className="mt-3 text-pretty text-[11px] leading-4 text-zinc-400">
+                  {index === 0
+                    ? "Baseline snapshot"
+                    : snapshot.modelChanges.length
+                      ? `Model update: ${snapshot.modelChanges.map(({ key }) => humanize(key)).join(", ")}`
+                      : "Provider models unchanged"}
+                </p>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+function metricSegments(
+  history: HistoryPoint[],
+  metric: HistoryMetric,
+  x: (index: number) => number,
+  y: (value: number) => number,
+) {
+  const segments: Array<Array<{ x: number; y: number }>> = [];
+  let current: Array<{ x: number; y: number }> = [];
+
+  history.forEach((snapshot, index) => {
+    const value = snapshot.metrics[metric];
+    if (value === null) {
+      if (current.length) segments.push(current);
+      current = [];
+      return;
+    }
+    current.push({ x: x(index), y: y(value) });
+  });
+
+  if (current.length) segments.push(current);
+  return segments;
+}
+
+function formatSnapshotDate(value: string | null) {
+  if (!value) return "Pending";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
 }
 
 function formatDelta(value: number | null, ratio: boolean) {

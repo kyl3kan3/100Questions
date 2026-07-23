@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 import { withWorkflow } from "workflow/next";
 
+import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
+
 const nextConfig: NextConfig = {
+  async redirects() {
+    return PUBLIC_ROUTE_REDIRECTS.map((redirect) => ({ ...redirect }));
+  },
   outputFileTracingIncludes: {
     "/api/runs/*/export": [
       "./node_modules/@fontsource/noto-sans-jp/files/noto-sans-jp-japanese-400-normal.woff2",

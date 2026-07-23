@@ -3,7 +3,7 @@ export const SITE_URL = "https://100questionsai.com";
 export const SITE_TITLE = "100 Questions — AI Visibility Benchmark";
 export const SITE_DESCRIPTION =
   "Find where web-grounded AI models overlook your brand, why competitors appear instead, and what to fix next—with evidence and no subscription.";
-export const SITE_UPDATED_AT = "2026-07-22T00:00:00.000Z";
+export const SITE_UPDATED_AT = "2026-07-23T00:00:00.000Z";
 export const SOCIAL_IMAGE_PATH = "/social-card-v3.png";
 export const SOCIAL_IMAGE_URL = `${SITE_URL}${SOCIAL_IMAGE_PATH}?v=e5060413`;
 export const SOCIAL_IMAGE_ALT =

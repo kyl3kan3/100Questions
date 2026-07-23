@@ -3,7 +3,12 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { buildRobots, buildSitemap, PUBLIC_MARKETING_PATHS } from "./seo";
+import {
+  buildRobots,
+  buildSitemap,
+  PUBLIC_MARKETING_PATHS,
+  PUBLIC_ROUTE_REDIRECTS,
+} from "./seo";
 import { SOCIAL_IMAGE, SOCIAL_IMAGE_PATH } from "./site";
 
 describe("public SEO metadata", () => {
@@ -25,6 +30,24 @@ describe("public SEO metadata", () => {
       allow: "/",
       disallow: ["/api/", "/.well-known/workflow/"],
     });
+  });
+
+  it("maps observed trust and support aliases to canonical public pages", () => {
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/about-us",
+      destination: "/about",
+      permanent: true,
+    });
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/support",
+      destination: "/faq",
+      permanent: true,
+    });
+    expect(
+      PUBLIC_ROUTE_REDIRECTS.every(({ destination }) =>
+        PUBLIC_MARKETING_PATHS.includes(destination),
+      ),
+    ).toBe(true);
   });
 
   it("uses a stable, public social preview image", () => {

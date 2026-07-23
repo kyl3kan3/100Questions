@@ -4,11 +4,21 @@ import { absoluteUrl, SITE_UPDATED_AT, SITE_URL } from "./site";
 
 export const PUBLIC_MARKETING_PATHS = [
   "/",
+  "/about",
   "/ai-visibility",
   "/generative-engine-optimization",
   "/methodology",
   "/faq",
   "/sample-report",
+] as const;
+
+export const PUBLIC_ROUTE_REDIRECTS = [
+  { source: "/about-us", destination: "/about", permanent: true },
+  { source: "/team", destination: "/about", permanent: true },
+  { source: "/contact", destination: "/faq", permanent: true },
+  { source: "/contact-us", destination: "/faq", permanent: true },
+  { source: "/help", destination: "/faq", permanent: true },
+  { source: "/support", destination: "/faq", permanent: true },
 ] as const;
 
 export function buildSitemap(): MetadataRoute.Sitemap {
@@ -21,6 +31,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
       images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/about"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: absoluteUrl("/ai-visibility"),

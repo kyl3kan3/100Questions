@@ -21,6 +21,9 @@ export function GlobalFooter() {
             <Link className="hover:text-zinc-200" href="/">
               Home
             </Link>
+            <Link className="hover:text-zinc-200" href="/about">
+              About
+            </Link>
             <Link className="hover:text-zinc-200" href="/methodology">
               Methodology
             </Link>

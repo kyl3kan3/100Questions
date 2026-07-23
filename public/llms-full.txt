@@ -1,6 +1,7 @@
 # 100 Questions: product and methodology reference
 
 Canonical site: https://100questionsai.com/
+About: https://100questionsai.com/about
 Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility

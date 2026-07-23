@@ -1,7 +1,6 @@
 import { getRun } from "workflow/api";
 
 import { getAuthenticatedUser } from "@/lib/auth/session";
-import { releaseReservedCreditForRun } from "@/lib/billing/credits";
 import { isSameOrigin, jsonError } from "@/lib/http";
 import {
   cancelQueuedRunForUser,
@@ -76,19 +75,7 @@ export async function DELETE(request: Request, context: RouteContext) {
       await getRun(cancelled.workflowRunId).cancel().catch(() => undefined);
     }
 
-    const released = await releaseReservedCreditForRun({
-      userId: user.id,
-      runId: run.id,
-      reason: "user_cancelled_before_provider_work",
-    });
-
-    if (!released) {
-      return jsonError(
-        "The run could not be deleted because its credit state changed.",
-        409,
-        "credit_state_changed",
-      );
-    }
+    // The queued cancellation and reservation release commit atomically.
   }
 
   const deleted = await deleteRunForUser(id, user.id);

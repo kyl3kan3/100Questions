@@ -1,12 +1,12 @@
-import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { and, eq, inArray, lte, or, sql } from "drizzle-orm";
 import { getRun as getWorkflowRun, start } from "workflow/api";
 
-import { releaseReservedCreditForRun } from "@/lib/billing/credits";
 import { getBenchmarkConfig } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import { runs, workflowDispatches } from "@/lib/db/schema";
 import { jsonError } from "@/lib/http";
 import { cancelRunForUser, markWorkflowStarted } from "@/lib/runs";
+import { ACTION_PLAN_FINALIZATION_RETRY_CODE } from "@/lib/workflow-finalization";
 import { runVisibilityWorkflow } from "@/workflows/visibility";
 
 export const runtime = "nodejs";
@@ -34,6 +34,7 @@ async function maintain(request: Request) {
       and(
         inArray(runs.status, ["queued", "generating", "querying", "analyzing"]),
         sql`coalesce(${runs.startedAt}, ${runs.createdAt}) <= ${staleCutoff}`,
+        sql`${runs.failureCode} is distinct from ${ACTION_PLAN_FINALIZATION_RETRY_CODE}`,
       ),
     )
     .limit(20);
@@ -53,14 +54,6 @@ async function maintain(request: Request) {
           .catch(() => undefined);
       }
 
-      if (cancelled.creditMayBeReleased) {
-        await releaseReservedCreditForRun({
-          userId: run.userId,
-          runId: run.id,
-          reason: "duration_limit_before_provider_work",
-        });
-      }
-
       return true;
     }),
   );
@@ -78,10 +71,37 @@ async function maintain(request: Request) {
     .from(workflowDispatches)
     .innerJoin(runs, eq(workflowDispatches.runId, runs.id))
     .where(
-      and(
-        inArray(workflowDispatches.status, ["pending", "starting"]),
-        eq(runs.status, "queued"),
-        lte(workflowDispatches.createdAt, new Date(Date.now() - 60_000)),
+      or(
+        and(
+          inArray(workflowDispatches.status, ["pending", "starting"]),
+          eq(runs.status, "queued"),
+          lte(workflowDispatches.createdAt, new Date(Date.now() - 60_000)),
+        ),
+        and(
+          inArray(workflowDispatches.status, [
+            "pending",
+            "starting",
+            "started",
+          ]),
+          eq(runs.status, "analyzing"),
+          eq(
+            runs.failureCode,
+            ACTION_PLAN_FINALIZATION_RETRY_CODE,
+          ),
+          or(
+            and(
+              inArray(workflowDispatches.status, ["pending", "starting"]),
+              lte(workflowDispatches.nextAttemptAt, new Date()),
+            ),
+            and(
+              eq(workflowDispatches.status, "started"),
+              lte(
+                workflowDispatches.lastAttemptAt,
+                new Date(Date.now() - 5 * 60_000),
+              ),
+            ),
+          ),
+        ),
       ),
     )
     .limit(10);

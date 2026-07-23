@@ -56,10 +56,10 @@ accounting, and Gateway-level spending controls.
 
 1. Create four one-time Stripe Prices: $9 introductory, $15 single, $39 three-pack, and $99 ten-pack.
 2. Set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_INTRO`, `STRIPE_PRICE_SINGLE`, `STRIPE_PRICE_THREE`, and `STRIPE_PRICE_TEN`.
-3. Forward these Stripe events to `/api/stripe/webhook` and set the resulting signing secret as `STRIPE_WEBHOOK_SECRET`: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`.
-4. Configure Stripe Tax for automatic tax calculation and enable the Stripe Customer Portal for billing history.
+3. Forward these Stripe events to `/api/stripe/webhook` and set the resulting signing secret as `STRIPE_WEBHOOK_SECRET`: `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.funds_withdrawn`, and `charge.dispute.funds_reinstated`.
+4. Configure the Stripe Tax origin, product tax code/tax behavior, and at least one active Tax Registration, then enable the Stripe Customer Portal for billing history. The Stripe key must be able to read Tax Registrations; Checkout fails closed when it cannot confirm one before enabling automatic tax.
 
-The browser submits only a package key; the server maps it to a configured Stripe Price and fixed credit grant. The $9 introductory package is enforced as a user's first purchase. Signed Checkout events grant 1, 3, or 10 credits, and each credit expires 12 months after purchase. Billing is fail-closed unless every package Price and the webhook configuration are present. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and timely reinstatements restore exactly the frozen amount.
+The browser submits only a package key; the server maps it to a configured Stripe Price and versioned, immutable credit grant. The $9 introductory package is enforced by one durable per-user claim. Its complete Checkout request snapshot and resulting Session URL are reused across browser retries, while expired or failed Sessions advance that claim to a new attempt. Signed Checkout events grant 1, 3, or 10 credits, and each credit expires 12 months after purchase. Billing is fail-closed unless every package Price, webhook configuration, and an active Stripe Tax Registration are present. Full refunds revoke still-unspent purchased credits; dispute withdrawals freeze them and timely reinstatements restore exactly the frozen amount.
 
 For local webhook testing:
 

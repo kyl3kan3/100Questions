@@ -8,6 +8,7 @@ import {
   recordWorkflowDispatchAttemptFailure,
   toPublicRun,
 } from "@/lib/runs";
+import { isActionPlanFinalizationRetry } from "@/lib/workflow-finalization";
 import { runVisibilityWorkflow } from "@/workflows/visibility";
 
 export const runtime = "nodejs";
@@ -34,7 +35,15 @@ export async function POST(request: Request, context: RouteContext) {
     return jsonError("Benchmark run not found.", 404, "not_found");
   }
 
-  if (run.status !== "queued" || run.workflowRunId) {
+  const resumesActionPlanFinalization = isActionPlanFinalizationRetry(
+    run.status,
+    run.failureCode,
+  );
+
+  if (
+    run.workflowRunId ||
+    (run.status !== "queued" && !resumesActionPlanFinalization)
+  ) {
     return Response.json({ run: toPublicRun(run), idempotent: true });
   }
 

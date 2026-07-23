@@ -54,6 +54,21 @@ export function getStripeWebhookSecret(): string {
   return readRequiredEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
 }
 
+export async function assertStripeTaxRegistrationConfigured(
+  stripe: Stripe,
+): Promise<void> {
+  const registrations = await stripe.tax.registrations.list({
+    status: "active",
+    limit: 1,
+  });
+
+  if (registrations.data.length === 0) {
+    throw new BillingConfigurationError(
+      "Stripe Tax requires at least one active registration",
+    );
+  }
+}
+
 export function getStripePackage(packageId: BillingPackageId) {
   const billingPackage = getBillingPackage(packageId);
 

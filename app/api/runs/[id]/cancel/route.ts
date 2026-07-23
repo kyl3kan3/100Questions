@@ -1,7 +1,6 @@
 import { getRun as getWorkflowRun } from "workflow/api";
 
 import { getAuthenticatedUser } from "@/lib/auth/session";
-import { releaseReservedCreditForRun } from "@/lib/billing/credits";
 import { isSameOrigin, jsonError } from "@/lib/http";
 import { cancelRunForUser } from "@/lib/runs";
 
@@ -47,17 +46,9 @@ export async function POST(request: Request, context: RouteContext) {
       .catch(() => false);
   }
 
-  const creditReleased = cancelled.creditMayBeReleased
-    ? await releaseReservedCreditForRun({
-        userId: user.id,
-        runId: id,
-        reason: "user_cancelled_before_provider_work",
-      })
-    : false;
-
   return Response.json({
     cancelled: true,
-    creditReleased,
+    creditReleased: cancelled.creditReleased,
     workflowCancellationRequested,
   });
 }

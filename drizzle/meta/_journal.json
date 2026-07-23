@@ -36,6 +36,13 @@
       "when": 1784711943512,
       "tag": "0004_public_warstar",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784776055279,
+      "tag": "0005_complete_spencer_smythe",
+      "breakpoints": true
     }
   ]
 }

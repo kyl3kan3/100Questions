@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHmac } from "node:crypto";
+
 import {
   createNeonAuth,
   type NeonAuth,
@@ -7,11 +9,27 @@ import {
 
 let neonAuth: NeonAuth | undefined;
 
-// A benchmark can stay open for up to two hours. Keep the signed session
-// snapshot valid beyond that window so progress polling does not depend on an
-// upstream auth refresh every five minutes. The underlying account session
-// lifetime and sign-out behavior are unchanged.
-const SESSION_DATA_TTL_SECONDS = 4 * 60 * 60;
+// Keep polling inexpensive while bounding how long a revoked upstream session
+// can remain authorized by the signed session-data snapshot.
+export const SESSION_DATA_TTL_SECONDS = 60;
+// Bump this whenever a rollout must invalidate already-minted local snapshots.
+// The upstream Neon session token uses a separate key and remains valid.
+export const SESSION_DATA_COOKIE_KEY_VERSION = "2026-07-22-v2";
+
+export function deriveSessionDataCookieSecret(
+  configuredSecret: string,
+  version = SESSION_DATA_COOKIE_KEY_VERSION,
+) {
+  const normalizedSecret = configuredSecret.trim();
+
+  if (normalizedSecret.length < 32) {
+    throw new Error("NEON_AUTH_COOKIE_SECRET must be at least 32 characters");
+  }
+
+  return createHmac("sha256", normalizedSecret)
+    .update(`100questions/neon-auth/session-data/${version}`)
+    .digest("base64url");
+}
 
 function readRequiredEnvironmentVariable(name: string): string {
   const value = process.env[name]?.trim();
@@ -35,7 +53,12 @@ export function getAuth(): NeonAuth {
   neonAuth = createNeonAuth({
     baseUrl: readRequiredEnvironmentVariable("NEON_AUTH_BASE_URL"),
     cookies: {
-      secret: readRequiredEnvironmentVariable("NEON_AUTH_COOKIE_SECRET"),
+      // Versioning the local signing key rejects snapshots minted before this
+      // rollout. The still-valid upstream session token is then revalidated,
+      // and middleware/auth handlers mint a fresh one-minute snapshot.
+      secret: deriveSessionDataCookieSecret(
+        readRequiredEnvironmentVariable("NEON_AUTH_COOKIE_SECRET"),
+      ),
       sessionDataTtl: SESSION_DATA_TTL_SECONDS,
     },
     logLevel: process.env.NODE_ENV === "development" ? "warn" : "error",

@@ -2,6 +2,12 @@ import "server-only";
 
 import { eq, sql } from "drizzle-orm";
 
+import {
+  availableCreditBalanceSql,
+  availableCreditPurchaseSql,
+  consumableCreditPurchaseSql,
+  revocableCreditPurchaseSql,
+} from "./credit-lot-sql";
 import { getDb } from "@/lib/db";
 import {
   billingCustomers,
@@ -53,6 +59,9 @@ type StripePurchaseInput = {
   userId: string;
   credits: number;
   packageId: string;
+  grantVersion: string;
+  introductory: boolean;
+  introductoryClaimId?: string | null;
   expiresAt: Date;
   livemode: boolean;
   apiVersion: string | null;
@@ -76,6 +85,43 @@ type StripeRestorationInput = {
   livemode: boolean;
   apiVersion: string | null;
 };
+
+type PrepareIntroductoryCheckoutClaimInput = {
+  userId: string;
+  packageId: string;
+  grantVersion: string;
+  credits: number;
+  stripePriceId: string;
+  stripeCustomerId: string;
+  successUrl: string;
+  cancelUrl: string;
+  checkoutMetadata: Record<string, string>;
+};
+
+export type PreparedIntroductoryCheckoutClaim =
+  | { state: "unavailable" }
+  | { state: "fulfilled" }
+  | { state: "payment_pending" }
+  | {
+      state: "reuse";
+      claimId: string;
+      credits: number;
+      checkoutUrl: string;
+    }
+  | {
+      state: "create";
+      claimId: string;
+      attempt: number;
+      userId: string;
+      packageId: string;
+      grantVersion: string;
+      credits: number;
+      stripePriceId: string;
+      stripeCustomerId: string;
+      successUrl: string;
+      cancelUrl: string;
+      checkoutMetadata: Record<string, string>;
+    };
 
 function assertUserId(userId: string): void {
   if (!userId.trim() || userId.length > 255) {
@@ -105,33 +151,8 @@ function sanitizeText(value: string | undefined, maxLength: number) {
 }
 
 export async function getCreditBalance(userId: string): Promise<number> {
-  assertUserId(userId);
   const result = await getDb().execute<{ balance: number | string }>(sql`
-    WITH global_balance AS (
-      SELECT greatest(coalesce(sum(amount), 0)::integer, 0) AS balance
-      FROM credit_ledger
-      WHERE user_id = ${userId}
-    ),
-    purchase_lots AS (
-      SELECT
-        amount,
-        expires_at,
-        coalesce(sum(amount) OVER (
-          ORDER BY created_at DESC, id DESC
-          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-        ), 0)::integer AS newer_credits
-      FROM credit_ledger
-      WHERE user_id = ${userId}
-        AND type = 'purchase'::credit_ledger_type
-        AND amount > 0
-    )
-    SELECT coalesce(sum(
-      CASE WHEN expires_at > now() THEN
-        least(amount, greatest(global_balance.balance - newer_credits, 0))
-      ELSE 0 END
-    ), 0)::integer AS balance
-    FROM purchase_lots
-    CROSS JOIN global_balance
+    SELECT ${availableCreditBalanceSql(userId)} AS balance
   `);
 
   return Number(result.rows[0]?.balance ?? 0);
@@ -148,6 +169,268 @@ export async function hasPurchasedCredits(userId: string): Promise<boolean> {
     .limit(1);
 
   return Boolean(purchase);
+}
+
+export async function prepareIntroductoryCheckoutClaim({
+  userId,
+  packageId,
+  grantVersion,
+  credits,
+  stripePriceId,
+  stripeCustomerId,
+  successUrl,
+  cancelUrl,
+  checkoutMetadata,
+}: PrepareIntroductoryCheckoutClaimInput): Promise<PreparedIntroductoryCheckoutClaim> {
+  assertUserId(userId);
+  if (
+    !packageId.trim() ||
+    !grantVersion.trim() ||
+    !stripePriceId.trim() ||
+    !stripeCustomerId.trim() ||
+    !Number.isSafeInteger(credits) ||
+    credits < 1
+  ) {
+    throw new Error("Invalid introductory Checkout claim");
+  }
+
+  const db = getDb();
+  const query = sql`
+    WITH inserted_claim AS (
+      INSERT INTO introductory_checkout_claims (
+        user_id,
+        status,
+        grant_version,
+        package_id,
+        credits,
+        stripe_price_id,
+        stripe_customer_id,
+        success_url,
+        cancel_url,
+        checkout_metadata,
+        attempt,
+        created_at,
+        updated_at
+      )
+      SELECT
+        ${userId},
+        'creating',
+        ${grantVersion},
+        ${packageId},
+        ${credits},
+        ${stripePriceId},
+        ${stripeCustomerId},
+        ${successUrl},
+        ${cancelUrl},
+        ${JSON.stringify(checkoutMetadata)}::jsonb,
+        1,
+        now(),
+        now()
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM credit_ledger
+        WHERE user_id = ${userId}
+          AND type = 'purchase'::credit_ledger_type
+      )
+      ON CONFLICT (user_id) DO NOTHING
+      RETURNING *
+    ),
+    locked_claim AS MATERIALIZED (
+      SELECT claim.*
+      FROM introductory_checkout_claims AS claim
+      WHERE claim.user_id = ${userId}
+      FOR UPDATE
+    ),
+    rotated_claim AS (
+      UPDATE introductory_checkout_claims AS claim
+      SET
+        status = 'creating',
+        grant_version = ${grantVersion},
+        package_id = ${packageId},
+        credits = ${credits},
+        stripe_price_id = ${stripePriceId},
+        stripe_customer_id = ${stripeCustomerId},
+        success_url = ${successUrl},
+        cancel_url = ${cancelUrl},
+        checkout_metadata = ${JSON.stringify(checkoutMetadata)}::jsonb,
+        attempt = claim.attempt + 1,
+        stripe_checkout_session_id = NULL,
+        stripe_checkout_url = NULL,
+        stripe_session_expires_at = NULL,
+        updated_at = now()
+      FROM locked_claim
+      WHERE claim.id = locked_claim.id
+        AND locked_claim.status = 'retryable'
+      RETURNING claim.*
+    ),
+    effective_claim AS (
+      SELECT * FROM rotated_claim
+      UNION ALL
+      SELECT * FROM inserted_claim
+      UNION ALL
+      SELECT locked_claim.*
+      FROM locked_claim
+      WHERE NOT EXISTS (SELECT 1 FROM rotated_claim)
+        AND NOT EXISTS (SELECT 1 FROM inserted_claim)
+    )
+    SELECT
+      id,
+      user_id,
+      status,
+      grant_version,
+      package_id,
+      credits,
+      stripe_price_id,
+      stripe_customer_id,
+      success_url,
+      cancel_url,
+      checkout_metadata,
+      attempt,
+      stripe_checkout_url
+    FROM effective_claim
+    LIMIT 1
+  `;
+  const [, result] = await db.batch([
+    db.execute(sql`
+      SELECT pg_advisory_xact_lock(hashtextextended(${userId}::text, 0))
+    `),
+    db.execute<{
+      id: string;
+      user_id: string;
+      status:
+        | "creating"
+        | "open"
+        | "payment_pending"
+        | "retryable"
+        | "fulfilled";
+      grant_version: string;
+      package_id: string;
+      credits: number | string;
+      stripe_price_id: string | null;
+      stripe_customer_id: string | null;
+      success_url: string | null;
+      cancel_url: string | null;
+      checkout_metadata: Record<string, string>;
+      attempt: number | string;
+      stripe_checkout_url: string | null;
+    }>(query),
+  ]);
+  const claim = result.rows[0];
+
+  if (!claim) return { state: "unavailable" };
+  if (claim.status === "fulfilled") return { state: "fulfilled" };
+  if (claim.status === "payment_pending") return { state: "payment_pending" };
+  if (claim.status === "open" && claim.stripe_checkout_url) {
+    return {
+      state: "reuse",
+      claimId: claim.id,
+      credits: Number(claim.credits),
+      checkoutUrl: claim.stripe_checkout_url,
+    };
+  }
+  if (
+    !claim.stripe_price_id ||
+    !claim.stripe_customer_id ||
+    !claim.success_url ||
+    !claim.cancel_url
+  ) {
+    throw new Error("Introductory Checkout claim snapshot is incomplete");
+  }
+
+  return {
+    state: "create",
+    claimId: claim.id,
+    attempt: Number(claim.attempt),
+    userId: claim.user_id,
+    packageId: claim.package_id,
+    grantVersion: claim.grant_version,
+    credits: Number(claim.credits),
+    stripePriceId: claim.stripe_price_id,
+    stripeCustomerId: claim.stripe_customer_id,
+    successUrl: claim.success_url,
+    cancelUrl: claim.cancel_url,
+    checkoutMetadata: claim.checkout_metadata,
+  };
+}
+
+export async function persistIntroductoryCheckoutSession({
+  claimId,
+  userId,
+  attempt,
+  stripeCheckoutSessionId,
+  checkoutUrl,
+  expiresAt,
+}: {
+  claimId: string;
+  userId: string;
+  attempt: number;
+  stripeCheckoutSessionId: string;
+  checkoutUrl: string;
+  expiresAt: Date;
+}) {
+  assertRunId(claimId);
+  assertUserId(userId);
+  const result = await getDb().execute<{
+    stripe_checkout_url: string;
+  }>(sql`
+    UPDATE introductory_checkout_claims
+    SET
+      status = 'open',
+      stripe_checkout_session_id = ${stripeCheckoutSessionId},
+      stripe_checkout_url = ${checkoutUrl},
+      stripe_session_expires_at = ${expiresAt},
+      updated_at = now()
+    WHERE id = ${claimId}::uuid
+      AND user_id = ${userId}
+      AND attempt = ${attempt}
+      AND status IN ('creating', 'open')
+      AND (
+        stripe_checkout_session_id IS NULL
+        OR stripe_checkout_session_id = ${stripeCheckoutSessionId}
+      )
+    RETURNING stripe_checkout_url
+  `);
+  const persistedUrl = result.rows[0]?.stripe_checkout_url;
+
+  if (!persistedUrl) {
+    throw new Error("Introductory Checkout Session could not be persisted");
+  }
+
+  return persistedUrl;
+}
+
+export async function recordIntroductoryCheckoutSessionState({
+  claimId,
+  userId,
+  stripeCheckoutSessionId,
+  state,
+}: {
+  claimId: string;
+  userId: string;
+  stripeCheckoutSessionId: string;
+  state: "payment_pending" | "retryable";
+}) {
+  assertRunId(claimId);
+  assertUserId(userId);
+  await getDb().execute(sql`
+    UPDATE introductory_checkout_claims
+    SET
+      status = ${state},
+      stripe_checkout_session_id =
+        CASE WHEN ${state} = 'retryable' THEN NULL
+          ELSE stripe_checkout_session_id END,
+      stripe_checkout_url =
+        CASE WHEN ${state} = 'retryable' THEN NULL
+          ELSE stripe_checkout_url END,
+      stripe_session_expires_at =
+        CASE WHEN ${state} = 'retryable' THEN NULL
+          ELSE stripe_session_expires_at END,
+      updated_at = now()
+    WHERE id = ${claimId}::uuid
+      AND user_id = ${userId}
+      AND stripe_checkout_session_id = ${stripeCheckoutSessionId}
+      AND status <> 'fulfilled'
+  `);
 }
 
 /**
@@ -174,35 +457,8 @@ export async function reserveCreditForRun({
       WHERE ledger.external_reference = ${reference}
       LIMIT 1
     ),
-    global_balance AS MATERIALIZED (
-      SELECT greatest(coalesce(sum(ledger.amount), 0)::integer, 0) AS balance
-      FROM credit_ledger AS ledger
-      WHERE ledger.user_id = ${userId}
-    ),
-    purchase_lots AS MATERIALIZED (
-      SELECT
-        ledger.amount,
-        ledger.expires_at,
-        coalesce(sum(ledger.amount) OVER (
-          ORDER BY ledger.created_at DESC, ledger.id DESC
-          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-        ), 0)::integer AS newer_credits
-      FROM credit_ledger AS ledger
-      WHERE ledger.user_id = ${userId}
-        AND ledger.type = 'purchase'::credit_ledger_type
-        AND ledger.amount > 0
-    ),
-    current_balance AS MATERIALIZED (
-      SELECT coalesce(sum(
-        CASE WHEN purchase_lots.expires_at > now() THEN
-          least(
-            purchase_lots.amount,
-            greatest(global_balance.balance - purchase_lots.newer_credits, 0)
-          )
-        ELSE 0 END
-      ), 0)::integer AS balance
-      FROM purchase_lots
-      CROSS JOIN global_balance
+    available_purchase AS MATERIALIZED (
+      SELECT ${availableCreditPurchaseSql(userId)}::uuid AS id
     ),
     owned_run AS MATERIALIZED (
       SELECT run.id
@@ -217,6 +473,7 @@ export async function reserveCreditForRun({
         amount,
         type,
         run_id,
+        funding_purchase_id,
         external_reference,
         metadata
       )
@@ -225,11 +482,12 @@ export async function reserveCreditForRun({
         -1,
         'reserve'::credit_ledger_type,
         owned_run.id,
+        available_purchase.id,
         ${reference},
         jsonb_build_object('state', 'reserved')
-      FROM current_balance
+      FROM available_purchase
       CROSS JOIN owned_run
-      WHERE current_balance.balance >= 1
+      WHERE available_purchase.id IS NOT NULL
         AND NOT EXISTS (SELECT 1 FROM existing_reservation)
       ON CONFLICT DO NOTHING
       RETURNING id
@@ -273,7 +531,7 @@ export async function consumeReservedCreditForRun({
       LIMIT 1
     ),
     reservation AS MATERIALIZED (
-      SELECT 1
+      SELECT ledger.funding_purchase_id
       FROM credit_ledger AS ledger
       WHERE ledger.user_id = ${userId}
         AND ledger.run_id = ${runId}::uuid
@@ -294,6 +552,7 @@ export async function consumeReservedCreditForRun({
         amount,
         type,
         run_id,
+        funding_purchase_id,
         external_reference,
         metadata
       )
@@ -302,9 +561,14 @@ export async function consumeReservedCreditForRun({
         0,
         'consume'::credit_ledger_type,
         ${runId}::uuid,
+        reservation.funding_purchase_id,
         ${reference},
         jsonb_build_object('state', 'consumed')
+      FROM reservation
       WHERE EXISTS (SELECT 1 FROM reservation)
+        AND ${consumableCreditPurchaseSql(
+          sql`reservation.funding_purchase_id`,
+        )}
         AND NOT EXISTS (SELECT 1 FROM release)
         AND NOT EXISTS (SELECT 1 FROM existing_action)
       ON CONFLICT DO NOTHING
@@ -356,7 +620,7 @@ export async function releaseReservedCreditForRun({
       LIMIT 1
     ),
     reservation AS MATERIALIZED (
-      SELECT ledger.amount
+      SELECT ledger.amount, ledger.funding_purchase_id
       FROM credit_ledger AS ledger
       WHERE ledger.user_id = ${userId}
         AND ledger.run_id = ${runId}::uuid
@@ -377,6 +641,7 @@ export async function releaseReservedCreditForRun({
         amount,
         type,
         run_id,
+        funding_purchase_id,
         external_reference,
         metadata
       )
@@ -385,6 +650,7 @@ export async function releaseReservedCreditForRun({
         -reservation.amount,
         'release'::credit_ledger_type,
         ${runId}::uuid,
+        reservation.funding_purchase_id,
         ${reference},
         jsonb_build_object('state', 'released', 'reason', ${normalizedReason}::text)
       FROM reservation
@@ -499,6 +765,9 @@ export async function grantPurchasedCredits({
   userId,
   credits,
   packageId,
+  grantVersion,
+  introductory,
+  introductoryClaimId,
   expiresAt,
   livemode,
   apiVersion,
@@ -509,8 +778,16 @@ export async function grantPurchasedCredits({
     throw new Error("Invalid purchased credit count");
   }
 
-  if (!packageId.trim() || packageId.length > 32) {
+  if (!packageId.trim() || packageId.length > 64) {
     throw new Error("Invalid billing package ID");
+  }
+
+  if (!grantVersion.trim() || grantVersion.length > 32) {
+    throw new Error("Invalid credit grant version");
+  }
+
+  if (introductoryClaimId) {
+    assertRunId(introductoryClaimId);
   }
 
   if (!Number.isFinite(expiresAt.getTime()) || expiresAt <= new Date()) {
@@ -525,10 +802,12 @@ export async function grantPurchasedCredits({
     granted: boolean;
     status: string;
   }>(sql`
-    WITH checkout_lock AS MATERIALIZED (
-      SELECT pg_advisory_xact_lock(
-        hashtextextended(${stripeCheckoutSessionId}::text, 0)
-      )
+    WITH checkout_locks AS MATERIALIZED (
+      SELECT
+        pg_advisory_xact_lock(
+          hashtextextended(${stripeCheckoutSessionId}::text, 0)
+        ),
+        pg_advisory_xact_lock(hashtextextended(${userId}::text, 0))
     ),
     event_row AS (
       INSERT INTO billing_events (
@@ -548,7 +827,7 @@ export async function grantPurchasedCredits({
         ${apiVersion}::text,
         now(),
         now()
-      FROM checkout_lock
+      FROM checkout_locks
       ON CONFLICT (stripe_event_id) DO UPDATE
       SET updated_at = now()
       RETURNING id, status
@@ -562,6 +841,81 @@ export async function grantPurchasedCredits({
         'failed'::billing_event_status
       )
     ),
+    provided_claim AS MATERIALIZED (
+      SELECT claim.*
+      FROM introductory_checkout_claims AS claim
+      CROSS JOIN eligible_event
+      WHERE ${introductory}
+        AND claim.user_id = ${userId}
+        AND (
+          ${introductoryClaimId ?? null}::uuid IS NULL
+          OR claim.id = ${introductoryClaimId ?? null}::uuid
+        )
+      LIMIT 1
+      FOR UPDATE
+    ),
+    legacy_claim AS (
+      INSERT INTO introductory_checkout_claims (
+        user_id,
+        status,
+        grant_version,
+        package_id,
+        credits,
+        stripe_customer_id,
+        stripe_checkout_session_id,
+        fulfilled_session_id,
+        attempt,
+        created_at,
+        updated_at,
+        fulfilled_at
+      )
+      SELECT
+        ${userId},
+        'fulfilled',
+        ${grantVersion},
+        ${packageId},
+        ${credits},
+        ${stripeCustomerId}::text,
+        ${stripeCheckoutSessionId},
+        ${stripeCheckoutSessionId},
+        1,
+        now(),
+        now(),
+        now()
+      FROM eligible_event
+      WHERE ${introductory}
+        AND ${introductoryClaimId ?? null}::uuid IS NULL
+        AND NOT EXISTS (SELECT 1 FROM provided_claim)
+      ON CONFLICT (user_id) DO NOTHING
+      RETURNING *
+    ),
+    resolved_claim AS MATERIALIZED (
+      SELECT * FROM provided_claim
+      UNION ALL
+      SELECT * FROM legacy_claim
+    ),
+    claim_gate AS MATERIALIZED (
+      SELECT (
+        NOT ${introductory}
+        OR EXISTS (
+          SELECT 1
+          FROM resolved_claim
+          WHERE status <> 'fulfilled'
+            OR fulfilled_session_id = ${stripeCheckoutSessionId}
+        )
+      ) AS allowed
+    ),
+    existing_purchase AS MATERIALIZED (
+      SELECT ledger.id
+      FROM credit_ledger AS ledger
+      CROSS JOIN eligible_event
+      WHERE ledger.type = 'purchase'::credit_ledger_type
+        AND (
+          ledger.stripe_checkout_session_id = ${stripeCheckoutSessionId}
+          OR ledger.stripe_payment_intent_id = ${paymentIntentId}
+        )
+      LIMIT 1
+    ),
     customer_record AS (
       INSERT INTO billing_customers (
         user_id,
@@ -571,7 +925,9 @@ export async function grantPurchasedCredits({
       )
       SELECT ${userId}, ${stripeCustomerId}::text, now(), now()
       FROM eligible_event
+      CROSS JOIN claim_gate
       WHERE ${stripeCustomerId}::text IS NOT NULL
+        AND claim_gate.allowed
       ON CONFLICT (user_id) DO UPDATE
       SET stripe_customer_id = excluded.stripe_customer_id,
           updated_at = now()
@@ -598,22 +954,68 @@ export async function grantPurchasedCredits({
         ${reference},
         jsonb_build_object(
           'stripe_event_id', ${stripeEventId},
-          'package_id', ${packageId}
+          'package_id', ${packageId},
+          'grant_version', ${grantVersion},
+          'introductory_claim_id', ${introductoryClaimId ?? null}::text
         ),
         ${expiresAt},
         now()
       FROM eligible_event
+      CROSS JOIN claim_gate
+      WHERE claim_gate.allowed
       ON CONFLICT DO NOTHING
       RETURNING id
     ),
+    fulfilled_claim AS (
+      UPDATE introductory_checkout_claims AS claim
+      SET
+        status = 'fulfilled',
+        stripe_customer_id =
+          coalesce(${stripeCustomerId}::text, claim.stripe_customer_id),
+        stripe_checkout_session_id = ${stripeCheckoutSessionId},
+        fulfilled_session_id = ${stripeCheckoutSessionId},
+        fulfilled_at = coalesce(claim.fulfilled_at, now()),
+        updated_at = now()
+      FROM resolved_claim
+      WHERE ${introductory}
+        AND claim.id = resolved_claim.id
+        AND EXISTS (SELECT 1 FROM provided_claim)
+        AND (
+          EXISTS (SELECT 1 FROM grant_row)
+          OR EXISTS (SELECT 1 FROM existing_purchase)
+        )
+      RETURNING claim.id
+    ),
     processed_event AS (
       UPDATE billing_events AS event
-      SET status = 'processed'::billing_event_status,
-          failure_code = NULL,
-          failure_message = NULL,
-          processed_at = now(),
+      SET status = CASE
+            WHEN claim_gate.allowed
+              AND (
+                EXISTS (SELECT 1 FROM grant_row)
+                OR EXISTS (SELECT 1 FROM existing_purchase)
+              )
+              THEN 'processed'::billing_event_status
+            ELSE 'failed'::billing_event_status
+          END,
+          failure_code = CASE
+            WHEN claim_gate.allowed THEN NULL
+            ELSE 'introductory_claim_already_fulfilled'
+          END,
+          failure_message = CASE
+            WHEN claim_gate.allowed THEN NULL
+            ELSE 'A different Checkout Session already fulfilled the introductory claim'
+          END,
+          processed_at = CASE
+            WHEN claim_gate.allowed
+              AND (
+                EXISTS (SELECT 1 FROM grant_row)
+                OR EXISTS (SELECT 1 FROM existing_purchase)
+              )
+              THEN now()
+            ELSE NULL
+          END,
           updated_at = now()
-      FROM eligible_event
+      FROM eligible_event, claim_gate
       WHERE event.id = eligible_event.id
       RETURNING event.status
     )
@@ -623,7 +1025,8 @@ export async function grantPurchasedCredits({
         (SELECT status::text FROM processed_event LIMIT 1),
         (SELECT status::text FROM event_row LIMIT 1)
       ) AS status,
-      (SELECT count(*) FROM customer_record) AS customer_records
+      (SELECT count(*) FROM customer_record) AS customer_records,
+      (SELECT count(*) FROM fulfilled_claim) AS fulfilled_claims
   `);
 
   return {
@@ -695,56 +1098,22 @@ export async function reversePurchasedCredits({
       )
     ),
     purchase AS MATERIALIZED (
-      SELECT
-        ledger.id,
-        ledger.user_id,
-        ledger.amount,
-        ledger.created_at,
-        ledger.expires_at
-      FROM credit_ledger AS ledger
-      CROSS JOIN eligible_event
-      WHERE ledger.stripe_payment_intent_id = ${paymentIntentId}
-        AND ledger.type = 'purchase'::credit_ledger_type
-      LIMIT 1
-    ),
-    current_balance AS MATERIALIZED (
-      SELECT
-        purchase.user_id,
-        purchase.amount AS purchased_credits,
-        purchase.expires_at,
-        greatest(coalesce(sum(ledger.amount), 0)::integer, 0) AS balance,
-        coalesce((
-          SELECT sum(newer.amount)::integer
-          FROM credit_ledger AS newer
-          WHERE newer.user_id = purchase.user_id
-            AND newer.type = 'purchase'::credit_ledger_type
-            AND newer.amount > 0
-            AND (newer.created_at, newer.id) > (purchase.created_at, purchase.id)
-        ), 0) AS newer_credits
-      FROM purchase
-      LEFT JOIN credit_ledger AS ledger ON ledger.user_id = purchase.user_id
-      GROUP BY
-        purchase.id,
-        purchase.user_id,
-        purchase.amount,
-        purchase.created_at,
-        purchase.expires_at
+      ${revocableCreditPurchaseSql(paymentIntentId)}
     ),
     reversal AS (
       INSERT INTO credit_ledger (
-        user_id, amount, type, external_reference, metadata, created_at
+        user_id, amount, type, funding_purchase_id, external_reference,
+        metadata, created_at
       )
       SELECT
-        current_balance.user_id,
+        purchase.user_id,
         -CASE
-          WHEN current_balance.expires_at > now() THEN
-            least(
-              current_balance.purchased_credits,
-              greatest(current_balance.balance - current_balance.newer_credits, 0)
-            )
+          WHEN purchase.expires_at > now() THEN
+            purchase.revocable_credits
           ELSE 0
         END,
         'adjustment'::credit_ledger_type,
+        purchase.id,
         ${externalReference},
         jsonb_build_object(
           'stripe_event_id', ${stripeEventId},
@@ -752,7 +1121,8 @@ export async function reversePurchasedCredits({
           'reason', ${reason}
         ),
         now()
-      FROM current_balance
+      FROM purchase
+      CROSS JOIN eligible_event
       ON CONFLICT DO NOTHING
       RETURNING -amount AS reversed_credits
     ),
@@ -874,6 +1244,7 @@ export async function restoreDisputedCredits({
       SELECT
         ledger.user_id,
         -ledger.amount AS reversed_credits,
+        purchase.id AS purchase_id,
         purchase.expires_at
       FROM credit_ledger AS ledger
       INNER JOIN credit_ledger AS purchase
@@ -886,7 +1257,8 @@ export async function restoreDisputedCredits({
     ),
     restoration AS (
       INSERT INTO credit_ledger (
-        user_id, amount, type, external_reference, metadata, created_at
+        user_id, amount, type, funding_purchase_id, external_reference,
+        metadata, created_at
       )
       SELECT
         withdrawal.user_id,
@@ -895,11 +1267,13 @@ export async function restoreDisputedCredits({
           ELSE 0
         END,
         'adjustment'::credit_ledger_type,
+        withdrawal.purchase_id,
         ${restorationReference},
         jsonb_build_object(
           'stripe_event_id', ${stripeEventId},
           'stripe_payment_intent_id', ${paymentIntentId},
           'stripe_dispute_id', ${disputeId},
+          'withdrawal_reference', ${withdrawalReference},
           'reason', 'dispute_reinstated'
         ),
         now()

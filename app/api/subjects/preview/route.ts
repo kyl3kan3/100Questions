@@ -1,6 +1,3 @@
-import { isIP } from "node:net";
-import { lookup } from "node:dns/promises";
-
 import { parse as parseDomain } from "tldts";
 
 import { normalizeCanonicalDomain } from "@/lib/ai/matching";
@@ -10,6 +7,10 @@ import {
   type AppStoreLookupResult,
 } from "@/lib/app-store-preview";
 import { getAuthenticatedUser } from "@/lib/auth/session";
+import {
+  fetchPinnedHttps,
+  resolvePublicAddresses,
+} from "@/lib/auth/public-network";
 import { isSameOrigin, jsonError } from "@/lib/http";
 
 export const runtime = "nodejs";
@@ -145,14 +146,14 @@ async function fetchHomepage(initialUrl: URL, registrableDomain: string) {
   let currentUrl = initialUrl;
 
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount += 1) {
-    await assertSafePublicUrl(currentUrl, registrableDomain);
-    const response = await fetch(currentUrl, {
+    const addresses = await assertSafePublicUrl(currentUrl, registrableDomain);
+    const response = await fetchPinnedHttps(currentUrl, addresses, {
       headers: {
         accept: "text/html,application/xhtml+xml",
+        "accept-encoding": "identity",
         "user-agent": "Mozilla/5.0 (compatible; 100QuestionsBot/1.0; +https://100questionsai.com)",
       },
-      redirect: "manual",
-      signal: AbortSignal.timeout(8_000),
+      timeoutMs: 8_000,
     });
 
     if (response.status >= 300 && response.status < 400) {
@@ -186,10 +187,7 @@ async function assertSafePublicUrl(url: URL, registrableDomain: string) {
     throw new Error("Cross-domain homepage redirect rejected");
   }
 
-  const addresses = await lookup(url.hostname, { all: true, verbatim: true });
-  if (!addresses.length || addresses.some(({ address }) => isPrivateAddress(address))) {
-    throw new Error("Unsafe homepage address");
-  }
+  return resolvePublicAddresses(url.hostname);
 }
 
 async function readLimitedHtml(response: Response) {
@@ -255,14 +253,4 @@ function cleanText(value: string) {
     .replace(/&gt;/giu, ">")
     .replace(/\s+/gu, " ")
     .trim();
-}
-
-function isPrivateAddress(address: string) {
-  if (isIP(address) === 4) {
-    const [a = 0, b = 0] = address.split(".").map(Number);
-    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
-  }
-
-  const normalized = address.toLowerCase();
-  return normalized === "::1" || normalized === "::" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb") || normalized.startsWith("::ffff:127.") || normalized.startsWith("::ffff:10.") || normalized.startsWith("::ffff:192.168.");
 }

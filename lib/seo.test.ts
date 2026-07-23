@@ -29,7 +29,7 @@ describe("public SEO metadata", () => {
 
   it("uses a stable, public social preview image", () => {
     expect(SOCIAL_IMAGE).toMatchObject({
-      url: "https://100questionsai.com/social-card-v3.png",
+      url: "https://100questionsai.com/social-card-v3.png?v=e5060413",
       width: 1200,
       height: 630,
     });

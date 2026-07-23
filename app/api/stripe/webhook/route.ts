@@ -3,12 +3,13 @@ import type Stripe from "stripe";
 import {
   grantPurchasedCredits,
   recordBillingEvent,
+  recordIntroductoryCheckoutSessionState,
   reversePurchasedCredits,
   restoreDisputedCredits,
 } from "@/lib/billing/credits";
 import {
   CREDIT_VALIDITY_MONTHS,
-  getBillingPackage,
+  getFrozenCreditGrant,
 } from "@/lib/billing/packages";
 import {
   BillingConfigurationError,
@@ -174,6 +175,39 @@ export async function POST(request: Request) {
     }
 
     if (
+      event.type === "checkout.session.expired" ||
+      event.type === "checkout.session.async_payment_failed"
+    ) {
+      const checkoutSession = event.data.object;
+      const claimId = checkoutSession.metadata?.introductoryClaimId;
+      const metadataUserId = checkoutSession.metadata?.appUserId;
+
+      if (
+        claimId &&
+        metadataUserId &&
+        checkoutSession.client_reference_id === metadataUserId
+      ) {
+        await recordIntroductoryCheckoutSessionState({
+          claimId,
+          userId: metadataUserId,
+          stripeCheckoutSessionId: checkoutSession.id,
+          state: "retryable",
+        });
+        await recordBillingEvent({
+          stripeEventId: event.id,
+          eventType: event.type,
+          status: "processed",
+          livemode: event.livemode,
+          apiVersion: event.api_version,
+        });
+      } else {
+        await persistIgnoredEvent(event);
+      }
+
+      return Response.json({ received: true });
+    }
+
+    if (
       event.type !== "checkout.session.completed" &&
       event.type !== "checkout.session.async_payment_succeeded"
     ) {
@@ -182,6 +216,38 @@ export async function POST(request: Request) {
     }
 
     const checkoutSession = event.data.object;
+
+    if (
+      event.type === "checkout.session.completed" &&
+      checkoutSession.payment_status !== "paid"
+    ) {
+      const claimId = checkoutSession.metadata?.introductoryClaimId;
+      const metadataUserId = checkoutSession.metadata?.appUserId;
+
+      if (
+        claimId &&
+        metadataUserId &&
+        checkoutSession.client_reference_id === metadataUserId
+      ) {
+        await recordIntroductoryCheckoutSessionState({
+          claimId,
+          userId: metadataUserId,
+          stripeCheckoutSessionId: checkoutSession.id,
+          state: "payment_pending",
+        });
+        await recordBillingEvent({
+          stripeEventId: event.id,
+          eventType: event.type,
+          status: "processed",
+          livemode: event.livemode,
+          apiVersion: event.api_version,
+        });
+      } else {
+        await persistIgnoredEvent(event);
+      }
+
+      return Response.json({ received: true });
+    }
 
     if (
       checkoutSession.mode !== "payment" ||
@@ -195,7 +261,13 @@ export async function POST(request: Request) {
     const metadataUserId = checkoutSession.metadata?.appUserId;
     const metadataCredits = Number(checkoutSession.metadata?.creditGrant);
     const packageId = checkoutSession.metadata?.billingPackage;
-    const billingPackage = packageId ? getBillingPackage(packageId) : undefined;
+    const grantVersion = checkoutSession.metadata?.creditGrantVersion;
+    const introductoryClaimId =
+      checkoutSession.metadata?.introductoryClaimId ?? null;
+    const frozenGrant =
+      packageId && grantVersion
+        ? getFrozenCreditGrant(grantVersion, packageId)
+        : undefined;
     const paymentIntentId = getStripeObjectId(checkoutSession.payment_intent);
 
     if (
@@ -203,10 +275,9 @@ export async function POST(request: Request) {
       !metadataUserId ||
       !paymentIntentId ||
       clientReferenceId !== metadataUserId ||
-      checkoutSession.metadata?.creditGrantVersion !== "v2" ||
-      !billingPackage ||
+      !frozenGrant ||
       !Number.isSafeInteger(metadataCredits) ||
-      metadataCredits !== billingPackage.credits
+      metadataCredits !== frozenGrant.credits
     ) {
       await persistIgnoredEvent(
         event,
@@ -227,7 +298,10 @@ export async function POST(request: Request) {
       stripeCustomerId: getStripeObjectId(checkoutSession.customer),
       userId: clientReferenceId,
       credits: metadataCredits,
-      packageId: billingPackage.id,
+      packageId: frozenGrant.packageId,
+      grantVersion: frozenGrant.version,
+      introductory: frozenGrant.introductory,
+      introductoryClaimId,
       expiresAt,
       livemode: event.livemode,
       apiVersion: event.api_version,

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CURRENT_CREDIT_GRANT_VERSION,
   formatPackagePrice,
   getBillingPackage,
+  getFrozenCreditGrant,
   getPublicBillingPackages,
 } from "./packages";
 
@@ -29,5 +31,19 @@ describe("billing packages", () => {
 
   it("formats public whole-dollar prices", () => {
     expect(formatPackagePrice(3_900)).toBe("$39");
+  });
+
+  it("keeps existing checkout grants resolvable independently of the live catalog", () => {
+    expect(getFrozenCreditGrant("v2", "intro")).toEqual({
+      version: "v2",
+      packageId: "intro",
+      credits: 1,
+      introductory: true,
+    });
+    expect(
+      getFrozenCreditGrant(CURRENT_CREDIT_GRANT_VERSION, "ten")?.credits,
+    ).toBe(10);
+    expect(getFrozenCreditGrant("unknown", "intro")).toBeUndefined();
+    expect(getFrozenCreditGrant("v2", "removed-package")).toBeUndefined();
   });
 });

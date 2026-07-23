@@ -140,6 +140,13 @@ export type BillingMetadata = Record<
   string | number | boolean | null
 >;
 
+export type IntroductoryCheckoutClaimStatus =
+  | "creating"
+  | "open"
+  | "payment_pending"
+  | "retryable"
+  | "fulfilled";
+
 export type ActionPlanCategory =
   | "content_gap"
   | "competitor_gap"
@@ -591,6 +598,72 @@ export const billingEvents = pgTable(
   ],
 );
 
+export const introductoryCheckoutClaims = pgTable(
+  "introductory_checkout_claims",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id").notNull(),
+    status: varchar("status", { length: 24 })
+      .$type<IntroductoryCheckoutClaimStatus>()
+      .notNull()
+      .default("creating"),
+    grantVersion: varchar("grant_version", { length: 32 }).notNull(),
+    packageId: varchar("package_id", { length: 64 }).notNull(),
+    credits: integer("credits").notNull(),
+    stripePriceId: text("stripe_price_id"),
+    stripeCustomerId: text("stripe_customer_id"),
+    successUrl: text("success_url"),
+    cancelUrl: text("cancel_url"),
+    checkoutMetadata: jsonb("checkout_metadata")
+      .$type<BillingMetadata>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    attempt: integer("attempt").notNull().default(1),
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+    stripeCheckoutUrl: text("stripe_checkout_url"),
+    stripeSessionExpiresAt: timestamp("stripe_session_expires_at", {
+      withTimezone: true,
+      precision: 3,
+    }),
+    fulfilledSessionId: text("fulfilled_session_id"),
+    createdAt: timestamp("created_at", { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    fulfilledAt: timestamp("fulfilled_at", {
+      withTimezone: true,
+      precision: 3,
+    }),
+  },
+  (table) => [
+    uniqueIndex("introductory_checkout_claims_user_id_unique").on(table.userId),
+    uniqueIndex("introductory_checkout_claims_session_id_unique").on(
+      table.stripeCheckoutSessionId,
+    ),
+    uniqueIndex("introductory_checkout_claims_fulfilled_session_unique").on(
+      table.fulfilledSessionId,
+    ),
+    index("introductory_checkout_claims_status_updated_idx").on(
+      table.status,
+      table.updatedAt,
+    ),
+    check(
+      "introductory_checkout_claims_status_check",
+      sql`${table.status} IN ('creating', 'open', 'payment_pending', 'retryable', 'fulfilled')`,
+    ),
+    check(
+      "introductory_checkout_claims_credits_check",
+      sql`${table.credits} > 0`,
+    ),
+    check(
+      "introductory_checkout_claims_attempt_check",
+      sql`${table.attempt} > 0`,
+    ),
+  ],
+);
+
 export const creditLedger = pgTable(
   "credit_ledger",
   {
@@ -599,6 +672,10 @@ export const creditLedger = pgTable(
     amount: integer("amount").notNull(),
     type: creditLedgerTypeEnum("type").notNull(),
     runId: uuid("run_id").references(() => runs.id, { onDelete: "set null" }),
+    fundingPurchaseId: uuid("funding_purchase_id").references(
+      (): AnyPgColumn => creditLedger.id,
+      { onDelete: "restrict" },
+    ),
     stripeCheckoutSessionId: text("stripe_checkout_session_id"),
     stripePaymentIntentId: text("stripe_payment_intent_id"),
     externalReference: text("external_reference").notNull(),
@@ -629,6 +706,7 @@ export const creditLedger = pgTable(
       table.createdAt,
     ),
     index("credit_ledger_user_run_idx").on(table.userId, table.runId),
+    index("credit_ledger_funding_purchase_idx").on(table.fundingPurchaseId),
     index("credit_ledger_user_expires_at_idx").on(
       table.userId,
       table.expiresAt,

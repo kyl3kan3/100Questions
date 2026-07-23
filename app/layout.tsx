@@ -58,10 +58,16 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl() },
   formatDetection: { email: false, address: false, telephone: false },
   icons: {
-    icon: [{ url: "/favicon-v2.ico", sizes: "any", type: "image/x-icon" }],
+    icon: [
+      {
+        url: "/favicon-v2.ico?v=d3d24afa",
+        sizes: "any",
+        type: "image/x-icon",
+      },
+    ],
     apple: [
       {
-        url: "/apple-touch-icon.png?v=2",
+        url: "/apple-touch-icon.png?v=3",
         sizes: "180x180",
         type: "image/png",
       },

@@ -1,4 +1,42 @@
 export const CREDIT_VALIDITY_MONTHS = 12;
+export const CURRENT_CREDIT_GRANT_VERSION = "v2";
+
+/**
+ * Checkout metadata is a durable fulfillment contract. Never edit an existing
+ * version after Checkout Sessions have been created; add a new version instead.
+ */
+const CREDIT_GRANTS = {
+  v2: {
+    intro: { credits: 1, introductory: true },
+    single: { credits: 1, introductory: false },
+    three: { credits: 3, introductory: false },
+    ten: { credits: 10, introductory: false },
+  },
+} as const;
+
+export type CreditGrantVersion = keyof typeof CREDIT_GRANTS;
+
+export function getFrozenCreditGrant(version: string, packageId: string) {
+  const versionedGrants =
+    CREDIT_GRANTS[version as CreditGrantVersion] as
+      | Record<
+          string,
+          {
+            credits: number;
+            introductory: boolean;
+          }
+        >
+      | undefined;
+  const grant = versionedGrants?.[packageId];
+
+  return grant
+    ? {
+        version: version as CreditGrantVersion,
+        packageId,
+        ...grant,
+      }
+    : undefined;
+}
 
 export const BILLING_PACKAGES = [
   {

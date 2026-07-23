@@ -54,6 +54,10 @@ import {
   type FrozenModels,
 } from "@/lib/db/schema";
 import { sendRunNotificationEmail } from "@/lib/email/send-run-notification";
+import {
+  ACTION_PLAN_FINALIZATION_RETRY_CODE,
+  isActionPlanFinalizationRetry,
+} from "@/lib/workflow-finalization";
 import { workflowErrorMessage } from "@/lib/workflow-errors";
 
 type TerminalRunStatus = "complete" | "partial" | "failed" | "cancelled";
@@ -106,6 +110,7 @@ interface ClaimResult {
   claimed: boolean;
   status: string;
   context: WorkflowRunContext | null;
+  resumeActionPlanFinalization?: boolean;
 }
 
 interface ProviderJobWork {
@@ -135,6 +140,8 @@ const TERMINAL_STATUSES = [
 const MAX_QUESTION_GENERATION_CALLS = 14;
 const LEGACY_QUESTION_GENERATION_CALLS = 7;
 const PENDING_ANALYSIS_VERSION = "__pending__";
+const ACCOUNTED_ANALYSIS_FAILURE_REASON =
+  "analysis_failed_cost_accounted";
 
 /**
  * Durable benchmark orchestration. A deterministic hook token and a database
@@ -179,27 +186,30 @@ export async function runVisibilityWorkflow(
     const context = claim.context;
     notificationRunId = context.id;
     await syncDailyUsageStep(context.userId, context.usageDate);
-    let jobs: ProviderJobWork[];
+    let jobs: ProviderJobWork[] = [];
 
-    try {
-      let generated = await generateQuestionsStep(context);
-      generated = await reconcileQuestionGenerationCostStep(context, generated);
-      await persistQuestionAccountingStep(context, generated);
-      await persistQuestionsStep(context, generated);
-      await ensureProviderJobsStep(context.id);
-      jobs = await loadOutstandingJobsStep(context.id);
-    } catch (error) {
-      const message = workflowErrorMessage(error);
-      await failRunStep(context.id, "QUESTION_PHASE_FAILED", message);
-      await releaseCreditStep(context, "question_phase_failed");
-      await syncDailyUsageStep(context.userId, context.usageDate);
-      throw error;
+    if (!claim.resumeActionPlanFinalization) {
+      try {
+        let generated = await generateQuestionsStep(context);
+        generated = await reconcileQuestionGenerationCostStep(context, generated);
+        await persistQuestionAccountingStep(context, generated);
+        await persistQuestionsStep(context, generated);
+        await ensureProviderJobsStep(context.id);
+        jobs = await loadOutstandingJobsStep(context.id);
+      } catch (error) {
+        const message = workflowErrorMessage(error);
+        await failRunStep(context.id, "QUESTION_PHASE_FAILED", message);
+        await releaseCreditStep(context, "question_phase_failed");
+        await syncDailyUsageStep(context.userId, context.usageDate);
+        throw error;
+      }
     }
 
     console.log(
       `[visibility] JOBS runId=${runId} outstanding=${jobs.length}`,
     );
     let creditConsumed = false;
+    let actionPlanRepairPending = false;
 
     try {
       const batchCount = Math.ceil(jobs.length / context.maxConcurrentJobs);
@@ -397,21 +407,30 @@ export async function runVisibilityWorkflow(
       }
 
       await markRunAnalyzingStep(context.id);
-      const finalized = await finalizeRunStep(context.id);
-      if (finalized.status === "complete" || finalized.status === "partial") {
+      try {
         await persistActionPlanStep(context.id);
+      } catch (error) {
+        await markActionPlanFinalizationRetryStep(
+          context.id,
+          workflowErrorMessage(error),
+        );
+        actionPlanRepairPending = true;
+        throw error;
       }
+      const finalized = await finalizeRunStep(context.id);
       await syncDailyUsageStep(context.userId, context.usageDate);
       console.log(
         `[visibility] DONE runId=${runId} status=${finalized.status}`,
       );
       return finalized;
     } catch (error) {
-      await failRunStep(
-        context.id,
-        "WORKFLOW_EXECUTION_FAILED",
-        workflowErrorMessage(error),
-      );
+      if (!actionPlanRepairPending) {
+        await failRunStep(
+          context.id,
+          "WORKFLOW_EXECUTION_FAILED",
+          workflowErrorMessage(error),
+        );
+      }
       await syncDailyUsageStep(context.userId, context.usageDate);
       throw error;
     }
@@ -452,6 +471,11 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
     return { claimed: false, status: "deduplicated", context: null };
   }
 
+  const resumeActionPlanFinalization = isActionPlanFinalizationRetry(
+    run.status,
+    run.failureCode,
+  );
+
   if (!run.claimStepId) {
     const [claimed] = await db
       .update(runs)
@@ -464,7 +488,12 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
       .where(
         and(
           eq(runs.id, runId),
-          eq(runs.status, "queued"),
+          resumeActionPlanFinalization
+            ? and(
+                eq(runs.status, "analyzing"),
+                eq(runs.failureCode, ACTION_PLAN_FINALIZATION_RETRY_CODE),
+              )
+            : eq(runs.status, "queued"),
           isNull(runs.claimStepId),
         ),
       )
@@ -499,8 +528,12 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
       .set({
         status: "started",
         dispatchedAt: sql`coalesce(${workflowDispatches.dispatchedAt}, ${dispatchStartedAt})`,
-        failureCode: null,
-        failureMessage: null,
+        failureCode: resumeActionPlanFinalization
+          ? ACTION_PLAN_FINALIZATION_RETRY_CODE
+          : null,
+        failureMessage: resumeActionPlanFinalization
+          ? sql`${workflowDispatches.failureMessage}`
+          : null,
         updatedAt: dispatchStartedAt,
       })
       .where(eq(workflowDispatches.runId, runId)),
@@ -536,7 +569,12 @@ async function claimRunStep(runId: string): Promise<ClaimResult> {
   };
 
   console.log(`[claimRun] DONE runId=${runId} status=claimed`);
-  return { claimed: true, status: "generating", context };
+  return {
+    claimed: true,
+    status: resumeActionPlanFinalization ? "analyzing" : "generating",
+    context,
+    resumeActionPlanFinalization,
+  };
 }
 claimRunStep.maxRetries = 3;
 
@@ -921,6 +959,7 @@ async function checkRunGuardStep(
       attempts: providerJobs.attempts,
       errorCode: providerJobs.errorCode,
       resultId: results.id,
+      exclusionReason: results.exclusionReason,
     })
     .from(providerJobs)
     .leftJoin(results, eq(results.jobId, providerJobs.id))
@@ -937,6 +976,7 @@ async function checkRunGuardStep(
         job.attempts,
         job.errorCode,
         job.resultId !== null,
+        job.exclusionReason === ACCOUNTED_ANALYSIS_FAILURE_REASON,
         context.estimatedMicrosPerProviderCall,
       ),
     0,
@@ -1073,14 +1113,61 @@ async function queryProviderStep(
       attempts: metadata.attempt,
     };
   } catch (error) {
-    await getDb()
-      .update(providerJobs)
-      .set({
-        workflowStepId: metadata.stepId,
-        attempts: sql`greatest(${providerJobs.attempts}, ${metadata.attempt})`,
-        updatedAt: new Date(),
-      })
-      .where(eq(providerJobs.id, job.id));
+    const db = getDb();
+    await db.batch([
+      db.execute(sql`
+        select id
+        from runs
+        where id = ${context.id}::uuid
+        for update
+      `),
+      db.execute(sql`
+        with job_state as materialized (
+          select status::text as status, attempts, error_code
+          from provider_jobs
+          where id = ${job.id}::uuid
+        ),
+        result_state as materialized (
+          select id
+          from results
+          where job_id = ${job.id}::uuid
+        ),
+        updated_terminal_run as (
+          update runs as terminal_run
+          set
+            actual_cost_micros =
+              terminal_run.actual_cost_micros
+              + greatest(0, ${metadata.attempt} - job_state.attempts)
+                * ${context.estimatedMicrosPerProviderCall},
+            cost_provenance =
+              case
+                when greatest(0, ${metadata.attempt} - job_state.attempts) = 0
+                  then terminal_run.cost_provenance
+                when terminal_run.cost_provenance in ('unavailable', 'estimated')
+                  then 'estimated'::cost_provenance
+                else 'mixed'::cost_provenance
+              end,
+            updated_at = now()
+          from job_state
+          where terminal_run.id = ${context.id}::uuid
+            and terminal_run.status in ('complete', 'partial', 'failed', 'cancelled')
+            and job_state.status = 'failed'
+            and job_state.error_code is distinct from 'RUN_BUDGET_REACHED'
+            and not exists (select 1 from result_state)
+          returning terminal_run.id
+        ),
+        updated_job as (
+          update provider_jobs
+          set
+            workflow_step_id = ${metadata.stepId},
+            attempts = greatest(attempts, ${metadata.attempt}),
+            updated_at = now()
+          where id = ${job.id}::uuid
+          returning id
+        )
+        select exists (select 1 from updated_job) as job_updated
+      `),
+    ]);
     const failure = classifyProviderError(error);
     const diagnostic = providerErrorDiagnostic(error);
     console.error(
@@ -1117,53 +1204,133 @@ async function persistProviderAnswerStep(
   );
   const db = getDb();
   const answerCost = accountAnswerCost(context, answer);
-  await db
-    .insert(results)
-    .values({
-      jobId: job.id,
-      answerText: answer.text,
-      sources: answer.sources,
-      searchQueries: answer.searchQueries,
-      requiredAttribution: answer.requiredAttribution,
-      warnings: answer.warnings,
-      groundingRequested: true,
-      groundingObserved: answer.sources.length > 0,
-      groundingStatus: answer.groundingStatus,
-      scoreEligible: false,
-      exclusionReason: "analysis_pending",
-      targetMentioned: false,
-      matchedAliases: [],
-      ownedDomainCited: false,
-      prominence: "absent",
-      sentiment: null,
-      competitorMentions: [],
-      analysisVersion: PENDING_ANALYSIS_VERSION,
-      usage: answer.usage,
-      costMicros: answerCost.costMicros,
-      costProvenance: answerCost.costProvenance,
-      latencyMs: answer.latencyMs,
-      gatewayRequestId:
-        answer.gatewayGenerationId ?? answer.gatewayRequestId,
-      providerRequestId: answer.providerRequestId,
-      updatedAt: new Date(),
-    })
-    .onConflictDoNothing({ target: results.jobId });
+  const [, persistence] = await db.batch([
+    db.execute(sql`
+      select id
+      from runs
+      where id = ${context.id}::uuid
+      for update
+    `),
+    db.execute<{ result_persisted: boolean }>(sql`
+      with job_state as materialized (
+        select status::text as status, attempts, error_code
+        from provider_jobs
+        where id = ${job.id}::uuid
+      ),
+      inserted_result as (
+        insert into results (
+          job_id,
+          answer_text,
+          sources,
+          search_queries,
+          required_attribution,
+          warnings,
+          grounding_requested,
+          grounding_observed,
+          grounding_status,
+          score_eligible,
+          exclusion_reason,
+          target_mentioned,
+          matched_aliases,
+          owned_domain_cited,
+          prominence,
+          sentiment,
+          competitor_mentions,
+          analysis_version,
+          usage,
+          cost_micros,
+          cost_provenance,
+          latency_ms,
+          gateway_request_id,
+          provider_request_id,
+          updated_at
+        )
+        values (
+          ${job.id}::uuid,
+          ${answer.text},
+          ${JSON.stringify(answer.sources)}::jsonb,
+          ${JSON.stringify(answer.searchQueries)}::jsonb,
+          ${JSON.stringify(answer.requiredAttribution)}::jsonb,
+          ${JSON.stringify(answer.warnings)}::jsonb,
+          true,
+          ${answer.sources.length > 0},
+          ${answer.groundingStatus}::grounding_status,
+          false,
+          'analysis_pending',
+          false,
+          '[]'::jsonb,
+          false,
+          'absent'::prominence,
+          null,
+          '[]'::jsonb,
+          ${PENDING_ANALYSIS_VERSION},
+          ${JSON.stringify(answer.usage)}::jsonb,
+          ${answerCost.costMicros},
+          ${answerCost.costProvenance}::cost_provenance,
+          ${answer.latencyMs},
+          ${answer.gatewayGenerationId ?? answer.gatewayRequestId},
+          ${answer.providerRequestId},
+          now()
+        )
+        on conflict (job_id) do nothing
+        returning id
+      ),
+      updated_terminal_run as (
+        update runs as terminal_run
+        set
+          actual_cost_micros = greatest(
+            0,
+            terminal_run.actual_cost_micros
+            + ${answerCost.costMicros}
+            - case
+                when job_state.status = 'failed'
+                  and job_state.attempts > 0
+                  and job_state.error_code is distinct from 'RUN_BUDGET_REACHED'
+                  then job_state.attempts
+                    * ${context.estimatedMicrosPerProviderCall}
+                else 0
+              end
+          ),
+          cost_provenance =
+            case
+              when terminal_run.cost_provenance = 'unavailable'
+                then ${answerCost.costProvenance}::cost_provenance
+              when ${answerCost.costProvenance}::cost_provenance = 'unavailable'
+                then terminal_run.cost_provenance
+              when terminal_run.cost_provenance = ${answerCost.costProvenance}::cost_provenance
+                then terminal_run.cost_provenance
+              else 'mixed'::cost_provenance
+            end,
+          updated_at = now()
+        from job_state
+        where terminal_run.id = ${context.id}::uuid
+          and terminal_run.status in ('complete', 'partial', 'failed', 'cancelled')
+          and exists (select 1 from inserted_result)
+        returning terminal_run.id
+      ),
+      updated_job as (
+        update provider_jobs
+        set
+          workflow_step_id = ${answer.workflowStepId},
+          attempts = greatest(attempts, ${answer.attempts}),
+          updated_at = now()
+        where id = ${job.id}::uuid
+        returning id
+      )
+      select (
+        exists (select 1 from inserted_result)
+        or exists (
+          select 1
+          from results
+          where job_id = ${job.id}::uuid
+        )
+      ) as result_persisted
+    `),
+  ]);
+  if (!persistence.rows[0]?.result_persisted) {
+    throw new Error("The provider answer checkpoint was not persisted");
+  }
 
-  const [stored] = await db
-    .select({ id: results.id })
-    .from(results)
-    .where(eq(results.jobId, job.id))
-    .limit(1);
-  if (!stored) throw new Error("The provider answer checkpoint was not persisted");
-
-  await db
-    .update(providerJobs)
-    .set({
-      workflowStepId: answer.workflowStepId,
-      attempts: sql`greatest(${providerJobs.attempts}, ${answer.attempts})`,
-      updatedAt: new Date(),
-    })
-    .where(eq(providerJobs.id, job.id));
   console.log(
     `[persistProviderAnswer] DONE runId=${context.id} jobId=${job.id}`,
   );
@@ -1200,15 +1367,12 @@ async function analyzeAnswerStep(
     );
     return { ...analysis, analysisAttempts: metadata.attempt };
   } catch (error) {
-    await getDb()
-      .update(providerJobs)
-      .set({
-        attempts: sql`greatest(${providerJobs.attempts}, ${answer.attempts + metadata.attempt})`,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(eq(providerJobs.id, job.id), eq(providerJobs.status, "running")),
-      );
+    await persistAnalysisFailureAttempt(
+      context,
+      job.id,
+      answer.attempts,
+      metadata.attempt,
+    );
     const failure = classifyProviderError(error);
     const diagnostic = providerErrorDiagnostic(error);
     console.error(
@@ -1233,6 +1397,111 @@ async function reconcileAnalysisCostStep(
 }
 reconcileAnalysisCostStep.maxRetries = 0;
 
+/** @internal Exported for focused workflow accounting regression tests. */
+export async function persistAnalysisFailureAttempt(
+  context: WorkflowRunContext,
+  jobId: string,
+  checkpointedQueryAttempts: number,
+  analysisAttempt: number,
+): Promise<void> {
+  const db = getDb();
+  const targetCombinedAttempts =
+    checkpointedQueryAttempts +
+    calculateAnalysisFailureAttempts(
+      checkpointedQueryAttempts + analysisAttempt,
+      checkpointedQueryAttempts,
+    );
+  const [, persistence] = await db.batch([
+    db.execute(sql`
+      select id
+      from runs
+      where id = ${context.id}::uuid
+      for update
+    `),
+    db.execute<{ result_persisted: boolean }>(sql`
+      with job_state as materialized (
+        select attempts
+        from provider_jobs
+        where id = ${jobId}::uuid
+      ),
+      previous_result as materialized (
+        select cost_micros, cost_provenance
+        from results
+        where job_id = ${jobId}::uuid
+          and analysis_version = ${PENDING_ANALYSIS_VERSION}
+        for update
+      ),
+      accounting as materialized (
+        select greatest(
+          0,
+          ${targetCombinedAttempts}
+          - greatest(job_state.attempts, ${checkpointedQueryAttempts})
+        )::integer as new_analysis_attempts
+        from job_state
+      ),
+      updated_result as (
+        update results as failed_result
+        set
+          score_eligible = false,
+          exclusion_reason = ${ACCOUNTED_ANALYSIS_FAILURE_REASON},
+          cost_micros =
+            previous_result.cost_micros
+            + accounting.new_analysis_attempts
+              * ${context.estimatedMicrosPerProviderCall},
+          cost_provenance =
+            case
+              when accounting.new_analysis_attempts = 0
+                then previous_result.cost_provenance
+              when previous_result.cost_provenance = 'unavailable'
+                then 'estimated'::cost_provenance
+              when previous_result.cost_provenance = 'estimated'
+                then previous_result.cost_provenance
+              else 'mixed'::cost_provenance
+            end,
+          updated_at = now()
+        from previous_result, accounting
+        where failed_result.job_id = ${jobId}::uuid
+        returning failed_result.id
+      ),
+      updated_terminal_run as (
+        update runs as terminal_run
+        set
+          actual_cost_micros =
+            terminal_run.actual_cost_micros
+            + accounting.new_analysis_attempts
+              * ${context.estimatedMicrosPerProviderCall},
+          cost_provenance =
+            case
+              when accounting.new_analysis_attempts = 0
+                then terminal_run.cost_provenance
+              when terminal_run.cost_provenance in ('unavailable', 'estimated')
+                then 'estimated'::cost_provenance
+              else 'mixed'::cost_provenance
+            end,
+          updated_at = now()
+        from accounting
+        where terminal_run.id = ${context.id}::uuid
+          and terminal_run.status in ('complete', 'partial', 'failed', 'cancelled')
+          and exists (select 1 from updated_result)
+        returning terminal_run.id
+      ),
+      updated_job as (
+        update provider_jobs
+        set
+          attempts = greatest(attempts, ${targetCombinedAttempts}),
+          updated_at = now()
+        where id = ${jobId}::uuid
+        returning id
+      )
+      select exists (select 1 from updated_result) as result_persisted
+    `),
+  ]);
+
+  if (!persistence.rows[0]?.result_persisted) {
+    throw new Error("The failed analysis cost checkpoint was not persisted");
+  }
+}
+
 async function persistProviderResultStep(
   context: WorkflowRunContext,
   job: ProviderJobWork,
@@ -1248,7 +1517,7 @@ async function persistProviderResultStep(
   const combinedUsage = combineUsage(answer.usage, analysis.usage);
   const analysisCalledModel =
     analysis.latencyMs > 0 || analysis.providerRequestId !== null;
-  const completedCost = accountCompletedJobCost(
+  const completedCost = calculateCompletedJobCost(
     context,
     answer,
     analysis,
@@ -1257,63 +1526,140 @@ async function persistProviderResultStep(
   const scoreEligible =
     answer.groundingStatus === "grounded" && answer.sources.length > 0;
 
-  await db
-    .update(results)
-    .set({
-      answerText: answer.text,
-      sources: answer.sources,
-      searchQueries: answer.searchQueries,
-      requiredAttribution: answer.requiredAttribution,
-      warnings: answer.warnings,
-      groundingRequested: true,
-      groundingObserved: answer.sources.length > 0,
-      groundingStatus: answer.groundingStatus,
-      scoreEligible,
-      exclusionReason: scoreEligible ? null : answer.groundingStatus,
-      targetMentioned: analysis.targetMentioned,
-      matchedAliases: analysis.matchedAliases,
-      ownedDomainCited: analysis.ownedDomainCited,
-      prominence: analysis.prominence,
-      sentiment: analysis.sentiment,
-      competitorMentions: analysis.competitorMentions,
-      analysisVersion: context.analysisVersion,
-      usage: combinedUsage,
-      costMicros: completedCost.costMicros,
-      costProvenance: completedCost.costProvenance,
-      latencyMs: answer.latencyMs + analysis.latencyMs,
-      gatewayRequestId:
-        answer.gatewayGenerationId ?? answer.gatewayRequestId,
-      providerRequestId: answer.providerRequestId,
-      updatedAt: new Date(),
-    })
-    .where(eq(results.jobId, job.id));
+  const persistence = await db.execute<{
+    run_status: string;
+    job_status: string | null;
+    result_persisted: boolean;
+  }>(sql`
+    with locked_run as materialized (
+      select status::text as run_status
+      from runs
+      where id = ${context.id}::uuid
+      for update
+    ),
+    previous_result as materialized (
+      select
+        stored_result.cost_micros as previous_cost_micros,
+        stored_result.score_eligible as previous_score_eligible
+      from results as stored_result
+      cross join locked_run
+      where stored_result.job_id = ${job.id}::uuid
+      for update of stored_result
+    ),
+    updated_result as (
+      update results
+      set
+        answer_text = ${answer.text},
+        sources = ${JSON.stringify(answer.sources)}::jsonb,
+        search_queries = ${JSON.stringify(answer.searchQueries)}::jsonb,
+        required_attribution = ${JSON.stringify(answer.requiredAttribution)}::jsonb,
+        warnings = ${JSON.stringify(answer.warnings)}::jsonb,
+        grounding_requested = true,
+        grounding_observed = ${answer.sources.length > 0},
+        grounding_status = ${answer.groundingStatus}::grounding_status,
+        score_eligible = ${scoreEligible},
+        exclusion_reason = ${scoreEligible ? null : answer.groundingStatus},
+        target_mentioned = ${analysis.targetMentioned},
+        matched_aliases = ${JSON.stringify(analysis.matchedAliases)}::jsonb,
+        owned_domain_cited = ${analysis.ownedDomainCited},
+        prominence = ${analysis.prominence}::prominence,
+        sentiment = ${analysis.sentiment}::sentiment,
+        competitor_mentions = ${JSON.stringify(analysis.competitorMentions)}::jsonb,
+        analysis_version = ${context.analysisVersion},
+        usage = ${JSON.stringify(combinedUsage)}::jsonb,
+        cost_micros = ${completedCost.costMicros},
+        cost_provenance = ${completedCost.costProvenance}::cost_provenance,
+        latency_ms = ${answer.latencyMs + analysis.latencyMs},
+        gateway_request_id = ${answer.gatewayGenerationId ?? answer.gatewayRequestId},
+        provider_request_id = ${answer.providerRequestId},
+        updated_at = now()
+      where job_id = ${job.id}::uuid
+        and exists (select 1 from locked_run)
+        and exists (select 1 from previous_result)
+      returning id
+    ),
+    updated_job as (
+      update provider_jobs
+      set
+        status = 'succeeded',
+        workflow_step_id = ${answer.workflowStepId},
+        attempts = greatest(attempts, ${answer.attempts + analysis.analysisAttempts}),
+        error_code = null,
+        error_message = null,
+        started_at = coalesce(started_at, now()),
+        finished_at = now(),
+        updated_at = now()
+      where id = ${job.id}::uuid
+        and status = 'running'
+        and exists (
+          select 1
+          from locked_run
+          where run_status in ('generating', 'querying', 'analyzing')
+        )
+        and exists (select 1 from updated_result)
+      returning status::text as job_status
+    ),
+    updated_terminal_run as (
+      update runs as terminal_run
+      set
+        actual_cost_micros =
+          terminal_run.actual_cost_micros
+          + greatest(
+              0,
+              ${completedCost.costMicros} - previous_result.previous_cost_micros
+            ),
+        eligible_provider_calls =
+          terminal_run.eligible_provider_calls
+          + case
+              when previous_result.previous_score_eligible = false
+                and ${scoreEligible} = true
+                then 1
+              when previous_result.previous_score_eligible = true
+                and ${scoreEligible} = false
+                then -1
+              else 0
+            end,
+        cost_provenance =
+          case
+            when ${completedCost.costMicros} <= previous_result.previous_cost_micros
+              then terminal_run.cost_provenance
+            when terminal_run.cost_provenance = 'unavailable'
+              then ${completedCost.costProvenance}::cost_provenance
+            when ${completedCost.costProvenance}::cost_provenance = 'unavailable'
+              then terminal_run.cost_provenance
+            when terminal_run.cost_provenance = ${completedCost.costProvenance}::cost_provenance
+              then terminal_run.cost_provenance
+            else 'mixed'::cost_provenance
+          end,
+        updated_at = now()
+      from locked_run, previous_result
+      where terminal_run.id = ${context.id}::uuid
+        and locked_run.run_status in ('complete', 'partial', 'failed', 'cancelled')
+        and exists (select 1 from updated_result)
+      returning terminal_run.id
+    )
+    select
+      locked_run.run_status,
+      coalesce(
+        (select job_status from updated_job limit 1),
+        (
+          select status::text
+          from provider_jobs
+          where id = ${job.id}::uuid
+          limit 1
+        )
+      ) as job_status,
+      exists (select 1 from updated_result) as result_persisted
+    from locked_run
+  `);
+  const stored = persistence.rows[0];
 
-  const [stored] = await db
-    .select({ id: results.id })
-    .from(results)
-    .where(eq(results.jobId, job.id))
-    .limit(1);
-
-  if (!stored) {
+  if (!stored?.result_persisted) {
     throw new Error("The provider result was not persisted");
   }
 
-  await db
-    .update(providerJobs)
-    .set({
-      status: "succeeded",
-      workflowStepId: answer.workflowStepId,
-      attempts: sql`greatest(${providerJobs.attempts}, ${answer.attempts + analysis.analysisAttempts})`,
-      errorCode: null,
-      errorMessage: null,
-      startedAt: sql`coalesce(${providerJobs.startedAt}, now())`,
-      finishedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(providerJobs.id, job.id));
-
   console.log(
-    `[persistProviderResult] DONE runId=${context.id} jobId=${job.id}`,
+    `[persistProviderResult] DONE runId=${context.id} jobId=${job.id} runStatus=${stored.run_status} jobStatus=${stored.job_status}`,
   );
 }
 persistProviderResultStep.maxRetries = 3;
@@ -1363,18 +1709,17 @@ async function markJobFailedStep(
             updatedAt: new Date(),
           },
     )
-    .where(eq(providerJobs.id, jobId));
-
-  if (jobState.resultId && !hasCompletedResult) {
-    await db
-      .update(results)
-      .set({
-        scoreEligible: false,
-        exclusionReason: "analysis_failed",
-        updatedAt: new Date(),
-      })
-      .where(eq(results.jobId, jobId));
-  }
+    .where(
+      and(
+        eq(providerJobs.id, jobId),
+        eq(providerJobs.status, "running"),
+        sql`exists (
+          select 1 from runs as active_run
+          where active_run.id = ${providerJobs.runId}
+            and active_run.status in ('generating', 'querying', 'analyzing')
+        )`,
+      ),
+    );
 
   console.log(
     `[markJobFailed] DONE jobId=${jobId} repaired=${hasCompletedResult}`,
@@ -1425,6 +1770,7 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
       attempts: providerJobs.attempts,
       errorCode: providerJobs.errorCode,
       resultId: results.id,
+      exclusionReason: results.exclusionReason,
     })
     .from(providerJobs)
     .leftJoin(results, eq(results.jobId, providerJobs.id))
@@ -1465,6 +1811,7 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
             job.attempts,
             job.errorCode,
             job.resultId !== null,
+            job.exclusionReason === ACCOUNTED_ANALYSIS_FAILURE_REASON,
             estimatedMicrosPerCall(run),
           )
         : total,
@@ -1480,7 +1827,7 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
     failedWorkCost > 0 ? "estimated" : "unavailable",
   );
 
-  await db
+  const [finalized] = await db
     .update(runs)
     .set({
       status,
@@ -1497,15 +1844,54 @@ async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult>
       completedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(eq(runs.id, runId));
+    .where(
+      and(
+        eq(runs.id, runId),
+        inArray(runs.status, ["queued", "generating", "querying", "analyzing"]),
+      ),
+    )
+    .returning({
+      status: runs.status,
+      succeededProviderCalls: runs.succeededProviderCalls,
+      failedProviderCalls: runs.failedProviderCalls,
+      eligibleProviderCalls: runs.eligibleProviderCalls,
+    });
 
-  console.log(`[finalizeRun] DONE runId=${runId} status=${status}`);
+  if (!finalized) {
+    const [terminal] = await db
+      .select({
+        status: runs.status,
+        succeededProviderCalls: runs.succeededProviderCalls,
+        failedProviderCalls: runs.failedProviderCalls,
+        eligibleProviderCalls: runs.eligibleProviderCalls,
+      })
+      .from(runs)
+      .where(eq(runs.id, runId))
+      .limit(1);
+
+    if (
+      !terminal ||
+      !TERMINAL_STATUSES.includes(terminal.status as TerminalRunStatus)
+    ) {
+      throw new Error("The run could not be finalized");
+    }
+
+    return {
+      runId,
+      status: terminal.status as TerminalRunStatus,
+      succeededProviderCalls: terminal.succeededProviderCalls,
+      failedProviderCalls: terminal.failedProviderCalls,
+      eligibleProviderCalls: terminal.eligibleProviderCalls,
+    };
+  }
+
+  console.log(`[finalizeRun] DONE runId=${runId} status=${finalized.status}`);
   return {
     runId,
-    status,
-    succeededProviderCalls,
-    failedProviderCalls,
-    eligibleProviderCalls,
+    status: finalized.status as TerminalRunStatus,
+    succeededProviderCalls: finalized.succeededProviderCalls,
+    failedProviderCalls: finalized.failedProviderCalls,
+    eligibleProviderCalls: finalized.eligibleProviderCalls,
   };
 }
 finalizeRunStep.maxRetries = 3;
@@ -1559,6 +1945,48 @@ async function persistActionPlanStep(runId: string): Promise<number> {
   return actionPlan.length;
 }
 persistActionPlanStep.maxRetries = 3;
+
+async function markActionPlanFinalizationRetryStep(
+  runId: string,
+  message: string,
+): Promise<void> {
+  "use step";
+
+  const retryAt = new Date(Date.now() + 60_000);
+  const safeMessage = message.slice(0, 500);
+  const db = getDb();
+  await db.batch([
+    db
+      .update(runs)
+      .set({
+        status: "analyzing",
+        claimStepId: null,
+        workflowRunId: null,
+        dispatchStatus: "pending",
+        failureCode: ACTION_PLAN_FINALIZATION_RETRY_CODE,
+        failureMessage: safeMessage,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(runs.id, runId),
+          eq(runs.status, "analyzing"),
+        ),
+      ),
+    db
+      .update(workflowDispatches)
+      .set({
+        status: "pending",
+        workflowRunId: null,
+        failureCode: ACTION_PLAN_FINALIZATION_RETRY_CODE,
+        failureMessage: safeMessage,
+        nextAttemptAt: retryAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(workflowDispatches.runId, runId)),
+  ]);
+}
+markActionPlanFinalizationRetryStep.maxRetries = 3;
 
 async function notifyRunFinishedStep(runId: string): Promise<void> {
   "use step";
@@ -1656,6 +2084,7 @@ async function failRunStep(
       attempts: providerJobs.attempts,
       errorCode: providerJobs.errorCode,
       resultId: results.id,
+      exclusionReason: results.exclusionReason,
     })
     .from(providerJobs)
     .leftJoin(results, eq(results.jobId, providerJobs.id))
@@ -1692,6 +2121,7 @@ async function failRunStep(
             job.attempts,
             job.errorCode,
             job.resultId !== null,
+            job.exclusionReason === ACCOUNTED_ANALYSIS_FAILURE_REASON,
             estimatedCallMicros,
           )
         : total,
@@ -1875,26 +2305,40 @@ function accountAnswerCost(
   };
 }
 
-function accountCompletedJobCost(
-  context: WorkflowRunContext,
-  answer: DurableProviderAnswer,
-  analysis: DurableAnswerAnalysis,
+export function calculateCompletedJobCost(
+  context: Pick<WorkflowRunContext, "estimatedMicrosPerProviderCall">,
+  answer: Pick<
+    DurableProviderAnswer,
+    "attempts" | "costMicros" | "costProvenance"
+  >,
+  analysis: Pick<
+    DurableAnswerAnalysis,
+    "analysisAttempts" | "costMicros" | "costProvenance"
+  >,
   analysisCalledModel: boolean,
 ): { costMicros: number; costProvenance: CostProvenance } {
-  const reportedCost = answer.costMicros + analysis.costMicros;
-  const hasUnpricedWork =
-    answer.costProvenance === "unavailable" ||
-    (analysisCalledModel && analysis.costProvenance === "unavailable");
-  const successfulWorkCost = hasUnpricedWork
-    ? Math.max(reportedCost, context.estimatedMicrosPerProviderCall)
-    : reportedCost;
+  const answerUsedEstimate = answer.costProvenance === "unavailable";
+  const analysisUsedEstimate =
+    analysisCalledModel && analysis.costProvenance === "unavailable";
+  const answerCost = answerUsedEstimate
+    ? context.estimatedMicrosPerProviderCall
+    : answer.costMicros;
+  const analysisCost = !analysisCalledModel
+    ? 0
+    : analysisUsedEstimate
+      ? context.estimatedMicrosPerProviderCall
+      : analysis.costMicros;
   const retryEstimate =
     (Math.max(0, answer.attempts - 1) +
       (analysisCalledModel
         ? Math.max(0, analysis.analysisAttempts - 1)
         : 0)) *
     context.estimatedMicrosPerProviderCall;
-  const usedEstimate = hasUnpricedWork || retryEstimate > 0;
+  const usedEstimate =
+    answerUsedEstimate || analysisUsedEstimate || retryEstimate > 0;
+  const reportedCost =
+    (answerUsedEstimate ? 0 : answer.costMicros) +
+    (analysisCalledModel && !analysisUsedEstimate ? analysis.costMicros : 0);
   const reportedProvenance = analysisCalledModel
     ? combineCostProvenance(
         answer.costProvenance,
@@ -1903,7 +2347,7 @@ function accountCompletedJobCost(
     : answer.costProvenance;
 
   return {
-    costMicros: successfulWorkCost + retryEstimate,
+    costMicros: answerCost + analysisCost + retryEstimate,
     costProvenance: usedEstimate
       ? reportedCost > 0
         ? "mixed"
@@ -1912,10 +2356,18 @@ function accountCompletedJobCost(
   };
 }
 
-function estimatedUnpersistedFailureCost(
+export function calculateAnalysisFailureAttempts(
+  combinedAttempts: number,
+  checkpointedQueryAttempts: number,
+): number {
+  return Math.max(1, combinedAttempts - checkpointedQueryAttempts);
+}
+
+export function estimatedUnpersistedFailureCost(
   attempts: number,
   errorCode: string | null,
   hasAnswerCheckpoint: boolean,
+  hasAccountedAnalysisFailure: boolean,
   estimatedCallMicros: number,
 ): number {
   if (
@@ -1926,14 +2378,14 @@ function estimatedUnpersistedFailureCost(
     return 0;
   }
 
-  // When an answer checkpoint exists, its query cost (including query retries)
-  // is already stored. Remaining combined attempts are conservatively treated
-  // as analysis/downstream spend; without a checkpoint every query attempt is
-  // estimated because no authoritative generation data survived.
-  const uncheckpointedAttempts = hasAnswerCheckpoint
-    ? Math.max(1, attempts - 1)
-    : attempts;
-  return uncheckpointedAttempts * estimatedCallMicros;
+  if (hasAccountedAnalysisFailure) return 0;
+
+  // A persisted answer already includes its successful query and every query
+  // retry. If the analysis failure checkpoint itself did not persist, charge
+  // one conservative analysis attempt instead of charging the queries again.
+  return hasAnswerCheckpoint
+    ? estimatedCallMicros
+    : attempts * estimatedCallMicros;
 }
 
 function estimatedMicrosPerCall(run: {

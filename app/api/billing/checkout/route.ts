@@ -4,15 +4,23 @@ import { cookies } from "next/headers";
 
 import { auth } from "@/lib/auth/server";
 import {
+  getCheckoutIdempotencyKey,
+  getIntroductoryClaimIdempotencyKey,
+} from "@/lib/billing/checkout-policy";
+import {
   getBillingCustomerForUser,
-  hasPurchasedCredits,
+  persistIntroductoryCheckoutSession,
+  prepareIntroductoryCheckoutClaim,
   upsertBillingCustomer,
 } from "@/lib/billing/credits";
 import {
+  CURRENT_CREDIT_GRANT_VERSION,
   getBillingPackage,
+  getFrozenCreditGrant,
   type BillingPackageId,
 } from "@/lib/billing/packages";
 import {
+  assertStripeTaxRegistrationConfigured,
   BillingConfigurationError,
   getApplicationOrigin,
   getStripe,
@@ -72,20 +80,26 @@ export async function POST(request: Request) {
       return Response.json({ error: "Select a valid benchmark package" }, { status: 400 });
     }
 
-    if (
-      publicPackage.introductory &&
-      (await hasPurchasedCredits(session.user.id))
-    ) {
-      return Response.json(
-        { error: "The introductory package is limited to a first purchase" },
-        { status: 409 },
-      );
-    }
-
     const billingPackage = getStripePackage(
       publicPackage.id as BillingPackageId,
     );
+    const frozenGrant = getFrozenCreditGrant(
+      CURRENT_CREDIT_GRANT_VERSION,
+      billingPackage.id,
+    );
+
+    if (
+      !frozenGrant ||
+      frozenGrant.credits !== billingPackage.credits ||
+      frozenGrant.introductory !== billingPackage.introductory
+    ) {
+      throw new BillingConfigurationError(
+        "The live package does not match its frozen fulfillment contract",
+      );
+    }
+
     const stripe = getStripe();
+    await assertStripeTaxRegistrationConfigured(stripe);
     let customerId = await getBillingCustomerForUser(session.user.id);
 
     if (!customerId) {
@@ -112,29 +126,109 @@ export async function POST(request: Request) {
       visitorId: cookieStore.get("datafast_visitor_id")?.value,
       sessionId: cookieStore.get("datafast_session_id")?.value,
     });
+    const persistedDataFastMetadata = dataFastMetadata as Record<string, string>;
+    let checkoutUserId = session.user.id;
+    let checkoutCredits: number = frozenGrant.credits;
+    let checkoutPriceId = billingPackage.stripePriceId;
+    let checkoutCustomerId = customerId;
+    let successUrl = `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+    let cancelUrl = `${origin}/dashboard?checkout=cancelled`;
+    let checkoutMetadata: Record<string, string> = {
+      appUserId: session.user.id,
+      billingPackage: billingPackage.id,
+      creditGrant: String(frozenGrant.credits),
+      creditGrantVersion: frozenGrant.version,
+      ...dataFastMetadata,
+    };
+    let stripeIdempotencyKey = getCheckoutIdempotencyKey({
+      userId: session.user.id,
+      packageId: billingPackage.id,
+      clientRequestKey: idempotencyKey,
+    });
+    let introductoryAttempt:
+      | { claimId: string; attempt: number; userId: string }
+      | undefined;
+
+    if (billingPackage.introductory) {
+      const preparedClaim = await prepareIntroductoryCheckoutClaim({
+        userId: session.user.id,
+        packageId: billingPackage.id,
+        grantVersion: frozenGrant.version,
+        credits: frozenGrant.credits,
+        stripePriceId: billingPackage.stripePriceId,
+        stripeCustomerId: customerId,
+        successUrl,
+        cancelUrl,
+        checkoutMetadata: persistedDataFastMetadata,
+      });
+
+      if (
+        preparedClaim.state === "unavailable" ||
+        preparedClaim.state === "fulfilled"
+      ) {
+        return Response.json(
+          { error: "The introductory package is limited to a first purchase" },
+          { status: 409 },
+        );
+      }
+
+      if (preparedClaim.state === "payment_pending") {
+        return Response.json(
+          { error: "Your introductory payment is still processing" },
+          { status: 409 },
+        );
+      }
+
+      if (preparedClaim.state === "reuse") {
+        return Response.json(
+          {
+            url: preparedClaim.checkoutUrl,
+            credits: preparedClaim.credits,
+          },
+          { headers: { "Cache-Control": "no-store" } },
+        );
+      }
+
+      checkoutUserId = preparedClaim.userId;
+      checkoutCredits = preparedClaim.credits;
+      checkoutPriceId = preparedClaim.stripePriceId;
+      checkoutCustomerId = preparedClaim.stripeCustomerId;
+      successUrl = preparedClaim.successUrl;
+      cancelUrl = preparedClaim.cancelUrl;
+      checkoutMetadata = {
+        appUserId: preparedClaim.userId,
+        billingPackage: preparedClaim.packageId,
+        creditGrant: String(preparedClaim.credits),
+        creditGrantVersion: preparedClaim.grantVersion,
+        introductoryClaimId: preparedClaim.claimId,
+        ...preparedClaim.checkoutMetadata,
+      };
+      stripeIdempotencyKey = getIntroductoryClaimIdempotencyKey(
+        preparedClaim.claimId,
+        preparedClaim.attempt,
+      );
+      introductoryAttempt = {
+        claimId: preparedClaim.claimId,
+        attempt: preparedClaim.attempt,
+        userId: preparedClaim.userId,
+      };
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create(
       {
         mode: "payment",
         integration_identifier: "100_questions_checkout_qmvkzjra",
         managed_payments: { enabled: false },
-        line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
-        client_reference_id: session.user.id,
-        customer: customerId,
-        metadata: {
-          appUserId: session.user.id,
-          billingPackage: billingPackage.id,
-          creditGrant: String(billingPackage.credits),
-          creditGrantVersion: "v2",
-          ...dataFastMetadata,
-        },
-        success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/dashboard?checkout=cancelled`,
+        automatic_tax: { enabled: true },
+        line_items: [{ price: checkoutPriceId, quantity: 1 }],
+        client_reference_id: checkoutUserId,
+        customer: checkoutCustomerId,
+        metadata: checkoutMetadata,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
       },
       {
-        idempotencyKey: `100q:checkout:${createHash("sha256")
-          .update(session.user.id)
-          .digest("hex")
-          .slice(0, 24)}:${idempotencyKey}`,
+        idempotencyKey: stripeIdempotencyKey,
       },
     );
 
@@ -145,10 +239,19 @@ export async function POST(request: Request) {
       );
     }
 
+    const checkoutUrl = introductoryAttempt
+      ? await persistIntroductoryCheckoutSession({
+          ...introductoryAttempt,
+          stripeCheckoutSessionId: checkoutSession.id,
+          checkoutUrl: checkoutSession.url,
+          expiresAt: new Date(checkoutSession.expires_at * 1_000),
+        })
+      : checkoutSession.url;
+
     return Response.json(
       {
-        url: checkoutSession.url,
-        credits: billingPackage.credits,
+        url: checkoutUrl,
+        credits: checkoutCredits,
       },
       { headers: { "Cache-Control": "no-store" } },
     );

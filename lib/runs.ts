@@ -2,8 +2,12 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
-import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 
+import {
+  availableCreditBalanceSql,
+  availableCreditPurchaseSql,
+} from "./billing/credit-lot-sql";
 import { getBenchmarkConfig, PROVIDERS } from "@/lib/config";
 import { getDb } from "@/lib/db";
 import {
@@ -87,9 +91,7 @@ export async function createReservedRun(
       LIMIT 1
     ),
     credit AS (
-      SELECT COALESCE(SUM(amount), 0)::integer AS balance
-      FROM credit_ledger
-      WHERE user_id = ${userId}
+      SELECT ${availableCreditPurchaseSql(userId)}::uuid AS funding_purchase_id
     ),
     usage AS (
       SELECT
@@ -124,7 +126,7 @@ export async function createReservedRun(
         ${retentionExpiresAt.toISOString()}::timestamptz
       FROM credit
       LEFT JOIN usage ON true
-      WHERE (${unlimitedAccess} OR credit.balance >= 1)
+      WHERE (${unlimitedAccess} OR credit.funding_purchase_id IS NOT NULL)
         AND (
           ${unlimitedAccess}
           OR COALESCE(usage.runs_reserved, 0) < ${config.budget.dailyRunLimit}
@@ -139,17 +141,23 @@ export async function createReservedRun(
     ),
     reserved_credit AS (
       INSERT INTO credit_ledger (
-        user_id, amount, type, run_id, external_reference, metadata
+        user_id, amount, type, run_id, funding_purchase_id,
+        external_reference, metadata
       )
       SELECT ${userId},
         CASE WHEN ${unlimitedAccess} THEN 0 ELSE -1 END,
         'reserve'::credit_ledger_type, id,
+        CASE
+          WHEN ${unlimitedAccess} THEN NULL
+          ELSE credit.funding_purchase_id
+        END,
         'run:' || id::text || ':reserve',
         ${JSON.stringify({
           benchmarkVersion: config.prompts.benchmarkVersion,
           funding: unlimitedAccess ? "internal_unlimited" : "prepaid_credit",
         })}::jsonb
       FROM created_run
+      CROSS JOIN credit
       RETURNING run_id
     ),
     dispatch AS (
@@ -227,8 +235,7 @@ export async function createReservedRun(
 
   const [creditRow, activeRun, usageRow] = await Promise.all([
     db.execute(sql`
-      SELECT COALESCE(SUM(amount), 0)::integer AS balance
-      FROM credit_ledger WHERE user_id = ${userId}
+      SELECT ${availableCreditBalanceSql(userId)} AS balance
     `),
     db
       .select({ id: runs.id })
@@ -444,33 +451,120 @@ export async function recordWorkflowDispatchAttemptFailure(
 }
 
 export async function cancelQueuedRunForUser(runId: string, userId: string) {
-  const [cancelled] = await getDb()
-    .update(runs)
-    .set({
-      status: "cancelled",
-      failureCode: "cancelled_by_user",
-      failureMessage: "Cancelled before provider work began.",
-      completedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(runs.id, runId),
-        eq(runs.userId, userId),
-        eq(runs.status, "queued"),
-        isNull(runs.claimStepId),
+  const db = getDb();
+  const releaseReference = `run:${runId}:release`;
+  const [, cancellation] = await db.batch([
+    db.execute(sql`
+      select pg_advisory_xact_lock(hashtextextended(${userId}::text, 0))
+    `),
+    db.execute<{
+      id: string;
+      workflow_run_id: string | null;
+      credit_released: boolean;
+    }>(sql`
+      with target_run as materialized (
+        select id, workflow_run_id
+        from runs
+        where id = ${runId}::uuid
+          and user_id = ${userId}
+          and status = 'queued'
+          and claim_step_id is null
+        for update
       ),
-    )
-    .returning({ id: runs.id, workflowRunId: runs.workflowRunId });
+      reservation as materialized (
+        select amount, funding_purchase_id
+        from credit_ledger
+        where user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'reserve'::credit_ledger_type
+        limit 1
+      ),
+      consumption as materialized (
+        select 1
+        from credit_ledger
+        where user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'consume'::credit_ledger_type
+        limit 1
+      ),
+      existing_release as materialized (
+        select id
+        from credit_ledger
+        where external_reference = ${releaseReference}
+          and user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'release'::credit_ledger_type
+        limit 1
+      ),
+      released_credit as (
+        insert into credit_ledger (
+          user_id,
+          amount,
+          type,
+          run_id,
+          funding_purchase_id,
+          external_reference,
+          metadata
+        )
+        select
+          ${userId},
+          -reservation.amount,
+          'release'::credit_ledger_type,
+          ${runId}::uuid,
+          reservation.funding_purchase_id,
+          ${releaseReference},
+          jsonb_build_object(
+            'state', 'released',
+            'reason', 'user_cancelled_before_provider_work'
+          )
+        from reservation
+        cross join target_run
+        where not exists (select 1 from consumption)
+          and not exists (select 1 from existing_release)
+        returning id
+      ),
+      release_outcome as materialized (
+        select (
+          exists (select 1 from released_credit)
+          or exists (select 1 from existing_release)
+        ) as credit_released
+      ),
+      cancelled_run as (
+        update runs as cancelled
+        set
+          status = 'cancelled',
+          failure_code = 'CANCELLED_BEFORE_PROVIDER_WORK',
+          failure_message = 'Cancelled before provider work began.',
+          completed_at = now(),
+          updated_at = now()
+        from target_run, release_outcome
+        where cancelled.id = target_run.id
+          and release_outcome.credit_released
+        returning
+          cancelled.id,
+          target_run.workflow_run_id,
+          release_outcome.credit_released
+      )
+      select id, workflow_run_id, credit_released
+      from cancelled_run
+    `),
+  ]);
 
-  return cancelled ?? null;
+  const cancelled = cancellation.rows[0];
+  return cancelled
+    ? {
+        id: cancelled.id,
+        workflowRunId: cancelled.workflow_run_id,
+        creditReleased: cancelled.credit_released,
+      }
+    : null;
 }
 
 export type CancelRunResult =
   | {
       state: "cancelled";
       workflowRunId: string | null;
-      creditMayBeReleased: boolean;
+      creditReleased: boolean;
     }
   | { state: "not_active" }
   | { state: "not_found" };
@@ -496,118 +590,218 @@ export async function cancelRunForUser(
     options.failureMessage ??
     "Cancelled by user. Completed evidence was retained and no further calls will be scheduled."
   ).slice(0, 500);
-  const [cancelled] = await db
-    .update(runs)
-    .set({
-      status: "cancelled",
-      failureCode,
-      failureMessage,
-      completedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(runs.id, runId),
-        eq(runs.userId, userId),
-        inArray(runs.status, [...activeStatuses]),
+  const estimatedMicros =
+    getBenchmarkConfig().budget.estimatedMicrosPerProviderCall;
+  const releaseReference = `run:${runId}:release`;
+  // Neon HTTP batches run in one transaction. The advisory lock serializes
+  // consume/release ledger actions; the following row lock gives reconciliation
+  // a fresh READ COMMITTED snapshot after in-flight result persistence commits.
+  const [, , , cancellation] = await db.batch([
+    db.execute(sql`
+      select pg_advisory_xact_lock(hashtextextended(${userId}::text, 0))
+    `),
+    db.execute(sql`
+      select id
+      from runs
+      where id = ${runId}::uuid
+        and user_id = ${userId}
+      for update
+    `),
+    db.execute(sql`
+      update provider_jobs as cancelled_job
+      set
+        status = 'failed',
+        attempts = greatest(
+          cancelled_job.attempts,
+          case when cancelled_job.status = 'running' then 1 else 0 end
+        ),
+        error_code = 'RUN_CANCELLED',
+        error_message = 'The run was cancelled before this job completed.',
+        finished_at = now(),
+        updated_at = now()
+      where cancelled_job.run_id = ${runId}::uuid
+        and cancelled_job.status in ('queued', 'running')
+        and exists (
+          select 1
+          from runs as active_run
+          where active_run.id = ${runId}::uuid
+            and active_run.user_id = ${userId}
+            and active_run.status in ('queued', 'generating', 'querying', 'analyzing')
+        )
+    `),
+    db.execute<{
+      workflow_run_id: string | null;
+      credit_released: boolean;
+    }>(sql`
+      with target_run as materialized (
+        select
+          workflow_run_id,
+          actual_cost_micros,
+          cost_provenance
+        from runs
+        where id = ${runId}::uuid
+          and user_id = ${userId}
+          and status in ('queued', 'generating', 'querying', 'analyzing')
       ),
-    )
-    .returning({
-      workflowRunId: runs.workflowRunId,
-      actualCostMicros: runs.actualCostMicros,
-      costProvenance: runs.costProvenance,
-    });
+      summary as (
+        select
+          count(*) filter (where job.status = 'succeeded')::integer
+            as succeeded_provider_calls,
+          count(*) filter (where job.status = 'failed')::integer
+            as failed_provider_calls,
+          count(*) filter (where stored_result.score_eligible = true)::integer
+            as eligible_provider_calls,
+          coalesce(sum(stored_result.cost_micros), 0)::bigint
+            as persisted_cost_micros,
+          coalesce(
+            sum(
+              case
+                when job.status = 'failed'
+                  and job.attempts > 0
+                  and stored_result.id is null
+                  then job.attempts * ${estimatedMicros}
+                else 0
+              end
+            ),
+            0
+          )::bigint as estimated_unpersisted_cost_micros,
+          coalesce(
+            bool_and(job.attempts = 0 and job.started_at is null),
+            true
+          )
+            as credit_may_be_released
+        from provider_jobs as job
+        cross join target_run
+        left join results as stored_result
+          on stored_result.job_id = job.id
+        where job.run_id = ${runId}::uuid
+      ),
+      provenance_inputs as (
+        select target_run.cost_provenance::text as provenance
+        from target_run
+        where target_run.actual_cost_micros > 0
+          and target_run.cost_provenance <> 'unavailable'
+        union all
+        select stored_result.cost_provenance::text
+        from results as stored_result
+        inner join provider_jobs as result_job
+          on result_job.id = stored_result.job_id
+        cross join target_run
+        where result_job.run_id = ${runId}::uuid
+          and stored_result.cost_micros > 0
+          and stored_result.cost_provenance <> 'unavailable'
+        union all
+        select 'estimated'
+        from summary
+        where summary.estimated_unpersisted_cost_micros > 0
+      ),
+      combined_provenance as (
+        select
+          case
+            when count(distinct provenance) = 0
+              then 'unavailable'::cost_provenance
+            when count(distinct provenance) = 1
+              then min(provenance)::cost_provenance
+            else 'mixed'::cost_provenance
+          end as cost_provenance
+        from provenance_inputs
+      ),
+      reservation as materialized (
+        select amount, funding_purchase_id
+        from credit_ledger
+        where user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'reserve'::credit_ledger_type
+        limit 1
+      ),
+      consumption as materialized (
+        select 1
+        from credit_ledger
+        where user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'consume'::credit_ledger_type
+        limit 1
+      ),
+      existing_release as materialized (
+        select id
+        from credit_ledger
+        where external_reference = ${releaseReference}
+          and user_id = ${userId}
+          and run_id = ${runId}::uuid
+          and type = 'release'::credit_ledger_type
+        limit 1
+      ),
+      released_credit as (
+        insert into credit_ledger (
+          user_id,
+          amount,
+          type,
+          run_id,
+          funding_purchase_id,
+          external_reference,
+          metadata
+        )
+        select
+          ${userId},
+          -reservation.amount,
+          'release'::credit_ledger_type,
+          ${runId}::uuid,
+          reservation.funding_purchase_id,
+          ${releaseReference},
+          jsonb_build_object(
+            'state', 'released',
+            'reason', 'cancelled_before_provider_work'
+          )
+        from reservation
+        cross join summary
+        where summary.credit_may_be_released
+          and not exists (select 1 from consumption)
+          and not exists (select 1 from existing_release)
+        returning id
+      ),
+      credit_release as materialized (
+        select (
+          exists (select 1 from released_credit)
+          or exists (select 1 from existing_release)
+        ) as credit_released
+      ),
+      cancelled_run as (
+        update runs as cancelled
+        set
+          status = 'cancelled',
+          succeeded_provider_calls = summary.succeeded_provider_calls,
+          failed_provider_calls = summary.failed_provider_calls,
+          eligible_provider_calls = summary.eligible_provider_calls,
+          actual_cost_micros =
+            target_run.actual_cost_micros
+            + summary.persisted_cost_micros
+            + summary.estimated_unpersisted_cost_micros,
+          cost_provenance = combined_provenance.cost_provenance,
+          failure_code = ${failureCode},
+          failure_message = ${failureMessage},
+          completed_at = now(),
+          updated_at = now()
+        from target_run, summary, combined_provenance, credit_release
+        where cancelled.id = ${runId}::uuid
+        returning
+          target_run.workflow_run_id,
+          credit_release.credit_released
+      )
+      select workflow_run_id, credit_released
+      from cancelled_run
+    `),
+  ]);
+  const cancelled = cancellation.rows[0];
 
   if (!cancelled) {
     const existing = await getRunForUser(runId, userId);
     return { state: existing ? "not_active" : "not_found" };
   }
 
-  await db
-    .update(providerJobs)
-    .set({
-      status: "failed",
-      errorCode: "RUN_CANCELLED",
-      errorMessage: "The run was cancelled before this job completed.",
-      finishedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(providerJobs.runId, runId),
-        inArray(providerJobs.status, ["queued", "running"]),
-      ),
-    );
-
-  const jobs = await db
-    .select({
-      status: providerJobs.status,
-      attempts: providerJobs.attempts,
-      resultId: results.id,
-      scoreEligible: results.scoreEligible,
-      costMicros: results.costMicros,
-      costProvenance: results.costProvenance,
-    })
-    .from(providerJobs)
-    .leftJoin(results, eq(results.jobId, providerJobs.id))
-    .where(eq(providerJobs.runId, runId));
-  const estimatedMicros = getBenchmarkConfig().budget.estimatedMicrosPerProviderCall;
-  const estimatedUnpersistedCost = jobs.reduce(
-    (total, job) =>
-      job.status === "failed" && job.attempts > 0 && !job.resultId
-        ? total + job.attempts * estimatedMicros
-        : total,
-    0,
-  );
-  const persistedCost = jobs.reduce(
-    (total, job) => total + (job.costMicros ?? 0),
-    0,
-  );
-  const provenances = new Set<RunSummary["costProvenance"]>();
-
-  if (
-    cancelled.actualCostMicros > 0 &&
-    cancelled.costProvenance !== "unavailable"
-  ) {
-    provenances.add(cancelled.costProvenance);
-  }
-
-  for (const job of jobs) {
-    if (
-      job.costMicros &&
-      job.costProvenance &&
-      job.costProvenance !== "unavailable"
-    ) {
-      provenances.add(job.costProvenance);
-    }
-  }
-
-  if (estimatedUnpersistedCost > 0) {
-    provenances.add("estimated");
-  }
-
-  await db
-    .update(runs)
-    .set({
-      succeededProviderCalls: jobs.filter((job) => job.status === "succeeded")
-        .length,
-      failedProviderCalls: jobs.filter((job) => job.status === "failed").length,
-      eligibleProviderCalls: jobs.filter((job) => job.scoreEligible === true)
-        .length,
-      actualCostMicros:
-        cancelled.actualCostMicros + persistedCost + estimatedUnpersistedCost,
-      costProvenance:
-        provenances.size > 1
-          ? "mixed"
-          : (provenances.values().next().value ?? "unavailable"),
-      updatedAt: new Date(),
-    })
-    .where(and(eq(runs.id, runId), eq(runs.status, "cancelled")));
-
   return {
     state: "cancelled",
-    workflowRunId: cancelled.workflowRunId,
-    creditMayBeReleased: jobs.every((job) => job.attempts === 0),
+    workflowRunId: cancelled.workflow_run_id,
+    creditReleased: cancelled.credit_released,
   };
 }
 

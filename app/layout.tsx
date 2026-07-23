@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
@@ -181,6 +182,7 @@ export default function RootLayout({
         {children}
         <GlobalFooter />
         <JsonLd data={structuredData} />
+        <Analytics />
       </body>
     </html>
   );

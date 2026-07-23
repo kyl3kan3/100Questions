@@ -22,16 +22,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  BILLING_PACKAGES,
   formatPackagePrice,
   getPublicBillingPackages,
 } from "@/lib/billing/packages";
+import { buildHomeStructuredData } from "@/lib/home-structured-data";
 import {
   absoluteUrl,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
-  SITE_UPDATED_AT,
   SOCIAL_IMAGE,
 } from "@/lib/site";
 
@@ -80,55 +79,7 @@ const scoreCards = [
 ] as const;
 
 export default function Home() {
-  const homeUrl = absoluteUrl();
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebPage",
-        "@id": `${homeUrl}#webpage`,
-        url: homeUrl,
-        name: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
-        description:
-          "Measure brand mentions, prominence, competitor share of voice, citations, and coverage across 100 planned web-grounded AI answers.",
-        isPartOf: { "@id": `${homeUrl}#website` },
-        about: { "@id": `${homeUrl}#product` },
-        primaryImageOfPage: {
-          "@type": "ImageObject",
-          url: absoluteUrl("/sample-report-preview.png"),
-        },
-        dateModified: SITE_UPDATED_AT,
-        inLanguage: "en-US",
-      },
-      {
-        "@type": "Product",
-        "@id": `${homeUrl}#product`,
-        name: "100 Questions AI Visibility Benchmark",
-        url: homeUrl,
-        image: absoluteUrl("/sample-report-preview.png"),
-        description:
-          "A prepaid, source-backed AI visibility audit with one 25-question set, four model providers, and a prioritized action plan.",
-        brand: { "@id": `${homeUrl}#organization` },
-        category: "AI visibility analytics",
-        offers: {
-          "@type": "AggregateOffer",
-          url: absoluteUrl("/#pricing"),
-          priceCurrency: "USD",
-          lowPrice: String(
-            Math.min(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) /
-              100,
-          ),
-          highPrice: String(
-            Math.max(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) /
-              100,
-          ),
-          offerCount: BILLING_PACKAGES.length,
-          availability: "https://schema.org/InStock",
-          seller: { "@id": `${homeUrl}#organization` },
-        },
-      },
-    ],
-  };
+  const structuredData = buildHomeStructuredData();
 
   return (
     <>

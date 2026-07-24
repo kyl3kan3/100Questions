@@ -84,10 +84,35 @@ describe("public SEO metadata", () => {
   });
 
   it("uses a cache-busted branded favicon without file-based duplicates", () => {
-    expect(existsSync(join(process.cwd(), "public", "favicon-v2.ico"))).toBe(
+    expect(existsSync(join(process.cwd(), "public", "favicon-v3.ico"))).toBe(
       true,
+    );
+    expect(existsSync(join(process.cwd(), "public", "favicon-v2.ico"))).toBe(
+      false,
     );
     expect(existsSync(join(process.cwd(), "app", "favicon.ico"))).toBe(false);
     expect(existsSync(join(process.cwd(), "app", "icon.svg"))).toBe(false);
+  });
+
+  it("keeps every favicon small enough to stay off the critical path", () => {
+    // The favicon downloads on every first page view. A previous revision
+    // shipped uncompressed 128px and 256px BMP frames totalling 361KB, which
+    // dwarfed the fonts and CSS combined. Browsers only render 16-48px in a
+    // tab; larger launcher icons come from the manifest and apple-touch-icon.
+    for (const name of ["favicon-v3.ico", "favicon.ico"]) {
+      const icon = readFileSync(join(process.cwd(), "public", name));
+      expect(icon.byteLength).toBeLessThan(24 * 1024);
+
+      // ICO header: reserved=0, type=1, then one 16-byte directory entry per
+      // frame whose first two bytes are width and height (0 meaning 256).
+      expect(icon.readUInt16LE(0)).toBe(0);
+      expect(icon.readUInt16LE(2)).toBe(1);
+      const frames = icon.readUInt16LE(4);
+      const dimensions = Array.from({ length: frames }, (_, index) => {
+        const entry = 6 + index * 16;
+        return icon.readUInt8(entry) || 256;
+      });
+      expect(dimensions).toEqual([16, 32, 48]);
+    }
   });
 });

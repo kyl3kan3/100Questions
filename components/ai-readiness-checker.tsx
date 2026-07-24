@@ -118,7 +118,7 @@ export function AiReadinessChecker() {
                 )}
               </Button>
             </div>
-            <p id="readiness-help" className="text-pretty text-xs leading-5 text-zinc-500">
+            <p id="readiness-help" className="text-pretty text-xs leading-5 text-zinc-400">
               We fetch only public HTTPS pages and do not store the submitted
               site or its contents.
             </p>

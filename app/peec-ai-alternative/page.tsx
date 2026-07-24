@@ -171,7 +171,7 @@ export default function PeecAiAlternativePage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -233,12 +233,12 @@ export default function PeecAiAlternativePage() {
                   ))}
                 </div>
               </div>
-              <p className="mt-4 max-w-3xl text-xs leading-5 text-zinc-500">
+              <p className="mt-4 max-w-3xl text-xs leading-5 text-zinc-400">
                 Peec AI details summarized from peec.ai as of July 2026; plans
                 and features change, so verify current specifics on their site.
                 100 Questions details are documented on the{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/methodology"
                 >
                   methodology page
@@ -315,14 +315,14 @@ export default function PeecAiAlternativePage() {
               <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-400">
                 Agencies comparing options for client work should also see the{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/for-agencies"
                 >
                   agencies page
                 </Link>{" "}
                 and the{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/sample-report"
                 >
                   complete sample report

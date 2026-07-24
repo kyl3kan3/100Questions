@@ -174,7 +174,7 @@ export default function AeoGuidePage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -221,7 +221,7 @@ export default function AeoGuidePage() {
                   AEO adapts your content strategy to that selection step. It
                   overlaps heavily with{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/generative-engine-optimization"
                   >
                     generative engine optimization
@@ -230,7 +230,7 @@ export default function AeoGuidePage() {
                   useful content, earned authority. The difference is the unit
                   of success: inclusion and citation in an answer, measured as{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/ai-visibility"
                   >
                     AI visibility
@@ -346,7 +346,7 @@ export default function AeoGuidePage() {
                 with shared web grounding, then turns the stored answers and
                 citations into a prioritized action plan. See{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/methodology"
                 >
                   the methodology
@@ -354,7 +354,7 @@ export default function AeoGuidePage() {
                 for definitions and limits, or compare six current platforms in
                 the{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/answer-engine-optimization-tools"
                 >
                   answer engine optimization tools guide

@@ -141,7 +141,9 @@ export default function Home() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="eyebrow mb-2">Example benchmark</p>
-                <CardTitle className="text-xl">Northstar analytics</CardTitle>
+                <CardTitle as="h2" className="text-xl">
+                  Northstar analytics
+                </CardTitle>
               </div>
               <Badge variant="success">Complete</Badge>
             </div>
@@ -401,7 +403,7 @@ export default function Home() {
               </Card>
             ))}
           </div>
-          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-zinc-500">
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-zinc-400">
             Introductory price is limited to the first purchase. Credits are valid for 12 months. Normal single-benchmark price after the introductory purchase is $15. Taxes may apply.
           </p>
         </div>
@@ -417,9 +419,9 @@ export default function Home() {
             <p className="mt-3 text-sm leading-6 text-zinc-400">
               Packages start at $9. Stripe confirms the price and applicable taxes before payment.
             </p>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="mt-2 text-sm text-zinc-400">
               Need details first?{" "}
-              <Link className="text-emerald-300 hover:text-emerald-200" href="/faq">
+              <Link className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200" href="/faq">
                 Read the FAQ
               </Link>
               .

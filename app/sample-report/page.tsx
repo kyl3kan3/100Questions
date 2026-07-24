@@ -38,6 +38,13 @@ export const metadata: Metadata = {
     url: absoluteUrl("/sample-report"),
     images: [SOCIAL_IMAGE],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sample AI Visibility Audit | 100 Questions",
+    description:
+      "A complete example of the decision-ready insights and evidence included with every benchmark.",
+    images: [SOCIAL_IMAGE],
+  },
 };
 
 const actions = [

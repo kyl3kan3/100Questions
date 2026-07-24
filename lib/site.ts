@@ -4,8 +4,10 @@ export const SITE_TITLE = "100 Questions — AI Visibility Audit & Benchmark Too
 export const SITE_DESCRIPTION =
   "Run a $9 AI visibility audit across OpenAI, Claude, Gemini, and Grok. See where AI overlooks your brand, who appears instead, and what to fix next.";
 export const SITE_UPDATED_AT = "2026-07-24T00:00:00.000Z";
-export const SOCIAL_IMAGE_PATH = "/social-card-v3.png";
-export const SOCIAL_IMAGE_URL = `${SITE_URL}${SOCIAL_IMAGE_PATH}?v=e5060413`;
+// X's card crawler is unreliable with query-stringed image URLs and RGBA
+// PNGs, so the card is a flattened RGB PNG versioned via the filename only.
+export const SOCIAL_IMAGE_PATH = "/social-card-v4.png";
+export const SOCIAL_IMAGE_URL = `${SITE_URL}${SOCIAL_IMAGE_PATH}`;
 export const SOCIAL_IMAGE_ALT =
   "100 Questions — see whether AI puts your brand in the answer";
 

@@ -56,21 +56,38 @@ export function GlobalFooter() {
               See the complete deliverable →
             </Link>
           </div>
-          <a
-            href="https://daniellaunches.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="View 100 Questions on DanielLaunches"
-            className="opacity-85 transition-opacity hover:opacity-100"
-          >
-            <img
-              src="https://daniellaunches.com/badge-light.svg"
-              alt="Featured on DanielLaunches"
-              width="220"
-              height="48"
-              loading="lazy"
-            />
-          </a>
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-3 sm:justify-end [&_img]:block [&_img]:h-auto [&_img]:max-w-full">
+            <a
+              href="https://verifieddr.com/website/100questionsai-com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View the verified domain rating for 100questionsai.com"
+              className="shrink-0 opacity-80 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://verifieddr.com/badge/100questionsai-com.svg?metric=truedr"
+                alt="Verified DR - Verified Domain Rating for 100questionsai.com"
+                width="220"
+                height="68"
+                loading="lazy"
+              />
+            </a>
+            <a
+              href="https://daniellaunches.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on DanielLaunches"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://daniellaunches.com/badge-light.svg"
+                alt="Featured on DanielLaunches"
+                width="220"
+                height="48"
+                loading="lazy"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -52,10 +52,13 @@ describe("public SEO metadata", () => {
 
   it("uses a stable, public social preview image", () => {
     expect(SOCIAL_IMAGE).toMatchObject({
-      url: "https://100questionsai.com/social-card-v3.png?v=e5060413",
+      url: "https://100questionsai.com/social-card-v4.png",
       width: 1200,
       height: 630,
     });
+    // X's card crawler drops images behind query-stringed URLs, so versioning
+    // must live in the filename.
+    expect(new URL(SOCIAL_IMAGE.url).search).toBe("");
     const imagePath = join(
       process.cwd(),
       "public",
@@ -69,6 +72,9 @@ describe("public SEO metadata", () => {
     );
     expect(image.readUInt32BE(16)).toBe(1200);
     expect(image.readUInt32BE(20)).toBe(630);
+    // PNG color type 2 = truecolor RGB; an alpha channel (type 6) makes X's
+    // card renderer unreliable.
+    expect(image.readUInt8(25)).toBe(2);
     expect(existsSync(join(process.cwd(), "public", "sample-report-preview.png"))).toBe(true);
   });
 

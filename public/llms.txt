@@ -9,10 +9,12 @@ Canonical site: https://100questionsai.com/
 - [Home](https://100questionsai.com/): Product overview and benchmark summary.
 - [About](https://100questionsai.com/about): Product purpose, measurement principles, privacy posture, and interpretation limits.
 - [AI visibility guide](https://100questionsai.com/ai-visibility): Definition, measurement framework, core metrics, and the relationship between AI visibility and SEO.
-- [AI visibility checker](https://100questionsai.com/ai-visibility-checker): A free manual checklist for testing brand presence in AI answers, its limits, and what a scored audit adds.
+- [AI visibility checker](https://100questionsai.com/ai-visibility-checker): A free instant technical readiness check for indexability, AI crawlers, page signals, schema, sitemaps, and llms.txt, plus a manual answer-check workflow.
 - [AI search optimization guide](https://100questionsai.com/ai-search-optimization): A six-stage workflow for crawlability, entity clarity, answer-ready content, evidence, distribution, and measurement.
 - [AI SEO tools comparison](https://100questionsai.com/ai-seo-tools): A job-based comparison of prompt monitoring, fixed benchmarks, broad visibility research, and enterprise platforms.
 - [Answer engine optimization guide](https://100questionsai.com/answer-engine-optimization): What AEO is, how it differs from SEO and GEO, and the practices that earn citations in AI answers.
+- [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools): Six AEO tools compared by monitoring model, evidence, cadence, workflow, and tradeoffs.
+- [ChatGPT SEO tool](https://100questionsai.com/chatgpt-seo-tool): Controlled ChatGPT visibility measurement with stored evidence and multi-provider context.
 - [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
 - [LLM SEO guide](https://100questionsai.com/llm-seo): How language models choose brands, ChatGPT SEO in practice, and honest measurement.
 - [Peec AI alternative](https://100questionsai.com/peec-ai-alternative): Monitoring subscription vs. prepaid benchmark comparison, with fit guidance for each.

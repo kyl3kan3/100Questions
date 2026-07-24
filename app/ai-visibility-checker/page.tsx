@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AiReadinessChecker } from "@/components/ai-readiness-checker";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,9 +18,9 @@ import {
 const pageUrl = absoluteUrl("/ai-visibility-checker");
 
 export const metadata: Metadata = {
-  title: "AI Visibility Checker: Test Where Your Brand Appears",
+  title: "Free AI Visibility Checker: Test Technical Readiness",
   description:
-    "Check whether AI assistants mention your brand. A free manual checklist, the limits of ad-hoc checks, and how a scored AI visibility audit works.",
+    "Run a free AI visibility readiness check for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt. No account required.",
   keywords: [
     "AI visibility checker",
     "AI visibility check",
@@ -31,9 +32,9 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "AI Visibility Checker: Test Where Your Brand Appears",
+    title: "Free AI Visibility Checker: Test Technical Readiness",
     description:
-      "A free manual checklist for checking your brand in AI answers, why ad-hoc checks mislead, and what a scored audit adds.",
+      "Check whether a public website is technically ready for AI search discovery, then learn how to measure actual brand visibility.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
@@ -44,9 +45,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Visibility Checker: Test Where Your Brand Appears",
+    title: "Free AI Visibility Checker: Test Technical Readiness",
     description:
-      "Check your brand in AI answers with a manual checklist, then score it properly with a frozen, evidence-backed benchmark.",
+      "Check indexability, AI crawler access, schema, page signals, sitemaps, and llms.txt without creating an account.",
     images: [SOCIAL_IMAGE],
   },
 };
@@ -120,6 +121,11 @@ const metrics = [
 
 const faqs = [
   {
+    question: "Does the free checker ask ChatGPT about my brand?",
+    answer:
+      "No. The free check is a technical preflight: it inspects public website signals that affect whether search and AI systems can retrieve and understand a site. It does not spend model tokens or claim to measure current brand mentions. Actual visibility requires asking a controlled question set across providers and storing the resulting answers and citations.",
+  },
+  {
     question: "How can I check my brand's AI visibility for free?",
     answer:
       "Write ten neutral buyer questions that do not name your brand, ask each in a fresh chat session across the assistants your buyers use, and log whether you were mentioned, who appeared instead, and which sources were cited. Then ask each assistant directly what it knows about your brand. This manual check is free and worth doing—but it is a small, personalized, unrepeatable sample, so treat the result as a hint rather than a measurement.",
@@ -153,9 +159,9 @@ export default function AiVisibilityCheckerPage() {
       {
         "@type": "Article",
         "@id": `${pageUrl}#article`,
-        headline: "AI Visibility Checker: Test Where Your Brand Appears",
+        headline: "Free AI Visibility Checker: Test Technical Readiness",
         description:
-          "A free manual checklist for checking your brand in AI answers, the limits of ad-hoc checks, and how a scored AI visibility audit works.",
+          "A free technical readiness checker for indexability, AI crawler access, structured data, page signals, sitemap discovery, and llms.txt.",
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
@@ -170,6 +176,33 @@ export default function AiVisibilityCheckerPage() {
           "AI citations",
         ],
         inLanguage: "en-US",
+      },
+      {
+        "@type": "WebApplication",
+        "@id": `${pageUrl}#checker`,
+        name: "100 Questions AI Visibility Readiness Checker",
+        url: pageUrl,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        browserRequirements: "Requires a modern web browser",
+        description:
+          "A free technical preflight for public website signals used in AI search discovery.",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+        provider: { "@id": `${absoluteUrl()}#organization` },
+        featureList: [
+          "Indexability check",
+          "AI crawler robots check",
+          "Metadata and H1 check",
+          "Canonical URL check",
+          "JSON-LD structured data check",
+          "Question-oriented content check",
+          "XML sitemap discovery",
+          "llms.txt discovery",
+        ],
       },
       {
         "@type": "FAQPage",
@@ -221,26 +254,33 @@ export default function AiVisibilityCheckerPage() {
                 AI visibility checker
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                Check your brand&apos;s AI visibility—with evidence, not vibes
+                Check your site&apos;s AI visibility readiness in seconds
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                Typing your category into a chatbot and skimming the answer is
-                not a measurement. Here is a manual checklist you can run today
-                for free, the reasons ad-hoc checks mislead, and what a scored,
-                repeatable AI visibility check actually requires.
+                Run a free technical preflight for indexability, AI crawler
+                access, schema, core page signals, sitemap discovery, and
+                llms.txt. Then use the manual check below to test what AI
+                assistants actually say.
               </p>
             </div>
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <AiReadinessChecker />
+
             <section aria-labelledby="manual-check-heading">
-              <p className="eyebrow">The free manual check</p>
+              <p className="eyebrow">The actual-answer check</p>
               <h2
                 id="manual-check-heading"
                 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
               >
-                Five steps to a rough answer today
+                Technical readiness is not the same as being recommended
               </h2>
+              <p className="mt-4 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+                A technically perfect site can still be absent from AI answers.
+                Use this five-step manual check to sample real mentions while
+                keeping its limitations in view.
+              </p>
               <ol className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {manualSteps.map(({ title, description }, index) => (
                   <li

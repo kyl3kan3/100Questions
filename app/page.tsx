@@ -292,14 +292,44 @@ export default function Home() {
             <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
               <p className="eyebrow">Checklist</p>
               <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Check your AI visibility today
+                Check technical AI readiness today
               </h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
-                A free manual checklist for testing where AI mentions your
-                brand—and what a scored, repeatable check adds.
+                Run a free instant check for indexability, AI crawler access,
+                schema, page signals, sitemaps, and llms.txt.
               </p>
               <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-visibility-checker">Run the checklist</Link>
+                <Link href="/ai-visibility-checker">Run the free checker</Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Commercial guide</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Choose a ChatGPT SEO tool
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Compare manual spot checks, continuous monitoring, and frozen
+                evidence-linked benchmarks for ChatGPT visibility.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/chatgpt-seo-tool">
+                  Explore the ChatGPT SEO tool
+                </Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Comparison</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Compare answer engine optimization tools
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Six AEO platforms compared by monitoring model, evidence,
+                cadence, workflow, and the tradeoffs to verify.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/answer-engine-optimization-tools">
+                  Compare AEO tools
+                </Link>
               </Button>
             </article>
             <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">

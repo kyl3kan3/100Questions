@@ -351,7 +351,15 @@ export default function AeoGuidePage() {
                 >
                   the methodology
                 </Link>{" "}
-                for definitions and limits.
+                for definitions and limits, or compare six current platforms in
+                the{" "}
+                <Link
+                  className="text-emerald-300 hover:text-emerald-200"
+                  href="/answer-engine-optimization-tools"
+                >
+                  answer engine optimization tools guide
+                </Link>
+                .
               </p>
             </section>
 

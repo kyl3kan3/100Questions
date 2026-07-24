@@ -41,6 +41,15 @@ export function GlobalFooter() {
             </Link>
             <Link
               className="hover:text-zinc-200"
+              href="/answer-engine-optimization-tools"
+            >
+              AEO tools
+            </Link>
+            <Link className="hover:text-zinc-200" href="/chatgpt-seo-tool">
+              ChatGPT SEO tool
+            </Link>
+            <Link
+              className="hover:text-zinc-200"
               href="/generative-engine-optimization"
             >
               GEO guide

@@ -112,6 +112,24 @@ const faqs = [
   },
 ] as const;
 
+const opportunitySnapshot = [
+  ["LLM SEO", "1,500", "13", "Existing guide; fastest editorial target"],
+  ["ChatGPT SEO tool", "900", "1", "Commercial landing-page opportunity"],
+  [
+    "Answer engine optimization tools",
+    "800",
+    "10",
+    "Dedicated comparison opportunity",
+  ],
+  ["AI search optimization", "3,400", "50", "Long-term authority page"],
+  [
+    "Generative engine optimization",
+    "7,900",
+    "59",
+    "High-volume, high-authority category",
+  ],
+] as const;
+
 export default function LlmSeoGuidePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -196,6 +214,9 @@ export default function LlmSeoGuidePage() {
                 two channels that put brands into answers, doing the work each
                 channel rewards, and measuring the answers instead of guessing.
               </p>
+              <p className="mt-5 font-mono text-xs text-zinc-500">
+                Reviewed July 24, 2026
+              </p>
             </div>
           </header>
 
@@ -254,6 +275,73 @@ export default function LlmSeoGuidePage() {
               </p>
             </section>
 
+            <section aria-labelledby="opportunity-heading">
+              <p className="eyebrow">July 2026 search opportunity snapshot</p>
+              <h2
+                id="opportunity-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                The quickest opportunities are narrower than the biggest terms
+              </h2>
+              <p className="mt-4 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+                Current U.S. Ahrefs estimates show why a new site should not
+                treat every AI-search keyword equally. Lower-difficulty,
+                intent-specific pages create a more realistic entry point while
+                broader guides build authority over time.
+              </p>
+              <div className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+                <table className="min-w-[720px] w-full text-left text-sm">
+                  <thead className="bg-white/[0.045] text-xs uppercase tracking-[0.12em] text-zinc-400">
+                    <tr>
+                      <th className="px-5 py-4 font-medium">Query</th>
+                      <th className="px-5 py-4 text-right font-medium">
+                        US volume
+                      </th>
+                      <th className="px-5 py-4 text-right font-medium">KD</th>
+                      <th className="px-5 py-4 font-medium">Practical role</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.07]">
+                    {opportunitySnapshot.map(
+                      ([query, volume, difficulty, role]) => (
+                        <tr key={query} className="bg-[#0b0e0c]">
+                          <th className="px-5 py-5 font-semibold text-zinc-100">
+                            {query}
+                          </th>
+                          <td className="px-5 py-5 text-right font-mono tabular-nums text-zinc-300">
+                            {volume}
+                          </td>
+                          <td className="px-5 py-5 text-right font-mono tabular-nums text-zinc-300">
+                            {difficulty}
+                          </td>
+                          <td className="px-5 py-5 text-zinc-400">{role}</td>
+                        </tr>
+                      ),
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-4 max-w-3xl text-pretty text-xs leading-5 text-zinc-500">
+                Source: Ahrefs Keywords Explorer, United States, July 24, 2026.
+                Search volume and keyword difficulty are estimates and change
+                over time.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm">
+                <Link
+                  href="/chatgpt-seo-tool"
+                  className="text-emerald-300 hover:text-emerald-200"
+                >
+                  See the ChatGPT SEO tool page
+                </Link>
+                <Link
+                  href="/answer-engine-optimization-tools"
+                  className="text-emerald-300 hover:text-emerald-200"
+                >
+                  Compare AEO tools
+                </Link>
+              </div>
+            </section>
+
             <section aria-labelledby="llm-practices-heading">
               <p className="eyebrow">Six practices</p>
               <h2
@@ -297,6 +385,20 @@ export default function LlmSeoGuidePage() {
                     href="/ai-seo-tools"
                   >
                     AI SEO tools comparison
+                  </Link>
+                  , the focused{" "}
+                  <Link
+                    className="text-emerald-300 hover:text-emerald-200"
+                    href="/answer-engine-optimization-tools"
+                  >
+                    AEO tools comparison
+                  </Link>
+                  , the{" "}
+                  <Link
+                    className="text-emerald-300 hover:text-emerald-200"
+                    href="/chatgpt-seo-tool"
+                  >
+                    ChatGPT SEO tool guide
                   </Link>{" "}
                   or our{" "}
                   <Link
@@ -319,7 +421,7 @@ export default function LlmSeoGuidePage() {
                     className="text-emerald-300 hover:text-emerald-200"
                     href="/ai-visibility-checker"
                   >
-                    free manual check
+                    free technical checker
                   </Link>{" "}
                   if you want a rough read first.
                 </p>

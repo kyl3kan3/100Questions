@@ -332,6 +332,23 @@ export default function AiSeoToolsPage() {
                 help pages on July 24, 2026. Platforms change; verify current
                 coverage and commercial terms before buying.
               </p>
+              <p className="mt-5 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+                Need a narrower decision? Compare{" "}
+                <Link
+                  href="/answer-engine-optimization-tools"
+                  className="text-emerald-300 hover:text-emerald-200"
+                >
+                  answer engine optimization tools
+                </Link>{" "}
+                for AEO-specific workflows or review the{" "}
+                <Link
+                  href="/chatgpt-seo-tool"
+                  className="text-emerald-300 hover:text-emerald-200"
+                >
+                  ChatGPT SEO tool
+                </Link>{" "}
+                measurement model.
+              </p>
             </section>
 
             <section className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">

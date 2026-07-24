@@ -34,7 +34,38 @@ npm run dev
 
 On Windows PowerShell, copy the environment file with `Copy-Item .env.example .env.local`.
 
+`npm run db:migrate` above applies migrations to whichever database `DATABASE_URL`
+points at, so it is only needed for local development. Deployments migrate
+themselves — see [Database migrations](#database-migrations).
+
 Vercel deployments authenticate to AI Gateway using Vercel OIDC. Local Gateway development may require `vercel env pull` or the local credentials documented by Vercel.
+
+## Database migrations
+
+Production deployments apply pending migrations automatically. Vercel runs the
+`vercel-build` script, which executes `scripts/deploy-migrate.mjs` before
+`next build`:
+
+- **Production builds** apply pending migrations first. If they fail, the build
+  fails and the existing deployment keeps serving, so code can never go live
+  ahead of the schema it expects. Migrations are additive, so the live code
+  safely ignores columns and tables added moments before it is promoted.
+- **Production builds without `DATABASE_URL`** fail deliberately rather than
+  skipping silently, because a silent skip is what lets drift reappear.
+- **Preview and development builds never migrate.** A preview branch can carry
+  unmerged migrations, and every Vercel environment points at the same database,
+  so migrating there would apply unreviewed schema changes to production. They
+  still log whether `DATABASE_URL` is readable at build time, which surfaces
+  broken environment wiring before a production deploy depends on it.
+
+`DATABASE_URL` must therefore be present in the Vercel project's **production**
+environment variables and exposed to the build step.
+
+To add a migration, run `npm run db:generate` after changing
+`lib/db/schema.ts`, commit the generated SQL in `drizzle/`, and let the deploy
+apply it. Note that Drizzle's migrator tracks progress by timestamp: it applies
+everything newer than the newest applied migration, so never edit or reorder a
+migration that has already run in production.
 
 Run notifications require a verified sender domain plus `RESEND_API_KEY` and
 `RUN_NOTIFICATION_FROM_EMAIL`. If either value is missing, benchmark execution

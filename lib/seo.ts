@@ -9,6 +9,8 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility-checker",
   "/answer-engine-optimization",
   "/generative-engine-optimization",
+  "/llm-seo",
+  "/peec-ai-alternative",
   "/for-agencies",
   "/methodology",
   "/faq",
@@ -25,6 +27,7 @@ export const PUBLIC_ROUTE_REDIRECTS = [
   { source: "/aeo", destination: "/answer-engine-optimization", permanent: true },
   { source: "/agencies", destination: "/for-agencies", permanent: true },
   { source: "/checker", destination: "/ai-visibility-checker", permanent: true },
+  { source: "/chatgpt-seo", destination: "/llm-seo", permanent: true },
 ] as const;
 
 export function buildSitemap(): MetadataRoute.Sitemap {
@@ -71,6 +74,19 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.85,
       images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/llm-seo"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+      images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/peec-ai-alternative"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.75,
     },
     {
       url: absoluteUrl("/for-agencies"),

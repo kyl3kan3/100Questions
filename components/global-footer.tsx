@@ -45,6 +45,12 @@ export function GlobalFooter() {
             >
               AEO guide
             </Link>
+            <Link className="hover:text-zinc-200" href="/llm-seo">
+              LLM SEO
+            </Link>
+            <Link className="hover:text-zinc-200" href="/peec-ai-alternative">
+              Peec AI alternative
+            </Link>
             <Link className="hover:text-zinc-200" href="/for-agencies">
               For agencies
             </Link>

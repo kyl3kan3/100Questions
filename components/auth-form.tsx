@@ -45,7 +45,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl">
+        <CardTitle as="h1" className="text-2xl">
           {isSignUp ? "Create your account" : "Welcome back"}
         </CardTitle>
         <CardDescription>

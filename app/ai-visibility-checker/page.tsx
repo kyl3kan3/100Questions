@@ -240,7 +240,7 @@ export default function AiVisibilityCheckerPage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -347,7 +347,7 @@ export default function AiVisibilityCheckerPage() {
                 answers actually returned with valid web grounding, and how the
                 models talk about you when you do appear. The{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/ai-visibility"
                 >
                   AI visibility guide
@@ -379,7 +379,7 @@ export default function AiVisibilityCheckerPage() {
                   comparisons mean something. The output is a client-ready
                   report with five evidence-linked actions—see the{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/sample-report"
                   >
                     complete sample report

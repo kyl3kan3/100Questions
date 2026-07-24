@@ -191,7 +191,7 @@ export default function LlmSeoGuidePage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -214,7 +214,7 @@ export default function LlmSeoGuidePage() {
                 two channels that put brands into answers, doing the work each
                 channel rewards, and measuring the answers instead of guessing.
               </p>
-              <p className="mt-5 font-mono text-xs text-zinc-500">
+              <p className="mt-5 font-mono text-xs text-zinc-400">
                 Reviewed July 24, 2026
               </p>
             </div>
@@ -259,14 +259,14 @@ export default function LlmSeoGuidePage() {
                 same work—clear entities, citable evidence, earned
                 coverage—compounds into the training channel over time. The{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/generative-engine-optimization"
                 >
                   GEO guide
                 </Link>{" "}
                 covers the full program;{" "}
                 <Link
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/answer-engine-optimization"
                 >
                   the AEO guide
@@ -289,7 +289,12 @@ export default function LlmSeoGuidePage() {
                 intent-specific pages create a more realistic entry point while
                 broader guides build authority over time.
               </p>
-              <div className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+              <div
+                className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                role="region"
+                aria-label="LLM SEO opportunity comparison"
+                tabIndex={0}
+              >
                 <table className="min-w-[720px] w-full text-left text-sm">
                   <thead className="bg-white/[0.045] text-xs uppercase tracking-[0.12em] text-zinc-400">
                     <tr>
@@ -321,7 +326,7 @@ export default function LlmSeoGuidePage() {
                   </tbody>
                 </table>
               </div>
-              <p className="mt-4 max-w-3xl text-pretty text-xs leading-5 text-zinc-500">
+              <p className="mt-4 max-w-3xl text-pretty text-xs leading-5 text-zinc-400">
                 Source: Ahrefs Keywords Explorer, United States, July 24, 2026.
                 Search volume and keyword difficulty are estimates and change
                 over time.
@@ -329,13 +334,13 @@ export default function LlmSeoGuidePage() {
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm">
                 <Link
                   href="/chatgpt-seo-tool"
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   See the ChatGPT SEO tool page
                 </Link>
                 <Link
                   href="/answer-engine-optimization-tools"
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   Compare AEO tools
                 </Link>
@@ -381,28 +386,28 @@ export default function LlmSeoGuidePage() {
                   subscriptions that track prompts daily, large prompt
                   databases, and fixed benchmarks. See the full{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/ai-seo-tools"
                   >
                     AI SEO tools comparison
                   </Link>
                   , the focused{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/answer-engine-optimization-tools"
                   >
                     AEO tools comparison
                   </Link>
                   , the{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/chatgpt-seo-tool"
                   >
                     ChatGPT SEO tool guide
                   </Link>{" "}
                   or our{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/peec-ai-alternative"
                   >
                     comparison with Peec AI
@@ -418,7 +423,7 @@ export default function LlmSeoGuidePage() {
                   SEO work for a baseline, and again after to prove movement—
                   start with the{" "}
                   <Link
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/ai-visibility-checker"
                   >
                     free technical checker

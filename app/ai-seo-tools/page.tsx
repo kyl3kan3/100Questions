@@ -220,7 +220,7 @@ export default function AiSeoToolsPage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -255,7 +255,12 @@ export default function AiSeoToolsPage() {
               >
                 Six tools, four different jobs
               </h2>
-              <div className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+              <div
+                className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                role="region"
+                aria-label="AI SEO tool category comparison"
+                tabIndex={0}
+              >
                 <table className="min-w-[960px] text-left text-sm">
                   <thead className="bg-[#0b0e0c] text-zinc-200">
                     <tr>
@@ -327,7 +332,7 @@ export default function AiSeoToolsPage() {
                   </section>
                 ))}
               </div>
-              <p className="mt-5 max-w-3xl text-xs leading-5 text-zinc-500">
+              <p className="mt-5 max-w-3xl text-xs leading-5 text-zinc-400">
                 Vendor facts were reviewed from the linked official product or
                 help pages on July 24, 2026. Platforms change; verify current
                 coverage and commercial terms before buying.
@@ -336,14 +341,14 @@ export default function AiSeoToolsPage() {
                 Need a narrower decision? Compare{" "}
                 <Link
                   href="/answer-engine-optimization-tools"
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   answer engine optimization tools
                 </Link>{" "}
                 for AEO-specific workflows or review the{" "}
                 <Link
                   href="/chatgpt-seo-tool"
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   ChatGPT SEO tool
                 </Link>{" "}

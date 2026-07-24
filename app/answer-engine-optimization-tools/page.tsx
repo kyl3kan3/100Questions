@@ -253,7 +253,7 @@ export default function AnswerEngineOptimizationToolsPage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -277,7 +277,7 @@ export default function AnswerEngineOptimizationToolsPage() {
                 research, enterprise workflows, and controlled benchmarks.
                 Choose the measurement model before comparing feature lists.
               </p>
-              <p className="mt-5 max-w-3xl text-pretty text-xs leading-5 text-zinc-500">
+              <p className="mt-5 max-w-3xl text-pretty text-xs leading-5 text-zinc-400">
                 Reviewed July 24, 2026 from public product documentation. Verify
                 current platform coverage and terms before purchasing.
               </p>
@@ -307,18 +307,18 @@ export default function AnswerEngineOptimizationToolsPage() {
                         <h3 className="mt-3 text-xl font-semibold text-white">
                           {tool.name}
                         </h3>
-                        <p className="mt-2 text-xs uppercase tracking-[0.11em] text-zinc-500">
+                        <p className="mt-2 text-xs uppercase tracking-[0.11em] text-zinc-400">
                           {tool.category}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.11em] text-zinc-500">
+                        <p className="text-xs font-semibold uppercase tracking-[0.11em] text-zinc-400">
                           Best for
                         </p>
                         <p className="mt-2 text-pretty text-sm leading-6 text-zinc-300">
                           {tool.bestFor}
                         </p>
-                        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.11em] text-zinc-500">
+                        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.11em] text-zinc-400">
                           Measurement
                         </p>
                         <p className="mt-2 text-pretty text-sm leading-6 text-zinc-400">
@@ -326,7 +326,7 @@ export default function AnswerEngineOptimizationToolsPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.11em] text-zinc-500">
+                        <p className="text-xs font-semibold uppercase tracking-[0.11em] text-zinc-400">
                           Tradeoff to verify
                         </p>
                         <p className="mt-2 text-pretty text-sm leading-6 text-zinc-400">
@@ -403,21 +403,21 @@ export default function AnswerEngineOptimizationToolsPage() {
                   Use the{" "}
                   <Link
                     href="/answer-engine-optimization"
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   >
                     AEO implementation guide
                   </Link>{" "}
                   for the work itself, the{" "}
                   <Link
                     href="/ai-visibility-checker"
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   >
                     free technical checker
                   </Link>{" "}
                   for access signals, and the{" "}
                   <Link
                     href="/ai-seo-tools"
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   >
                     broader AI SEO tools comparison
                   </Link>{" "}
@@ -475,7 +475,7 @@ export default function AnswerEngineOptimizationToolsPage() {
               </div>
             </section>
 
-            <p className="flex items-center gap-2 text-xs text-zinc-500">
+            <p className="flex items-center gap-2 text-xs text-zinc-400">
               <CheckCircle2 className="size-4 text-emerald-300" />
               Product coverage changes. Review each linked first-party source
               before making a purchase decision.

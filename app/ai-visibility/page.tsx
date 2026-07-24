@@ -188,7 +188,7 @@ export default function AiVisibilityGuidePage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -259,7 +259,7 @@ export default function AiVisibilityGuidePage() {
                       {value}
                     </p>
                     <h3 className="mt-3 font-semibold text-zinc-100">{label}</h3>
-                    <p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
+                    <p className="mt-2 text-xs leading-5 text-zinc-400">{detail}</p>
                   </div>
                 ))}
               </div>
@@ -359,7 +359,12 @@ export default function AiVisibilityGuidePage() {
               >
                 AI visibility complements traditional SEO
               </h2>
-              <div className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+              <div
+                className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                role="region"
+                aria-label="AI visibility versus traditional SEO comparison"
+                tabIndex={0}
+              >
                 <table className="w-full min-w-[640px] text-left text-sm">
                   <thead className="bg-white/[0.04] text-zinc-200">
                     <tr>

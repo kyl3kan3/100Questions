@@ -193,7 +193,7 @@ export default function ChatgptSeoToolPage() {
         <article>
           <header className="border-b border-white/[0.07]">
             <div className="page-shell py-16 sm:py-20 lg:py-24">
-              <nav className="text-xs text-zinc-500" aria-label="Breadcrumb">
+              <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
                 <Link className="hover:text-zinc-200" href="/">
                   Home
                 </Link>{" "}
@@ -226,7 +226,7 @@ export default function ChatgptSeoToolPage() {
                   <Link href="/sample-report">Inspect the sample report</Link>
                 </Button>
               </div>
-              <p className="mt-5 max-w-3xl text-pretty text-xs leading-5 text-zinc-500">
+              <p className="mt-5 max-w-3xl text-pretty text-xs leading-5 text-zinc-400">
                 Directional API-grounded measurement, not a replica of a
                 personalized ChatGPT consumer session.
               </p>
@@ -265,7 +265,12 @@ export default function ChatgptSeoToolPage() {
               >
                 The right ChatGPT SEO tool depends on the decision
               </h2>
-              <div className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+              <div
+                className="mt-8 overflow-x-auto rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                role="region"
+                aria-label="ChatGPT SEO tool comparison by decision"
+                tabIndex={0}
+              >
                 <table className="min-w-[720px] w-full text-left text-sm">
                   <thead className="bg-white/[0.045] text-xs uppercase tracking-[0.12em] text-zinc-400">
                     <tr>
@@ -294,7 +299,7 @@ export default function ChatgptSeoToolPage() {
                 enterprise research, SEO suites, and fixed benchmarks in the{" "}
                 <Link
                   href="/ai-seo-tools"
-                  className="text-emerald-300 hover:text-emerald-200"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   AI SEO tools guide
                 </Link>
@@ -349,7 +354,7 @@ export default function ChatgptSeoToolPage() {
                     href="https://help.openai.com/en/articles/12627856"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   >
                     official OpenAI publisher guidance
                     <ExternalLink className="ml-1 inline size-3" />
@@ -357,7 +362,7 @@ export default function ChatgptSeoToolPage() {
                   , then use the{" "}
                   <Link
                     href="/llm-seo"
-                    className="text-emerald-300 hover:text-emerald-200"
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   >
                     LLM SEO guide
                   </Link>{" "}
@@ -415,12 +420,12 @@ export default function ChatgptSeoToolPage() {
               </div>
             </section>
 
-            <p className="flex items-center gap-2 text-xs text-zinc-500">
+            <p className="flex items-center gap-2 text-xs text-zinc-400">
               <CheckCircle2 className="size-4 text-emerald-300" />
               Review definitions, denominators, and limitations in the{" "}
               <Link
                 href="/methodology"
-                className="text-emerald-300 hover:text-emerald-200"
+                className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
               >
                 public methodology
               </Link>

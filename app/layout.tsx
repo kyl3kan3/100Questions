@@ -43,6 +43,10 @@ export const metadata: Metadata = {
   keywords: [
     "AI visibility",
     "AI visibility tool",
+    "AI visibility audit",
+    "AI visibility checker",
+    "answer engine optimization",
+    "AEO tool",
     "AI search visibility",
     "AI brand visibility",
     "LLM visibility",

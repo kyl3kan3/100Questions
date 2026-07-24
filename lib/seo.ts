@@ -6,7 +6,10 @@ export const PUBLIC_MARKETING_PATHS = [
   "/",
   "/about",
   "/ai-visibility",
+  "/ai-visibility-checker",
+  "/answer-engine-optimization",
   "/generative-engine-optimization",
+  "/for-agencies",
   "/methodology",
   "/faq",
   "/sample-report",
@@ -19,6 +22,9 @@ export const PUBLIC_ROUTE_REDIRECTS = [
   { source: "/contact-us", destination: "/faq", permanent: true },
   { source: "/help", destination: "/faq", permanent: true },
   { source: "/support", destination: "/faq", permanent: true },
+  { source: "/aeo", destination: "/answer-engine-optimization", permanent: true },
+  { source: "/agencies", destination: "/for-agencies", permanent: true },
+  { source: "/checker", destination: "/ai-visibility-checker", permanent: true },
 ] as const;
 
 export function buildSitemap(): MetadataRoute.Sitemap {
@@ -46,11 +52,31 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
+      url: absoluteUrl("/ai-visibility-checker"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+      images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/answer-engine-optimization"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+      images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
       url: absoluteUrl("/generative-engine-optimization"),
       lastModified,
       changeFrequency: "monthly",
       priority: 0.85,
       images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/for-agencies"),
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
     {
       url: absoluteUrl("/methodology"),

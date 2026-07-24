@@ -5,7 +5,10 @@ About: https://100questionsai.com/about
 Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility
+AI visibility checker: https://100questionsai.com/ai-visibility-checker
+Answer engine optimization guide: https://100questionsai.com/answer-engine-optimization
 Generative engine optimization guide: https://100questionsai.com/generative-engine-optimization
+For agencies: https://100questionsai.com/for-agencies
 
 ## What the product does
 
@@ -20,6 +23,10 @@ AI visibility describes how often and how prominently a brand appears when AI sy
 ## Generative engine optimization
 
 Generative engine optimization (GEO) is the practice of making a brand and its expertise easier for AI answer systems to understand, retrieve, and cite. It complements SEO. Practical priorities include consistent entity facts, direct answers to buyer questions, original source-worthy evidence, relevant third-party corroboration, technically accessible public pages, and repeated measurement across a frozen question set. No tactic guarantees inclusion in a generated answer.
+
+## Answer engine optimization
+
+Answer engine optimization (AEO) is the answer-focused core of GEO: mapping content to the questions buyers actually ask, leading pages with self-contained answers, keeping facts extractable in prose and structured markup, holding entity facts consistent, publishing citable evidence, and earning third-party corroboration. Success is measured as inclusion and citation in generated answers rather than ranking position. No AEO tactic guarantees inclusion, which is why repeated measurement against a frozen question set matters.
 
 ## Frozen question set
 

@@ -9,7 +9,10 @@ Canonical site: https://100questionsai.com/
 - [Home](https://100questionsai.com/): Product overview and benchmark summary.
 - [About](https://100questionsai.com/about): Product purpose, measurement principles, privacy posture, and interpretation limits.
 - [AI visibility guide](https://100questionsai.com/ai-visibility): Definition, measurement framework, core metrics, and the relationship between AI visibility and SEO.
+- [AI visibility checker](https://100questionsai.com/ai-visibility-checker): A free manual checklist for testing brand presence in AI answers, its limits, and what a scored audit adds.
+- [Answer engine optimization guide](https://100questionsai.com/answer-engine-optimization): What AEO is, how it differs from SEO and GEO, and the practices that earn citations in AI answers.
 - [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
+- [For agencies](https://100questionsai.com/for-agencies): Client-ready AI visibility reports with prepaid credits, exports, and comparable reruns.
 - [Methodology](https://100questionsai.com/methodology): Question construction, grounding eligibility, metric definitions, evidence retention, and interpretation limits.
 - [FAQ](https://100questionsai.com/faq): Providers, scoring, privacy, billing, and common benchmark questions.
 - [Sample report](https://100questionsai.com/sample-report): Complete fictional audit with metrics, missed questions, competitor evidence, citations, and recommended actions.

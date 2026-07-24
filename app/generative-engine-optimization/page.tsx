@@ -281,7 +281,7 @@ export default function GeoGuidePage() {
               </ol>
             </section>
 
-            <section className="grid gap-5 lg:grid-cols-2">
+            <section className="grid gap-5 lg:grid-cols-3">
               <div className="rounded-[24px] bg-[#0b0e0c] p-6 sm:p-8">
                 <p className="eyebrow">Measure the outcome</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white">
@@ -295,6 +295,19 @@ export default function GeoGuidePage() {
                   <Link href="/ai-visibility">
                     Read the AI visibility guide <ArrowRight />
                   </Link>
+                </Button>
+              </div>
+              <div className="rounded-[24px] bg-[#0b0e0c] p-6 sm:p-8">
+                <p className="eyebrow">Go answer-first</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">
+                  Pair GEO with answer engine optimization
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">
+                  AEO is the answer-focused core of this work: question-mapped
+                  pages, extractable facts, and structure engines can quote.
+                </p>
+                <Button asChild variant="link" className="mt-4">
+                  <Link href="/answer-engine-optimization">Read the AEO guide</Link>
                 </Button>
               </div>
               <div className="rounded-[24px] bg-[#0b0e0c] p-6 sm:p-8">

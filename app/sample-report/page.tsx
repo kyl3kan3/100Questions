@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AnalyticsEvent } from "@/components/analytics-event";
+import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,41 @@ const evidence = [
 ] as const;
 
 export default function SampleReportPage() {
+  const pageUrl = absoluteUrl("/sample-report");
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: "Sample AI Visibility Audit Report",
+        description:
+          "A complete fictional AI visibility report: metrics, missed questions, competitor evidence, citations, and five prioritized actions.",
+        isPartOf: { "@id": `${absoluteUrl()}#website` },
+        about: { "@id": `${absoluteUrl()}#product` },
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: absoluteUrl(),
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Sample report",
+            item: pageUrl,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[#070908] text-zinc-100">
       <AnalyticsEvent event="sample_report_viewed" />
@@ -453,6 +489,7 @@ export default function SampleReportPage() {
           <Trust icon={<TrendingUp />} title="Designed for follow-up">Rerun the exact questions after implementation and compare the deltas.</Trust>
         </section>
       </div>
+      <JsonLd data={structuredData} />
     </main>
   );
 }

@@ -30,11 +30,23 @@ export function GlobalFooter() {
             <Link className="hover:text-zinc-200" href="/ai-visibility">
               AI visibility
             </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility-checker">
+              AI visibility checker
+            </Link>
             <Link
               className="hover:text-zinc-200"
               href="/generative-engine-optimization"
             >
               GEO guide
+            </Link>
+            <Link
+              className="hover:text-zinc-200"
+              href="/answer-engine-optimization"
+            >
+              AEO guide
+            </Link>
+            <Link className="hover:text-zinc-200" href="/for-agencies">
+              For agencies
             </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ

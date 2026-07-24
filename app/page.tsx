@@ -89,14 +89,15 @@ export default function Home() {
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
           <Badge variant="outline" className="mb-7 border-emerald-300/25 text-emerald-200">
-            Actionable web-grounded model audit
+            AI visibility audit · Four web-grounded models
           </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-            Find where AI overlooks your brand—and what to fix next.
+            Find where AI models overlook your brand—and what to fix next.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            See the missed buyer questions, competitors shown instead, sources
-            models trust, and five evidence-backed actions—without a subscription.
+            A $9 AI visibility audit across OpenAI, Claude, Gemini, and Grok:
+            missed buyer questions, competitors shown instead, sources models
+            trust, and five evidence-backed actions—no subscription.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
@@ -273,6 +274,32 @@ export default function Home() {
               </p>
               <Button asChild variant="link" className="mt-4">
                 <Link href="/generative-engine-optimization">Read the GEO guide</Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Guide</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Answer engine optimization, explained
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                How AEO differs from SEO and GEO, the practices that earn
+                citations, and how to tell whether any of it worked.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/answer-engine-optimization">Read the AEO guide</Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Checklist</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Check your AI visibility today
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                A free manual checklist for testing where AI mentions your
+                brand—and what a scored, repeatable check adds.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-visibility-checker">Run the checklist</Link>
               </Button>
             </article>
           </div>

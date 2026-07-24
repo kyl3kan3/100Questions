@@ -6,6 +6,8 @@ Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility
 AI visibility checker: https://100questionsai.com/ai-visibility-checker
+AI search optimization guide: https://100questionsai.com/ai-search-optimization
+AI SEO tools comparison: https://100questionsai.com/ai-seo-tools
 Answer engine optimization guide: https://100questionsai.com/answer-engine-optimization
 Generative engine optimization guide: https://100questionsai.com/generative-engine-optimization
 LLM SEO guide: https://100questionsai.com/llm-seo

@@ -290,15 +290,22 @@ export default function LlmSeoGuidePage() {
                 <p>
                   LLM SEO tooling falls into a few honest categories: crawler
                   analytics that show which AI bots hit your site, monitoring
-                  subscriptions that track prompts daily (see our{" "}
+                  subscriptions that track prompts daily, large prompt
+                  databases, and fixed benchmarks. See the full{" "}
+                  <Link
+                    className="text-emerald-300 hover:text-emerald-200"
+                    href="/ai-seo-tools"
+                  >
+                    AI SEO tools comparison
+                  </Link>{" "}
+                  or our{" "}
                   <Link
                     className="text-emerald-300 hover:text-emerald-200"
                     href="/peec-ai-alternative"
                   >
                     comparison with Peec AI
                   </Link>
-                  ), and prepaid benchmarks that score a frozen question set
-                  with stored evidence.
+                  .
                 </p>
                 <p>
                   100 Questions is the benchmark kind: one credit sends 25

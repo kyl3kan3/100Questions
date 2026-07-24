@@ -302,6 +302,32 @@ export default function Home() {
                 <Link href="/ai-visibility-checker">Run the checklist</Link>
               </Button>
             </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Workflow</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                AI search optimization, step by step
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Connect technical access, entity clarity, answer-ready content,
+                evidence, distribution, and repeatable measurement.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-search-optimization">Read the practical guide</Link>
+              </Button>
+            </article>
+            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="eyebrow">Comparison</p>
+              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Choose the right AI SEO tool
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                Compare monitoring, large-scale research, enterprise suites, and
+                fixed evidence-linked benchmarks by the job each one does.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-seo-tools">Compare AI SEO tools</Link>
+              </Button>
+            </article>
           </div>
         </div>
       </section>

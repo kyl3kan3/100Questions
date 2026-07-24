@@ -16,6 +16,9 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
+    expect(urls).toHaveLength(14);
+    expect(urls).toContain("/ai-search-optimization");
+    expect(urls).toContain("/ai-seo-tools");
     expect(urls).not.toContain("/dashboard");
     expect(urls).not.toContain("/auth/sign-in");
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);

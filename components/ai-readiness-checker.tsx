@@ -3,7 +3,10 @@
 import {
   AlertTriangle,
   ArrowRight,
+  Bot,
+  Check,
   CheckCircle2,
+  ClipboardCopy,
   ExternalLink,
   LoaderCircle,
   SearchCheck,
@@ -11,11 +14,15 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  buildReadinessAgentPrompt,
+  buildReadinessSuggestionCopy,
+} from "@/lib/ai-readiness-copy";
 import type {
   AiReadinessResult,
   ReadinessCheck,
@@ -136,7 +143,9 @@ export function AiReadinessChecker() {
         </div>
 
         <div aria-live="polite" aria-busy={isLoading}>
-          {result ? <ReadinessResults result={result} /> : null}
+          {result ? (
+            <ReadinessResults key={result.checkedAt} result={result} />
+          ) : null}
         </div>
       </div>
     </div>
@@ -145,6 +154,42 @@ export function AiReadinessChecker() {
 
 function ReadinessResults({ result }: { result: AiReadinessResult }) {
   const passed = result.checks.filter((check) => check.status === "pass").length;
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState("");
+  const copyResetTimer = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (copyResetTimer.current !== null) {
+        window.clearTimeout(copyResetTimer.current);
+      }
+    },
+    [],
+  );
+
+  async function copyText(key: string, text: string) {
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Clipboard access is unavailable.");
+      }
+
+      await navigator.clipboard.writeText(text);
+      setCopyError("");
+      setCopiedKey(key);
+      if (copyResetTimer.current !== null) {
+        window.clearTimeout(copyResetTimer.current);
+      }
+      copyResetTimer.current = window.setTimeout(() => {
+        setCopiedKey((current) => (current === key ? null : current));
+        copyResetTimer.current = null;
+      }, 2_000);
+    } catch {
+      setCopiedKey(null);
+      setCopyError(
+        "Copying was blocked by the browser. Select the suggestion text and copy it manually.",
+      );
+    }
+  }
 
   return (
     <section
@@ -193,12 +238,26 @@ function ReadinessResults({ result }: { result: AiReadinessResult }) {
               {result.topActions.map((action, index) => (
                 <li
                   key={action}
-                  className="flex gap-3 text-pretty text-sm leading-6 text-zinc-300"
+                  className="flex flex-col gap-2 text-sm leading-6 text-zinc-300 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                 >
-                  <span className="font-mono text-xs tabular-nums text-emerald-300">
-                    0{index + 1}
+                  <span className="flex min-w-0 gap-3 text-pretty">
+                    <span className="font-mono text-xs tabular-nums text-emerald-300">
+                      0{index + 1}
+                    </span>
+                    <span>{action}</span>
                   </span>
-                  {action}
+                  <CopyButton
+                    copied={copiedKey === `action-${index}`}
+                    label="Copy"
+                    copiedLabel="Copied"
+                    onClick={() =>
+                      copyText(
+                        `action-${index}`,
+                        buildReadinessSuggestionCopy(result, action),
+                      )
+                    }
+                    ariaLabel={`Copy suggestion ${index + 1}`}
+                  />
                 </li>
               ))}
             </ol>
@@ -209,11 +268,48 @@ function ReadinessResults({ result }: { result: AiReadinessResult }) {
               across a frozen buyer-question set.
             </p>
           )}
-          <Button asChild variant="link" className="mt-4">
-            <Link href="/auth/sign-up">
-              Measure actual AI visibility <ArrowRight />
-            </Link>
-          </Button>
+          {result.topActions.length ? (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <CopyButton
+                copied={copiedKey === "agent-prompt"}
+                label="Copy for your agent"
+                copiedLabel="Agent prompt copied"
+                onClick={() =>
+                  copyText(
+                    "agent-prompt",
+                    buildReadinessAgentPrompt(result),
+                  )
+                }
+                ariaLabel="Copy all suggestions as an implementation prompt for an AI agent"
+                icon="agent"
+              />
+              <Button asChild variant="link">
+                <Link href="/auth/sign-up">
+                  Measure actual AI visibility <ArrowRight />
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <Button asChild variant="link" className="mt-4">
+              <Link href="/auth/sign-up">
+                Measure actual AI visibility <ArrowRight />
+              </Link>
+            </Button>
+          )}
+          <p
+            role="status"
+            className={cn(
+              "mt-3 text-pretty text-xs leading-5",
+              copyError ? "text-red-300" : "sr-only",
+            )}
+          >
+            {copyError ||
+              (copiedKey === "agent-prompt"
+                ? "Agent implementation prompt copied to the clipboard."
+                : copiedKey
+                  ? "Suggestion copied to the clipboard."
+                  : "")}
+          </p>
         </div>
       </div>
 
@@ -232,6 +328,55 @@ function ReadinessResults({ result }: { result: AiReadinessResult }) {
         </p>
       </div>
     </section>
+  );
+}
+
+function CopyButton({
+  copied,
+  label,
+  copiedLabel,
+  onClick,
+  ariaLabel,
+  icon = "copy",
+}: {
+  copied: boolean;
+  label: string;
+  copiedLabel: string;
+  onClick: () => void;
+  ariaLabel: string;
+  icon?: "copy" | "agent";
+}) {
+  const IdleIcon = icon === "agent" ? Bot : ClipboardCopy;
+
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      onClick={onClick}
+      aria-label={copied ? copiedLabel : ariaLabel}
+      className="min-w-24 self-start"
+    >
+      <span className="relative size-4" aria-hidden="true">
+        <Check
+          className={cn(
+            "absolute inset-0 transition-[opacity,filter,scale] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)]",
+            copied
+              ? "scale-100 opacity-100 blur-0"
+              : "scale-[0.25] opacity-0 blur-[4px]",
+          )}
+        />
+        <IdleIcon
+          className={cn(
+            "transition-[opacity,filter,scale] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)]",
+            copied
+              ? "scale-[0.25] opacity-0 blur-[4px]"
+              : "scale-100 opacity-100 blur-0",
+          )}
+        />
+      </span>
+      <span>{copied ? copiedLabel : label}</span>
+    </Button>
   );
 }
 

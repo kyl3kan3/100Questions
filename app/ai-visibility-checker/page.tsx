@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -121,34 +121,44 @@ const metrics = [
 
 const faqs = [
   {
+    question: "What does the free AI visibility checker actually test?",
+    answer:
+      "It checks eight public technical signals: indexability, AI crawler access in robots.txt, title and description metadata, the primary heading, canonical URL, relevant JSON-LD structured data, question-oriented content, XML sitemap discovery, and an optional llms.txt file. The result is a technical preflight, not a ranking or recommendation guarantee.",
+  },
+  {
+    question: "Is the readiness score the same as an AI visibility score?",
+    answer:
+      "No. The readiness score measures whether a public page exposes technical signals that can help retrieval and understanding. An AI visibility score measures what happens in actual answers: whether the brand is mentioned, how prominently it appears, which competitors appear, and which sources are cited across a controlled question set.",
+  },
+  {
     question: "Does the free checker ask ChatGPT about my brand?",
     answer:
-      "No. The free check is a technical preflight: it inspects public website signals that affect whether search and AI systems can retrieve and understand a site. It does not spend model tokens or claim to measure current brand mentions. Actual visibility requires asking a controlled question set across providers and storing the resulting answers and citations.",
+      "No. It reads public website signals without calling ChatGPT, Claude, Gemini, or Grok and without spending model tokens. Measuring current brand mentions requires asking the same neutral buyer questions across providers and storing the answers and citations.",
   },
   {
-    question: "How can I check my brand's AI visibility for free?",
+    question: "What website data does the checker store?",
     answer:
-      "Write ten neutral buyer questions that do not name your brand, ask each in a fresh chat session across the assistants your buyers use, and log whether you were mentioned, who appeared instead, and which sources were cited. Then ask each assistant directly what it knows about your brand. This manual check is free and worth doing—but it is a small, personalized, unrepeatable sample, so treat the result as a hint rather than a measurement.",
+      "The free checker does not store the submitted URL or the fetched page contents. It requests only public HTTPS resources needed for the check, applies response-size and timeout limits, and blocks private-network destinations.",
   },
   {
-    question: "What is an AI visibility score?",
+    question: "Why might AI systems still miss a site that passes?",
     answer:
-      "An AI visibility score summarizes how often a brand appears when AI systems answer relevant questions. A useful score states its denominator—for example, brand mentions across eligible web-grounded answers to a frozen question set—and keeps visibility, prominence, competitor share of voice, and citations separate rather than blending them into one unexplained number.",
+      "A passing page can still be limited by CDN firewalls, bot-management rules, JavaScript rendering, provider-specific indexes, weak category authority, unclear brand positioning, or a lack of useful third-party citations. Technical readiness removes avoidable access and interpretation problems; it does not create demand or authority by itself.",
   },
   {
-    question: "Why do different AI models give different answers about my brand?",
+    question: "What should I do with the “Fix these first” suggestions?",
     answer:
-      "Each provider uses its own models, search integration, source ranking, and prompt handling, so the same question can surface different brands and citations. That spread is itself useful information—it shows where visibility is broad versus dependent on a single provider. It is also why checking one assistant is not enough.",
+      "Start with the highest-scoring gap, confirm the finding in your actual code or hosting configuration, and make the smallest scoped correction. Each suggestion can be copied individually, or you can use “Copy for your agent” to create a ready-to-paste implementation prompt with the URL, evidence, safeguards, and verification requirements.",
   },
   {
-    question: "Does an API-based check match what ChatGPT shows users?",
+    question: "How can I check my brand's actual AI visibility for free?",
     answer:
-      "Not exactly, and honest tools say so. Consumer apps like ChatGPT add personalization, memory, and their own routing on top of the underlying models. An API-grounded benchmark trades that away for control: identical questions, shared web grounding, stored evidence, and repeatability. Results are directional snapshots of model behavior, not replicas of any one user's chat.",
+      "Write ten neutral buyer questions that do not name your brand, ask each in a fresh session across the assistants your buyers use, and record mentions, prominence, competitors, and cited domains. This is a useful directional sample, but personalization and small sample size mean it should not be treated as a repeatable benchmark.",
   },
   {
-    question: "How often should I re-check AI visibility?",
+    question: "How often should I rerun the checker?",
     answer:
-      "Re-check after substantive changes—new comparison pages, entity cleanups, earned coverage—rather than on a fixed calendar. Give providers time to recrawl and refresh their indexes, then rerun the same frozen question set and compare against the baseline.",
+      "Rerun it after changing metadata, robots rules, structured data, sitemaps, page structure, or hosting controls. For actual AI visibility, wait long enough for providers to recrawl and refresh their indexes, then repeat the same frozen question set so the comparison remains meaningful.",
   },
 ] as const;
 
@@ -267,6 +277,8 @@ export default function AiVisibilityCheckerPage() {
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
             <AiReadinessChecker />
+
+            <CheckerFaq />
 
             <section aria-labelledby="manual-check-heading">
               <p className="eyebrow">The actual-answer check</p>
@@ -389,31 +401,6 @@ export default function AiVisibilityCheckerPage() {
               </div>
             </section>
 
-            <section aria-labelledby="checker-faq-heading">
-              <p className="eyebrow">Checking questions</p>
-              <h2
-                id="checker-faq-heading"
-                className="mt-4 text-3xl font-semibold tracking-[-0.035em] text-white"
-              >
-                Frequently asked questions
-              </h2>
-              <div className="mt-8 space-y-4">
-                {faqs.map(({ question, answer }) => (
-                  <details
-                    key={question}
-                    className="group rounded-[20px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
-                  >
-                    <summary className="cursor-pointer list-none font-semibold text-white [&::-webkit-details-marker]:hidden">
-                      {question}
-                    </summary>
-                    <p className="mt-3 text-sm leading-6 text-zinc-400">
-                      {answer}
-                    </p>
-                  </details>
-                ))}
-              </div>
-            </section>
-
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <CheckCircle2 className="size-6" aria-hidden="true" />
               <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -442,5 +429,42 @@ export default function AiVisibilityCheckerPage() {
       </main>
       <JsonLd data={structuredData} />
     </div>
+  );
+}
+
+function CheckerFaq() {
+  return (
+    <section id="faq" aria-labelledby="checker-faq-heading">
+      <p className="eyebrow">Before you run it</p>
+      <h2
+        id="checker-faq-heading"
+        className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+      >
+        AI visibility checker FAQ
+      </h2>
+      <p className="mt-4 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+        What the free technical check measures, how your website is handled,
+        and how to turn each finding into a safe implementation task.
+      </p>
+      <div className="mt-8 max-w-4xl space-y-3">
+        {faqs.map(({ question, answer }) => (
+          <details
+            key={question}
+            className="group rounded-[20px] bg-[#0b0e0c] px-5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:px-6"
+          >
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-semibold text-white [&::-webkit-details-marker]:hidden">
+              <span className="text-balance">{question}</span>
+              <ChevronDown
+                className="size-5 shrink-0 text-zinc-400 transition-transform duration-200 ease-out group-open:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
+            <p className="pb-3 pr-9 text-pretty text-sm leading-6 text-zinc-400">
+              {answer}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
   );
 }

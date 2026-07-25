@@ -23,7 +23,12 @@ export default function SignInPage() {
         <Link href="/" aria-label="Return to 100 Questions home">
           <BrandMark />
         </Link>
-        <AuthForm mode="sign-in" />
+        <div className="flex w-full flex-col items-center gap-4">
+          <h1 className="text-center text-3xl font-semibold tracking-tight text-zinc-50">
+            Sign in to 100 Questions
+          </h1>
+          <AuthForm mode="sign-in" />
+        </div>
       </div>
     </main>
   );

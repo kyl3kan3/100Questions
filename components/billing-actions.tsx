@@ -1,11 +1,13 @@
 "use client";
 
-import { Check, CreditCard, LoaderCircle, ReceiptText } from "lucide-react";
+import { Check, CreditCard, LoaderCircle, ReceiptText, Tag } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { BillingPackageId } from "@/lib/billing/packages";
 import { trackEvent } from "@/lib/analytics";
 
@@ -23,7 +25,7 @@ type BillingActionsProps = {
   packages: PurchasePackage[];
 };
 
-type PendingAction = BillingPackageId | "portal" | null;
+type PendingAction = BillingPackageId | "portal" | "promo" | null;
 
 async function readError(response: Response): Promise<string> {
   try {
@@ -39,8 +41,11 @@ export function BillingActions({
   hasCustomer,
   packages,
 }: BillingActionsProps) {
+  const router = useRouter();
   const [pending, setPending] = useState<PendingAction>(null);
   const [error, setError] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState("");
+  const [promoMessage, setPromoMessage] = useState<string | null>(null);
 
   async function openCheckout(packageId: BillingPackageId) {
     trackEvent("checkout_started", { package_id: packageId });
@@ -77,6 +82,36 @@ export function BillingActions({
       window.location.assign(body.url);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The billing request failed.");
+      setPending(null);
+    }
+  }
+
+  async function redeemPromo(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending("promo");
+    setError(null);
+    setPromoMessage(null);
+
+    try {
+      const response = await fetch("/api/billing/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoCode }),
+      });
+      if (!response.ok) throw new Error(await readError(response));
+
+      const body = (await response.json()) as {
+        creditsGranted?: number;
+      };
+      const creditsGranted = body.creditsGranted ?? 2;
+      setPromoCode("");
+      setPromoMessage(
+        `${creditsGranted} free run credits were added to your account.`,
+      );
+      router.refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The promo code could not be redeemed.");
+    } finally {
       setPending(null);
     }
   }
@@ -123,6 +158,48 @@ export function BillingActions({
           );
         })}
       </div>
+
+      <Card className="border border-white/10 bg-[#0a0d0b]">
+        <CardContent className="p-5">
+          <form
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+            onSubmit={(event) => void redeemPromo(event)}
+          >
+            <label className="flex-1 text-xs font-medium text-zinc-300">
+              Promo code
+              <Input
+                className="mt-2"
+                value={promoCode}
+                onChange={(event) => setPromoCode(event.target.value)}
+                placeholder="Enter code"
+                autoCapitalize="none"
+                autoComplete="off"
+                spellCheck={false}
+                maxLength={64}
+                disabled={pending !== null}
+                required
+              />
+            </label>
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={pending !== null || !promoCode.trim()}
+            >
+              {pending === "promo" ? (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Tag aria-hidden="true" />
+              )}
+              Redeem
+            </Button>
+          </form>
+          {promoMessage ? (
+            <p aria-live="polite" className="mt-3 text-sm text-emerald-300">
+              {promoMessage}
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
 
       <div className="flex flex-col gap-3 text-xs leading-5 text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
         <p>One credit runs the complete benchmark. Purchased credits are valid for 12 months.</p>

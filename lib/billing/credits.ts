@@ -164,7 +164,9 @@ export async function hasPurchasedCredits(userId: string): Promise<boolean> {
     .select({ id: creditLedger.id })
     .from(creditLedger)
     .where(
-      sql`${creditLedger.userId} = ${userId} AND ${creditLedger.type} = 'purchase'::credit_ledger_type`,
+      sql`${creditLedger.userId} = ${userId}
+        AND ${creditLedger.type} = 'purchase'::credit_ledger_type
+        AND ${creditLedger.stripeCheckoutSessionId} IS NOT NULL`,
     )
     .limit(1);
 
@@ -231,6 +233,7 @@ export async function prepareIntroductoryCheckoutClaim({
         FROM credit_ledger
         WHERE user_id = ${userId}
           AND type = 'purchase'::credit_ledger_type
+          AND stripe_checkout_session_id IS NOT NULL
       )
       ON CONFLICT (user_id) DO NOTHING
       RETURNING *

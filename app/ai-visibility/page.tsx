@@ -136,6 +136,24 @@ const improvementSteps = [
   },
 ] as const;
 
+const visibilityFaqs = [
+  {
+    question: "What an AI visibility result looks like",
+    answer:
+      "An illustrative AI visibility result can show discovery visibility, owned citation rate, competitor share of voice, and answer coverage for one shared question set. In this example, 28 of 80 neutral discovery answers mention the brand, 12 of 80 eligible answers cite its domain, the brand earns 28 of 90 tracked brand mentions, and 94 of 100 planned answers finish with usable output. The 35% visibility figure is a baseline for that question set, provider mix, and date, not a universal grade.",
+  },
+  {
+    question: "How to measure AI visibility without hiding uncertainty",
+    answer:
+      "Use neutral market questions, ask the same questions across providers, require source evidence, report the mention numerator, eligible denominator, and coverage together, and compare time-stamped snapshots after meaningful changes. Failed or unsourced answers should remain coverage gaps rather than being silently counted as positive or negative visibility.",
+  },
+  {
+    question: "How to improve AI visibility",
+    answer:
+      "There is no single AI ranking factor to optimize. Improve the clarity, evidence, accessibility, and independent corroboration that answer systems can retrieve. Use consistent entity language, publish original evidence and clear product facts, earn accurate independent references, keep important pages crawlable and well structured, and rerun the same frozen question set after meaningful changes.",
+  },
+] as const;
+
 export default function AiVisibilityGuidePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -177,6 +195,18 @@ export default function AiVisibilityGuidePage() {
             item: pageUrl,
           },
         ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${pageUrl}#faq`,
+        mainEntity: visibilityFaqs.map(({ question, answer }) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: answer,
+          },
+        })),
       },
     ],
   };

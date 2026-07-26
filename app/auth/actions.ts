@@ -8,6 +8,7 @@ import {
   getSignInFailureMessage,
   getSignUpFailureMessage,
 } from "@/lib/auth/errors";
+import { resolvePostAuthPath } from "@/lib/auth/post-auth-path";
 import { auth } from "@/lib/auth/server";
 
 const emailSchema = z
@@ -87,7 +88,12 @@ export async function signInWithEmail(
     };
   }
 
-  redirect("/dashboard");
+  redirect(
+    resolvePostAuthPath({
+      next: formData.get("next"),
+      packageId: formData.get("package"),
+    }),
+  );
 }
 export async function signUpWithEmail(
   _previousState: AuthActionState,
@@ -116,5 +122,10 @@ export async function signUpWithEmail(
     };
   }
 
-  redirect("/dashboard");
+  redirect(
+    resolvePostAuthPath({
+      next: formData.get("next"),
+      packageId: formData.get("package"),
+    }),
+  );
 }

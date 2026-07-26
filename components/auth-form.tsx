@@ -23,6 +23,8 @@ const initialState: AuthActionState = {};
 
 type AuthFormProps = {
   mode: "sign-in" | "sign-up";
+  nextPath?: string;
+  packageId?: string;
 };
 
 function FieldError({ messages }: { messages?: string[] }) {
@@ -37,10 +39,18 @@ function FieldError({ messages }: { messages?: string[] }) {
   );
 }
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, nextPath, packageId }: AuthFormProps) {
   const isSignUp = mode === "sign-up";
   const action = isSignUp ? signUpWithEmail : signInWithEmail;
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const switchHref = (() => {
+    const params = new URLSearchParams();
+    if (packageId) params.set("package", packageId);
+    if (nextPath) params.set("next", nextPath);
+    const qs = params.toString();
+    const base = isSignUp ? "/auth/sign-in" : "/auth/sign-up";
+    return qs ? `${base}?${qs}` : base;
+  })();
 
   return (
     <Card className="w-full max-w-md">
@@ -56,6 +66,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       </CardHeader>
       <CardContent className="pt-4">
         <form action={formAction} className="space-y-5" noValidate>
+          {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
+          {packageId ? (
+            <input type="hidden" name="package" value={packageId} />
+          ) : null}
           {isSignUp ? (
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -143,7 +157,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           {isSignUp ? "Already have an account?" : "New to 100 Questions?"}{" "}
           <Link
             className="font-medium text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
-            href={isSignUp ? "/auth/sign-in" : "/auth/sign-up"}
+            href={switchHref}
           >
             {isSignUp ? "Sign in" : "Create one"}
           </Link>

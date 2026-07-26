@@ -16,7 +16,8 @@ import {
 const pageUrl = absoluteUrl("/ai-seo-tools");
 
 export const metadata: Metadata = {
-  title: "AI SEO Tools: Monitoring, Benchmarks & SEO Suites",
+  // Keep base title short: layout appends " · 100 Questions" (target ≤60 full).
+  title: "AI SEO Tools: Monitor, Benchmark, Audit",
   description:
     "Compare AI SEO tools by the job they do: prompt monitoring, fixed benchmarks, broad AI visibility research, enterprise workflows, and technical audits.",
   keywords: [
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "AI SEO Tools: Compare Monitoring, Benchmarks & SEO Suites",
+    title: "AI SEO Tools: Monitor, Benchmark, Audit",
     description:
       "A job-based comparison of AI SEO tools, with honest tradeoffs for monitoring, benchmarking, research, and enterprise workflows.",
     url: pageUrl,
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI SEO Tools: Compare the Right Measurement Model",
+    title: "AI SEO Tools: Monitor, Benchmark, Audit",
     description:
       "Choose an AI SEO tool by the decision you need to make, not the longest feature list.",
     images: [SOCIAL_IMAGE],

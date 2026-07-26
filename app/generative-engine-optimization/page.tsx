@@ -17,7 +17,8 @@ import {
 const pageUrl = absoluteUrl("/generative-engine-optimization");
 
 export const metadata: Metadata = {
-  title: "Generative Engine Optimization (GEO): Practical Guide",
+  // Keep base title short: layout appends " · 100 Questions" (target ≤60 full).
+  title: "Generative Engine Optimization Guide",
   description:
     "A practical guide to generative engine optimization: improve entity clarity, useful content, source authority, technical access, and AI visibility.",
   keywords: [
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Generative Engine Optimization (GEO): A Practical Guide",
+    title: "Generative Engine Optimization Guide",
     description:
       "Improve how AI answer systems understand, retrieve, and cite your brand without abandoning the fundamentals of SEO.",
     url: pageUrl,
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "A Practical Guide to Generative Engine Optimization",
+    title: "Generative Engine Optimization Guide",
     description:
       "Clear entities, answer-ready pages, credible sources, technical access, and repeatable AI visibility measurement.",
     images: [SOCIAL_IMAGE],

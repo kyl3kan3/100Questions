@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
 import { AnalyticsEvent } from "@/components/analytics-event";
 import { BrandMark } from "@/components/brand-mark";
+import { getBillingPackage } from "@/lib/billing/packages";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -14,15 +15,37 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-export default function SignUpPage() {
+type SignUpPageProps = {
+  searchParams: Promise<{
+    package?: string | string[];
+    next?: string | string[];
+  }>;
+};
+
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const query = await searchParams;
+  const packageRaw = typeof query.package === "string" ? query.package : "";
+  const packageId = getBillingPackage(packageRaw) ? packageRaw : undefined;
+  const nextRaw = typeof query.next === "string" ? query.next : undefined;
+  const nextPath =
+    nextRaw &&
+    nextRaw.startsWith("/") &&
+    !nextRaw.startsWith("//") &&
+    !nextRaw.includes("\\")
+      ? nextRaw
+      : undefined;
+
   return (
     <main className="grid min-h-screen place-items-center bg-[#070908] px-4 py-12">
-      <AnalyticsEvent event="signup_started" />
+      <AnalyticsEvent
+        event="signup_started"
+        properties={packageId ? { package_id: packageId } : undefined}
+      />
       <div className="flex w-full flex-col items-center gap-8">
         <Link href="/" aria-label="Return to 100 Questions home">
           <BrandMark />
         </Link>
-        <AuthForm mode="sign-up" />
+        <AuthForm mode="sign-up" packageId={packageId} nextPath={nextPath} />
       </div>
     </main>
   );

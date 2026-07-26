@@ -101,7 +101,7 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <Link href="/auth/sign-up">
+              <Link href="/auth/sign-up?package=intro">
                 Run my first audit — $9 <ArrowRight />
               </Link>
             </Button>
@@ -398,7 +398,7 @@ export default function Home() {
                     {billingPackage.credits} complete benchmark{billingPackage.credits === 1 ? "" : "s"}
                   </p>
                   <Button asChild className="mt-6 w-full" variant={billingPackage.id === "three" ? "default" : "secondary"}>
-                    <Link href="/auth/sign-up">Choose package</Link>
+                    <Link href={`/auth/sign-up?package=${billingPackage.id}`}>Choose package</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -429,7 +429,7 @@ export default function Home() {
             </p>
           </div>
           <Button asChild size="lg">
-            <Link href="/auth/sign-up">
+            <Link href="/auth/sign-up?package=intro">
               Create an account <ArrowRight />
             </Link>
           </Button>

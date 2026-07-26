@@ -37,6 +37,7 @@ type DashboardPageProps = {
   searchParams: Promise<{
     checkout?: string | string[];
     session_id?: string | string[];
+    buy?: string | string[];
   }>;
 };
 
@@ -62,6 +63,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ]);
   const config = getBenchmarkConfig();
   const completed = runs.filter((run) => ["complete", "partial"].includes(run.status)).length;
+  const buyRaw = typeof query.buy === "string" ? query.buy : "";
+  const preferredPackageId =
+    buyRaw && getPublicBillingPackages(hasPurchased).some((pkg) => pkg.id === buyRaw)
+      ? (buyRaw as "intro" | "single" | "three" | "ten")
+      : null;
 
   return (
     <main className="min-h-screen bg-[#070908] text-zinc-100">
@@ -98,6 +104,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <BillingActions
               billingConfigured={isStripeCheckoutConfigured()}
               hasCustomer={customer.length > 0}
+              preferredPackageId={preferredPackageId}
               packages={getPublicBillingPackages(hasPurchased).map((billingPackage) => ({
                 id: billingPackage.id,
                 name: billingPackage.name,

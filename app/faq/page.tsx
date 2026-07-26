@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const faqUrl = absoluteUrl("/faq");
+const FAQ_PUBLISHED_DATE = "2026-07-20";
+// Update this only when the FAQ questions or answers below materially change.
+const FAQ_LAST_MODIFIED = {
+  iso: "2026-07-21",
+  label: "July 21, 2026",
+} as const;
 
 export const metadata: Metadata = {
   title: "AI Visibility Benchmark FAQ",
@@ -130,6 +136,8 @@ export default function FaqPage() {
         "@id": `${faqUrl}#faq`,
         name: "100 Questions AI Visibility Benchmark FAQ",
         url: faqUrl,
+        datePublished: FAQ_PUBLISHED_DATE,
+        dateModified: FAQ_LAST_MODIFIED.iso,
         mainEntity: faqs.map(({ question, answer }) => ({
           "@type": "Question",
           name: question,
@@ -186,6 +194,12 @@ export default function FaqPage() {
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
               Clear answers about the providers, question set, source rules,
               calculations, billing model, privacy, and limits of a 100 Questions run.
+            </p>
+            <p className="mt-4 text-sm text-zinc-400">
+              Last updated:{" "}
+              <time dateTime={FAQ_LAST_MODIFIED.iso}>
+                {FAQ_LAST_MODIFIED.label}
+              </time>
             </p>
           </div>
         </section>

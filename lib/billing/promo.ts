@@ -13,6 +13,7 @@ export type PromoRedemptionResult = "redeemed" | "already_redeemed" | "invalid";
 function normalizePromoCode(code: string): string {
   return code.trim().toLowerCase();
 }
+
 function promoExternalReference(userId: string): string {
   const userFingerprint = createHash("sha256")
     .update(userId)

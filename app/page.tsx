@@ -121,6 +121,7 @@ export default function Home() {
               alt="Sample report showing visibility, missed questions, competitors, sources, and recommended actions"
               fill
               priority
+              unoptimized
               sizes="(min-width: 768px) 42vw, 100vw"
               className="object-cover"
             />

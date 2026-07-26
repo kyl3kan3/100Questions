@@ -9,9 +9,9 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Create an account",
   description:
-    "Create a private workspace to run a 100 Questions AI visibility benchmark.",
+    "Create a private 100 Questions workspace to benchmark your brand across leading AI answer engines and receive a source-backed report.",
   alternates: { canonical: absoluteUrl("/auth/sign-up") },
-  robots: { index: false, follow: false },
+  robots: { index: false, follow: true },
 };
 
 export default function SignUpPage() {

@@ -24,7 +24,7 @@ function BrandMark({
       <Image
         aria-hidden="true"
         src="/logo-mark.svg"
-        alt=""
+        alt="100 Questions logo"
         width={40}
         height={40}
         className="size-10 shrink-0 drop-shadow-[0_8px_18px_rgba(110,231,183,0.2)]"

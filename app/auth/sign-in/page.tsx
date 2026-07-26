@@ -7,12 +7,13 @@ import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to your private 100 Questions benchmark workspace.",
+  description:
+    "Sign in to your private 100 Questions workspace to run AI visibility benchmarks, review source-backed results, and manage reports.",
   alternates: { canonical: absoluteUrl("/auth/sign-in") },
   // Intentionally excluded from search: this is a private sign-in form with
-  // no unique content for searchers. Do not remove unless this page is
-  // meant to appear in search results.
-  robots: { index: false, follow: false },
+  // no unique content for searchers. Links remain followable so the utility
+  // page does not block internal link discovery.
+  robots: { index: false, follow: true },
 };
 
 export default function SignInPage() {

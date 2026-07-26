@@ -17,7 +17,7 @@ import {
 const pageUrl = absoluteUrl("/ai-search-optimization");
 
 export const metadata: Metadata = {
-  title: "AI Search Optimization: A Practical Workflow That You Can Measure",
+  title: "AI Search Optimization: A Measurable Workflow",
   description:
     "AI search optimization improves how answer systems retrieve, understand, cite, and recommend your brand. Use this six-stage workflow and measurement plan.",
   keywords: [

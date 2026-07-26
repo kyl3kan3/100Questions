@@ -19,7 +19,7 @@ const pageUrl = absoluteUrl("/generative-engine-optimization");
 export const metadata: Metadata = {
   title: "Generative Engine Optimization (GEO): Practical Guide",
   description:
-    "A practical guide to generative engine optimization: improve entity clarity, answer-ready content, source authority, technical access, and AI visibility measurement.",
+    "A practical guide to generative engine optimization: improve entity clarity, useful content, source authority, technical access, and AI visibility.",
   keywords: [
     "generative engine optimization",
     "GEO",

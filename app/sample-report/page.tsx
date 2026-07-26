@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { absoluteUrl, SOCIAL_IMAGE } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Sample AI Visibility Audit",
@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     description:
       "A complete example of the decision-ready insights and evidence included with every benchmark.",
     url: absoluteUrl("/sample-report"),
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
     images: [SOCIAL_IMAGE],
   },
   twitter: {

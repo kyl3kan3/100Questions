@@ -17,7 +17,7 @@ import {
 const pageUrl = absoluteUrl("/ai-visibility");
 
 export const metadata: Metadata = {
-  title: "AI Visibility: What It Is, How to Measure and Improve It",
+  title: "AI Visibility: How to Measure and Improve It",
   description:
     "AI visibility measures how often your brand appears in AI answers. Learn the core metrics, see a worked example, and find practical ways to improve it.",
   keywords: [

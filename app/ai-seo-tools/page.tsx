@@ -16,7 +16,7 @@ import {
 const pageUrl = absoluteUrl("/ai-seo-tools");
 
 export const metadata: Metadata = {
-  title: "AI SEO Tools: Compare Monitoring, Benchmarks & SEO Suites",
+  title: "AI SEO Tools: Monitoring, Benchmarks & SEO Suites",
   description:
     "Compare AI SEO tools by the job they do: prompt monitoring, fixed benchmarks, broad AI visibility research, enterprise workflows, and technical audits.",
   keywords: [

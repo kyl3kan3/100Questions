@@ -20,7 +20,7 @@ import {
 const pageUrl = absoluteUrl("/chatgpt-seo-tool");
 
 export const metadata: Metadata = {
-  title: "ChatGPT SEO Tool: Measure Brand Visibility with Evidence",
+  title: "ChatGPT SEO Tool: Measure Brand Visibility",
   description:
     "Use a ChatGPT SEO tool to measure brand mentions, prominence, competitors, and citations across a frozen question set, with evidence and multi-model context.",
   keywords: [

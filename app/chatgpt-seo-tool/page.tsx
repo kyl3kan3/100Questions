@@ -18,6 +18,10 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/chatgpt-seo-tool");
+const CHATGPT_SEO_TOOL_PUBLISHED_DATE = {
+  iso: "2026-07-24",
+  label: "July 24, 2026",
+} as const;
 
 export const metadata: Metadata = {
   title: "ChatGPT SEO Tool: Measure Brand Visibility",
@@ -144,6 +148,7 @@ export default function ChatgptSeoToolPage() {
         "@id": `${pageUrl}#software`,
         name: "100 Questions ChatGPT SEO Tool",
         url: pageUrl,
+        datePublished: CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso,
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         description:
@@ -210,6 +215,12 @@ export default function ChatgptSeoToolPage() {
                 Measure ChatGPT visibility without confusing a spot check for a
                 benchmark
               </h1>
+              <p className="mt-4 text-sm text-zinc-400">
+                Published:{" "}
+                <time dateTime={CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso}>
+                  {CHATGPT_SEO_TOOL_PUBLISHED_DATE.label}
+                </time>
+              </p>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
                 See whether AI answers mention your brand, who appears instead,
                 and which sources shape the answer. Every run preserves the

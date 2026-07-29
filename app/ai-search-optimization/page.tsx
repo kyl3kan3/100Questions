@@ -53,32 +53,32 @@ export const metadata: Metadata = {
 
 const stages = [
   {
-    title: "Make public pages retrievable",
+    title: "How do you make public pages retrievable?",
     description:
       "Keep important pages indexable, linked, fast, server-rendered, and reachable by the search crawlers you intend to allow. Check both robots.txt and CDN bot controls.",
   },
   {
-    title: "Resolve the brand as one entity",
+    title: "How do you establish a consistent brand entity for AI search?",
     description:
       "Use one company name, canonical domain, category description, product vocabulary, pricing story, and set of official profiles across owned and third-party pages.",
   },
   {
-    title: "Map content to buyer questions",
+    title: "How do you map content to buyer questions?",
     description:
       "Build pages around real discovery, comparison, implementation, risk, pricing, and alternative questions. Lead with a direct answer before supporting detail.",
   },
   {
-    title: "Publish evidence worth citing",
+    title: "What makes content worth citing?",
     description:
       "Add original data, methods, examples, limitations, dates, and source links. Generic summaries are easy to reproduce and give an answer engine little reason to cite you.",
   },
   {
-    title: "Earn corroboration off-site",
+    title: "How do you earn off-site corroboration?",
     description:
       "Accurate directory listings, expert references, reviews, and category roundups help answer systems verify claims that would be weak if they appeared only on your own domain.",
   },
   {
-    title: "Measure answers, not activity",
+    title: "How do you measure AI search answers?",
     description:
       "Freeze a representative question set, record model and coverage details, ship meaningful changes, and rerun the same test. Separate mentions, prominence, citations, and coverage.",
   },
@@ -233,10 +233,15 @@ export default function AiSearchOptimizationPage() {
               <div>
                 <p className="eyebrow">Start with the definition</p>
                 <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
-                  Optimization means improving eligibility and evidence
+                  What does AI search optimization mean?
                 </h2>
               </div>
               <div className="space-y-5 text-pretty text-base leading-7 text-zinc-400">
+                <p>
+                  AI search optimization means improving a page&apos;s
+                  eligibility for retrieval and the evidence that makes it
+                  useful source material.
+                </p>
                 <p>
                   Search-powered AI answers still depend on accessible pages,
                   indexes, retrieval systems, and source quality. Google says
@@ -260,8 +265,13 @@ export default function AiSearchOptimizationPage() {
                 id="workflow-heading"
                 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
               >
-                Work from access to evidence, then measure
+                How do you optimize for AI search?
               </h2>
+              <p className="mt-4 max-w-3xl text-pretty text-base leading-7 text-zinc-400">
+                Work from technical access to consistent entity facts,
+                answer-ready content, citable evidence, off-site corroboration,
+                and then measurement.
+              </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {stages.map(({ title, description }, index) => (
                   <Card key={title} className="bg-[#0a0d0b]">
@@ -285,8 +295,13 @@ export default function AiSearchOptimizationPage() {
                 id="thirty-day-heading"
                 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
               >
-                A practical 30-day AI search optimization plan
+                What is a practical 30-day AI search optimization plan?
               </h2>
+              <p className="mt-4 max-w-3xl text-pretty text-base leading-7 text-zinc-400">
+                A practical 30-day plan moves from baselining and technical
+                access through entity, intent, evidence, distribution, and
+                review.
+              </p>
               <div className="mt-8 overflow-hidden rounded-[24px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
                 {[
                   ["Days 1-3", "Baseline", "Freeze buyer questions, providers, locale, model details, and scoring rules. Save answer and citation evidence."],
@@ -314,22 +329,22 @@ export default function AiSearchOptimizationPage() {
               {[
                 {
                   label: "SEO",
-                  title: "Earn discovery",
-                  body: "Make public pages crawlable, indexable, useful, internally linked, and competitive in search systems that ground AI answers.",
+                  title: "How does SEO support AI search optimization?",
+                  body: "SEO supports AI search optimization by making public pages crawlable, indexable, useful, internally linked, and competitive in search systems that ground AI answers.",
                   href: "/llm-seo",
                   link: "Read the LLM SEO guide",
                 },
                 {
                   label: "AEO",
-                  title: "Earn inclusion",
-                  body: "Map pages to real questions and make definitions, facts, comparisons, and caveats easy to extract without losing context.",
+                  title: "How does AEO support AI search optimization?",
+                  body: "AEO supports AI search optimization by mapping pages to real questions and making definitions, facts, comparisons, and caveats easy to extract without losing context.",
                   href: "/answer-engine-optimization",
                   link: "Read the AEO guide",
                 },
                 {
                   label: "GEO",
-                  title: "Earn confidence",
-                  body: "Support claims with original evidence, consistent entities, and credible third-party sources an answer can justify citing.",
+                  title: "How does GEO support AI search optimization?",
+                  body: "GEO supports AI search optimization with original evidence, consistent entities, and credible third-party sources an answer can justify citing.",
                   href: "/generative-engine-optimization",
                   link: "Read the GEO guide",
                 },

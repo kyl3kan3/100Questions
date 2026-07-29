@@ -69,6 +69,12 @@ export function GlobalFooter() {
             <Link className="hover:text-zinc-200" href="/for-agencies">
               For agencies
             </Link>
+            <Link
+              className="hover:text-zinc-200"
+              href="/ai-visibility-audit-checklist"
+            >
+              Audit checklist
+            </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ
             </Link>
@@ -116,6 +122,21 @@ export function GlobalFooter() {
                 src="https://daniellaunches.com/badge-light.svg"
                 alt="Featured on DanielLaunches"
                 width="220"
+                height="48"
+                loading="lazy"
+              />
+            </a>
+            <a
+              href="https://www.foundrlist.com/product/100questions?utm_source=badge&amp;utm_medium=embed"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on FoundrList"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://www.foundrlist.com/api/badge/100questions"
+                alt="Featured on FoundrList"
+                width="150"
                 height="48"
                 loading="lazy"
               />

@@ -6,6 +6,8 @@ Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility
 2026 AI Visibility Index: https://100questionsai.com/ai-visibility-index
+2026 AI Visibility Index cohort: https://100questionsai.com/data/ai-visibility-index-2026-cohort.csv
+2026 AI Visibility Index protocol: https://100questionsai.com/data/ai-visibility-index-2026-protocol.json
 AI visibility checker: https://100questionsai.com/ai-visibility-checker
 AI search optimization guide: https://100questionsai.com/ai-search-optimization
 AI SEO tools comparison: https://100questionsai.com/ai-seo-tools

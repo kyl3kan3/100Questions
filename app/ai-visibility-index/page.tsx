@@ -28,6 +28,8 @@ const questionSetUrl = absoluteUrl(
 const dataDictionaryUrl = absoluteUrl(
   "/data/ai-visibility-index-2026-data-dictionary.csv",
 );
+const cohortUrl = absoluteUrl("/data/ai-visibility-index-2026-cohort.csv");
+const protocolUrl = absoluteUrl("/data/ai-visibility-index-2026-protocol.json");
 
 export const metadata: Metadata = {
   title: "2026 AI Visibility Index: Registered Study",
@@ -63,8 +65,13 @@ export const metadata: Metadata = {
 const studyFacts = [
   {
     value: "Registered",
-    label: "Fieldwork status",
-    detail: "No rankings or results have been published yet.",
+    label: "Protocol status",
+    detail: "No counted collection began before the design was published.",
+  },
+  {
+    value: "25",
+    label: "Frozen cohort brands",
+    detail: "Products with a public first-party AI visibility offering.",
   },
   {
     value: "20",
@@ -72,14 +79,9 @@ const studyFacts = [
     detail: "Neutral category and buyer questions used for ranking.",
   },
   {
-    value: "4",
-    label: "AI providers",
-    detail: "OpenAI, Anthropic, Google, and xAI via their APIs.",
-  },
-  {
     value: "80",
     label: "Planned discovery answers",
-    detail: "Twenty shared questions asked once across four providers.",
+    detail: "Twenty shared questions across four frozen provider models.",
   },
 ] as const;
 
@@ -189,6 +191,12 @@ export default function AiVisibilityIndexPage() {
         distribution: [
           {
             "@type": "DataDownload",
+            name: "Frozen product cohort",
+            encodingFormat: "text/csv",
+            contentUrl: cohortUrl,
+          },
+          {
+            "@type": "DataDownload",
             name: "Frozen question set",
             encodingFormat: "text/csv",
             contentUrl: questionSetUrl,
@@ -198,6 +206,12 @@ export default function AiVisibilityIndexPage() {
             name: "Metric data dictionary",
             encodingFormat: "text/csv",
             contentUrl: dataDictionaryUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Registered study protocol",
+            encodingFormat: "application/json",
+            contentUrl: protocolUrl,
           },
         ],
       },
@@ -353,9 +367,11 @@ export default function AiVisibilityIndexPage() {
               </h2>
               <p className="mt-5 text-pretty leading-7 text-zinc-400">
                 The first edition focuses on software sold for AI visibility,
-                AEO, GEO, or LLM SEO. A cohort will be frozen before collection
-                using public eligibility criteria, then every provider will
-                receive the same 20 neutral buyer questions.
+                AEO, GEO, or LLM SEO. The frozen 25-product cohort includes only
+                products with a public first-party page offering measurement,
+                monitoring, benchmarking, or optimization of visibility,
+                mentions, citations, or positioning in AI-generated answers.
+                Inclusion is not an endorsement.
               </p>
             </div>
             <div className="mt-8 grid gap-5 md:grid-cols-3">
@@ -363,9 +379,9 @@ export default function AiVisibilityIndexPage() {
                 <FlaskConical className="size-6 text-emerald-300" aria-hidden="true" />
                 <h3 className="mt-5 font-semibold text-white">Freeze before collection</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  Publish the cohort, question text, locale, model IDs,
-                  timestamps, prompt versions, and scoring version before
-                  reading results.
+                  The cohort, question text, locale, model IDs, matching rules,
+                  and scoring version are downloadable before any counted
+                  answer collection.
                 </p>
               </article>
               <article className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
@@ -421,6 +437,11 @@ export default function AiVisibilityIndexPage() {
             </div>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild variant="outline">
+                <a href="/data/ai-visibility-index-2026-cohort.csv" download>
+                  Frozen 25-product cohort <Download aria-hidden="true" />
+                </a>
+              </Button>
+              <Button asChild variant="outline">
                 <a href="/data/ai-visibility-index-2026-question-set.csv" download>
                   All 25 prompts and templates <Download aria-hidden="true" />
                 </a>
@@ -428,6 +449,11 @@ export default function AiVisibilityIndexPage() {
               <Button asChild variant="ghost">
                 <a href="/data/ai-visibility-index-2026-data-dictionary.csv" download>
                   Metric data dictionary <Download aria-hidden="true" />
+                </a>
+              </Button>
+              <Button asChild variant="ghost">
+                <a href="/data/ai-visibility-index-2026-protocol.json" download>
+                  Registered protocol JSON <Download aria-hidden="true" />
                 </a>
               </Button>
             </div>

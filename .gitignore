@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.swc
+
+# Public-index collection evidence is normalized before publication.
+/research/ai-visibility-index/2026/raw/

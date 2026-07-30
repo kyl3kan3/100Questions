@@ -5,5 +5,8 @@
       "path": "/api/cron/reconcile",
       "schedule": "*/10 * * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }

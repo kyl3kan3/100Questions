@@ -363,11 +363,11 @@ function verifyProtocol(
     throw new Error("The protocol registration timestamp is not in the past.");
   }
 
-  if (sha256(questionText) !== protocol.questionSet.sha256) {
+  if (sha256CanonicalText(questionText) !== protocol.questionSet.sha256) {
     throw new Error("The question-set hash does not match the protocol.");
   }
 
-  if (sha256(cohortText) !== protocol.cohort.sha256) {
+  if (sha256CanonicalText(cohortText) !== protocol.cohort.sha256) {
     throw new Error("The cohort hash does not match the protocol.");
   }
 
@@ -446,6 +446,10 @@ function parseCsv(input: string): Record<string, string>[] {
 
 function sha256(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+function sha256CanonicalText(value: string): string {
+  return sha256(value.replace(/\r\n?/gu, "\n"));
 }
 
 function formatMicros(micros: number): string {

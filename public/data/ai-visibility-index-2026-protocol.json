@@ -8,12 +8,14 @@
   "questionSet": {
     "url": "https://100questionsai.com/data/ai-visibility-index-2026-question-set.csv",
     "sha256": "0d8bc1dd996492b90a21c4e85bc2542179e6e47f6674235e98a4e4bb30dbb7a5",
+    "hashCanonicalization": "UTF-8 text with CRLF and CR line endings normalized to LF",
     "rankingQuestionCount": 20,
     "diagnosticTemplateCount": 5
   },
   "cohort": {
     "url": "https://100questionsai.com/data/ai-visibility-index-2026-cohort.csv",
     "sha256": "345b58f99f1a2495e72b183585864a551974a1c8f45cc829d0472b2cf6b1d6d7",
+    "hashCanonicalization": "UTF-8 text with CRLF and CR line endings normalized to LF",
     "brandCount": 25,
     "eligibilityRule": "A product must have a public first-party page explicitly offering measurement, monitoring, benchmarking, or optimization of brand visibility, mentions, citations, or positioning in AI-generated search or answer systems."
   },

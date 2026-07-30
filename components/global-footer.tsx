@@ -120,6 +120,21 @@ export function GlobalFooter() {
                 loading="lazy"
               />
             </a>
+            <a
+              href="https://saasgrow.app?ref=100questionsai.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on SaaSGrow"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://saasgrow.app/api/badge?type=featured&style=blue"
+                alt="100 Questions on SaaSGrow"
+                width="240"
+                height="54"
+                loading="lazy"
+              />
+            </a>
           </div>
         </div>
       </div>

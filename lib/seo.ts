@@ -9,6 +9,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility-checker",
   "/ai-search-optimization",
   "/ai-seo-tools",
+  "/ai-visibility-index",
   "/ai-visibility-audit-checklist",
   "/answer-engine-optimization",
   "/answer-engine-optimization-tools",
@@ -79,6 +80,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
       images: [absoluteUrl("/hero-ai-visibility.png")],
+    },
+    {
+      url: absoluteUrl("/ai-visibility-index"),
+      lastModified: new Date("2026-07-30T00:00:00.000Z"),
+      changeFrequency: "weekly",
+      priority: 0.95,
     },
     {
       url: absoluteUrl("/ai-visibility-audit-checklist"),

@@ -30,6 +30,9 @@ export function GlobalFooter() {
             <Link className="hover:text-zinc-200" href="/ai-visibility">
               AI visibility
             </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility-index">
+              AI Visibility Index
+            </Link>
             <Link className="hover:text-zinc-200" href="/ai-visibility-checker">
               AI visibility checker
             </Link>

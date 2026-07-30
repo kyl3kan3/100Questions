@@ -159,6 +159,21 @@ export function GlobalFooter() {
                 loading="lazy"
               />
             </a>
+            <a
+              href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              title="View 100questionsai.com's Google Search Console stats"
+              aria-label="View 100 Questions Google Search Console stats on SEOReceipts"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://seoreceipts.com/api/badge?slug=100questionsai&amp;mode=auto&amp;theme=paper&amp;size=card"
+                alt="Google Search Console stats for 100questionsai.com"
+                height="68"
+                loading="lazy"
+              />
+            </a>
           </div>
         </div>
       </div>

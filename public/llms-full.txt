@@ -8,6 +8,10 @@ AI visibility guide: https://100questionsai.com/ai-visibility
 2026 AI Visibility Index: https://100questionsai.com/ai-visibility-index
 2026 AI Visibility Index cohort: https://100questionsai.com/data/ai-visibility-index-2026-cohort.csv
 2026 AI Visibility Index protocol: https://100questionsai.com/data/ai-visibility-index-2026-protocol.json
+2026 AI Visibility Index brand results: https://100questionsai.com/data/ai-visibility-index-2026-brand-results.csv
+2026 AI Visibility Index provider results: https://100questionsai.com/data/ai-visibility-index-2026-provider-results.csv
+2026 AI Visibility Index cited-source results: https://100questionsai.com/data/ai-visibility-index-2026-source-results.csv
+2026 AI Visibility Index answer evidence: https://100questionsai.com/data/ai-visibility-index-2026-answer-evidence.csv
 AI visibility checker: https://100questionsai.com/ai-visibility-checker
 AI search optimization guide: https://100questionsai.com/ai-search-optimization
 AI SEO tools comparison: https://100questionsai.com/ai-seo-tools

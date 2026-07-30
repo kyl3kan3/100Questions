@@ -1,0 +1,5 @@
+"question_id","provider","matched_brand","decision","reason"
+"D13","openai","100 Questions","exclude","The matched text is the numeric phrase '50–100 questions', not a reference to the 100 Questions product."
+"D11","google","Ahrefs Brand Radar","exclude","The answer names Citare Brand Radar, a different product, rather than Ahrefs Brand Radar."
+"D11","xai","Ahrefs Brand Radar","exclude","The answer names Citare Brand Radar, a different product, rather than Ahrefs Brand Radar."
+"D09","anthropic","Conductor","exclude","The answer's OpenKit/Conductor reference is not the cohort product Conductor AI Search Performance."

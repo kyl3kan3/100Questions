@@ -15,6 +15,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import results from "@/public/data/ai-visibility-index-2026-results.json";
 
 const pageUrl = absoluteUrl("/ai-visibility-index");
 const INDEX_DATE = {
@@ -30,11 +31,29 @@ const dataDictionaryUrl = absoluteUrl(
 );
 const cohortUrl = absoluteUrl("/data/ai-visibility-index-2026-cohort.csv");
 const protocolUrl = absoluteUrl("/data/ai-visibility-index-2026-protocol.json");
+const brandResultsUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-brand-results.csv",
+);
+const providerResultsUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-provider-results.csv",
+);
+const sourceResultsUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-source-results.csv",
+);
+const answerEvidenceUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-answer-evidence.csv",
+);
+const resultManifestUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-results-manifest.json",
+);
+const adjudicationsUrl = absoluteUrl(
+  "/data/ai-visibility-index-2026-match-adjudications.csv",
+);
 
 export const metadata: Metadata = {
-  title: "2026 AI Visibility Index: Registered Study",
+  title: "2026 AI Visibility Index: AI SEO Software",
   description:
-    "The preregistered 2026 AI Visibility Index for AI search software, including its frozen question bank, provider scope, metrics, release plan, and limitations.",
+    "Peec AI led the 25-product 2026 AI Visibility Index. Explore 80 grounded answers, four-provider results, cited sources, methodology, and downloadable data.",
   keywords: [
     "AI Visibility Index",
     "AI visibility benchmark",
@@ -46,27 +65,27 @@ export const metadata: Metadata = {
   openGraph: {
     title: "2026 AI Visibility Index",
     description:
-      "A public, preregistered study of which AI visibility software brands appear in web-grounded answers across four providers.",
+      "Peec AI led a frozen 25-product study across 80 grounded answers. Explore the rankings, provider splits, sources, and open data.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
     locale: "en_US",
     publishedTime: INDEX_DATE.iso,
-    modifiedTime: INDEX_DATE.iso,
+    modifiedTime: results.publishedAt,
   },
   twitter: {
     card: "summary_large_image",
     title: "2026 AI Visibility Index",
     description:
-      "The question bank, scoring rules, provider scope, and limitations are public before results are collected.",
+      "A preregistered comparison of 25 AI visibility software brands across OpenAI, Anthropic, Google, and xAI.",
   },
 };
 
 const studyFacts = [
   {
-    value: "Registered",
-    label: "Protocol status",
-    detail: "No counted collection began before the design was published.",
+    value: "100%",
+    label: "Provider coverage",
+    detail: "All 80 planned answers were grounded and score-eligible.",
   },
   {
     value: "25",
@@ -80,10 +99,47 @@ const studyFacts = [
   },
   {
     value: "80",
-    label: "Planned discovery answers",
+    label: "Grounded discovery answers",
     detail: "Twenty shared questions across four frozen provider models.",
   },
 ] as const;
+
+const visibleRankings = results.rankings.filter(
+  (result) => result.mentionCount > 0,
+);
+const maximumVisibility = Math.max(
+  ...visibleRankings.map((result) => result.discoveryVisibility),
+);
+const providerLabels = {
+  openai: "OpenAI",
+  anthropic: "Anthropic",
+  google: "Google",
+  xai: "xAI",
+} as const;
+const providerLeaders = Object.entries(providerLabels).map(
+  ([provider, label]) => {
+    const rows = results.providerResults.filter(
+      (result) => result.provider === provider && result.mention_count > 0,
+    );
+    const bestRank = Math.min(...rows.map((result) => result.rank));
+    return {
+      provider,
+      label,
+      brands: rows
+        .filter((result) => result.rank === bestRank)
+        .map((result) => result.brand),
+      mentions: Math.max(
+        ...rows
+          .filter((result) => result.rank === bestRank)
+          .map((result) => result.mention_count),
+      ),
+    };
+  },
+);
+
+function formatPercent(value: number): string {
+  return `${(value * 100).toFixed(value > 0 && value < 0.1 ? 1 : 0)}%`;
+}
 
 const previewQuestions = [
   "What are the best tools for measuring whether a brand appears in AI-generated answers?",
@@ -130,12 +186,12 @@ const faq = [
   {
     question: "Does this page contain rankings yet?",
     answer:
-      "No. This first release registers the study design and publishes the question set and data dictionary. Rankings, answer-level evidence, cited-source analysis, and downloadable result files will be added only after fieldwork and quality review are complete.",
+      "Yes. The results include all 25 cohort products, provider-level splits, cited-domain frequency, and answer-level evidence. Seven cohort brands appeared at least once across the 80 eligible discovery answers.",
   },
   {
-    question: "Which AI providers will the study test?",
+    question: "Which AI providers did the study test?",
     answer:
-      "The study will test OpenAI, Anthropic, Google, and xAI through their APIs with required web-search grounding. Exact model identifiers and collection timestamps will be frozen and published with the results.",
+      "The study tested OpenAI, Anthropic, Google, and xAI through their APIs with required web-search grounding. The exact model identifiers, collection timestamps, and result-file hashes are included in the downloadable manifest.",
   },
   {
     question: "Will the Index represent every consumer AI session?",
@@ -152,13 +208,13 @@ export default function AiVisibilityIndexPage() {
         "@type": "Report",
         "@id": `${pageUrl}#report`,
         name: "2026 AI Visibility Index",
-        headline: "2026 AI Visibility Index: Registered Study",
+        headline: "2026 AI Visibility Index: AI SEO Software Results",
         description:
-          "A preregistered public study of AI visibility software brands across web-grounded answers from four AI providers.",
+          "Results for a preregistered public study of 25 AI visibility software brands across 80 web-grounded answers from four providers.",
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: INDEX_DATE.iso,
-        dateModified: INDEX_DATE.iso,
+        dateModified: results.publishedAt,
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -172,17 +228,18 @@ export default function AiVisibilityIndexPage() {
       {
         "@type": "Dataset",
         "@id": `${pageUrl}#protocol-dataset`,
-        name: "2026 AI Visibility Index study protocol",
+        name: "2026 AI Visibility Index dataset",
         description:
-          "The frozen discovery question bank and metric data dictionary registered before fieldwork for the 2026 AI Visibility Index.",
+          "Brand rankings, provider splits, cited-source frequency, answer-level evidence, frozen inputs, and adjudications for the 2026 AI Visibility Index.",
         url: pageUrl,
         datePublished: INDEX_DATE.iso,
-        dateModified: INDEX_DATE.iso,
+        dateModified: results.publishedAt,
         creator: { "@id": `${absoluteUrl()}#organization` },
         isAccessibleForFree: true,
         inLanguage: "en-US",
         measurementTechnique:
           "A frozen question set with required web-search grounding across OpenAI, Anthropic, Google, and xAI APIs.",
+        temporalCoverage: `${results.collectionStartedAt}/${results.collectionCompletedAt}`,
         variableMeasured: metrics.map(({ name, definition }) => ({
           "@type": "PropertyValue",
           name,
@@ -212,6 +269,42 @@ export default function AiVisibilityIndexPage() {
             name: "Registered study protocol",
             encodingFormat: "application/json",
             contentUrl: protocolUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Brand results",
+            encodingFormat: "text/csv",
+            contentUrl: brandResultsUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Provider results",
+            encodingFormat: "text/csv",
+            contentUrl: providerResultsUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Cited-source results",
+            encodingFormat: "text/csv",
+            contentUrl: sourceResultsUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Answer-level evidence",
+            encodingFormat: "text/csv",
+            contentUrl: answerEvidenceUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Results manifest and file hashes",
+            encodingFormat: "application/json",
+            contentUrl: resultManifestUrl,
+          },
+          {
+            "@type": "DataDownload",
+            name: "Brand-match adjudications",
+            encodingFormat: "text/csv",
+            contentUrl: adjudicationsUrl,
           },
         ],
       },
@@ -272,10 +365,10 @@ export default function AiVisibilityIndexPage() {
                 variant="outline"
                 className="border-emerald-300/25 text-emerald-200"
               >
-                2026 registered study
+                2026 public dataset
               </Badge>
-              <span className="rounded-full bg-amber-300/[0.08] px-3 py-1 text-xs text-amber-200 shadow-[inset_0_0_0_1px_rgba(252,211,77,0.16)]">
-                Results pending
+              <span className="rounded-full bg-emerald-300/[0.08] px-3 py-1 text-xs text-emerald-200 shadow-[inset_0_0_0_1px_rgba(110,231,183,0.16)]">
+                Results published
               </span>
             </div>
             <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.055em] text-white sm:text-5xl lg:text-7xl">
@@ -283,23 +376,24 @@ export default function AiVisibilityIndexPage() {
             </h1>
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
               A transparent study of which AI visibility software brands appear
-              in web-grounded answers—and which sources the models cite. The
-              question bank and scoring rules are public before collection.
+              in web-grounded answers—and which sources the models cite. Peec
+              AI led the frozen cohort; seven of 25 products appeared at least
+              once.
             </p>
             <p className="mt-5 flex items-center gap-2 text-sm text-zinc-400">
               <CalendarDays className="size-4 text-emerald-300" aria-hidden="true" />
-              Registered{" "}
+              Registered and collected{" "}
               <time dateTime={INDEX_DATE.iso}>{INDEX_DATE.label}</time>
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <a href="/data/ai-visibility-index-2026-question-set.csv" download>
-                  Download the question set <Download aria-hidden="true" />
+                <a href="/data/ai-visibility-index-2026-brand-results.csv" download>
+                  Download the results <Download aria-hidden="true" />
                 </a>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <a href="#method">
-                  Review the study design <ArrowRight aria-hidden="true" />
+                <a href="#results">
+                  Explore the findings <ArrowRight aria-hidden="true" />
                 </a>
               </Button>
             </div>
@@ -327,6 +421,146 @@ export default function AiVisibilityIndexPage() {
         </section>
 
         <div className="page-shell space-y-20 pb-20 pt-6 lg:pb-28">
+          <section id="results" className="scroll-mt-8" aria-labelledby="results-heading">
+            <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">
+              <div>
+                <p className="eyebrow">Headline results · 100% coverage</p>
+                <h2
+                  id="results-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+                >
+                  Peec AI led a fragmented field
+                </h2>
+              </div>
+              <div className="space-y-5 text-pretty leading-7 text-zinc-400">
+                <p>
+                  Peec AI appeared in 6 of 80 eligible answers, producing 7.5%
+                  discovery visibility. Semrush, Otterly.AI, and Profound each
+                  appeared five times. No cohort product appeared in more than
+                  one in thirteen answers.
+                </p>
+                <p>
+                  Only seven of the 25 frozen products were mentioned at all.
+                  The result is a directional snapshot of this question set and
+                  collection window, not a permanent category ranking.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-9 overflow-hidden rounded-[24px] bg-[#0b0e0c] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+              <div className="grid grid-cols-[3rem_minmax(9rem,1fr)_5rem_5rem] gap-3 border-b border-white/[0.08] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[3rem_minmax(12rem,1fr)_7rem_7rem]">
+                <span>Rank</span>
+                <span>Brand</span>
+                <span className="text-right">Visibility</span>
+                <span className="text-right">Mentions</span>
+              </div>
+              {visibleRankings.map((result) => (
+                <div
+                  key={result.brand}
+                  className="grid grid-cols-[3rem_minmax(9rem,1fr)_5rem_5rem] items-center gap-3 border-b border-white/[0.06] px-5 py-4 last:border-0 sm:grid-cols-[3rem_minmax(12rem,1fr)_7rem_7rem]"
+                >
+                  <span className="font-mono text-sm text-emerald-300">
+                    {String(result.rank).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-zinc-100">
+                      {result.brand}
+                    </p>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div
+                        className="h-full rounded-full bg-emerald-300"
+                        style={{
+                          width: `${(result.discoveryVisibility / maximumVisibility) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-right font-mono text-sm text-zinc-300">
+                    {formatPercent(result.discoveryVisibility)}
+                  </span>
+                  <span className="text-right font-mono text-sm text-zinc-400">
+                    {result.mentionCount}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-zinc-500">
+              The complete CSV includes all 25 cohort products, prominence,
+              claimed-domain citations, and zero-mention rows.
+            </p>
+          </section>
+
+          <section aria-labelledby="provider-findings-heading">
+            <div className="flex items-end justify-between gap-6">
+              <div>
+                <p className="eyebrow">Provider differences</p>
+                <h2
+                  id="provider-findings-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+                >
+                  The leader changed by model
+                </h2>
+              </div>
+              <BarChart3
+                className="hidden size-8 text-emerald-300 sm:block"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {providerLeaders.map(({ provider, label, brands, mentions }) => (
+                <article
+                  key={provider}
+                  className="rounded-[22px] bg-[#0b0e0c] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                >
+                  <p className="font-mono text-xs uppercase tracking-[0.12em] text-emerald-300">
+                    {label}
+                  </p>
+                  <h3 className="mt-4 font-semibold text-white">
+                    {brands.join(" + ")}
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    {mentions} mention{mentions === 1 ? "" : "s"} in 20 answers
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="source-findings-heading">
+            <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">
+              <div>
+                <p className="eyebrow">Cited-source analysis</p>
+                <h2
+                  id="source-findings-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+                >
+                  The answers drew from 210 domains
+                </h2>
+                <p className="mt-5 text-sm leading-6 text-zinc-400">
+                  The leading cited domains were mostly specialist AI visibility
+                  sites rather than the largest SEO publishers. A domain is
+                  counted at most once per answer.
+                </p>
+              </div>
+              <ol className="divide-y divide-white/[0.08] border-y border-white/[0.08]">
+                {results.topSources.slice(0, 8).map((source) => (
+                  <li
+                    key={source.domain}
+                    className="grid grid-cols-[2rem_1fr_auto] gap-4 py-4 text-sm"
+                  >
+                    <span className="font-mono text-xs text-emerald-300">
+                      {String(source.rank).padStart(2, "0")}
+                    </span>
+                    <span className="text-zinc-300">{source.domain}</span>
+                    <span className="font-mono text-zinc-500">
+                      {source.cited_answer_count} answers
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+
           <section
             aria-labelledby="why-register-heading"
             className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]"
@@ -348,10 +582,10 @@ export default function AiVisibilityIndexPage() {
                 each metric will be calculated.
               </p>
               <p>
-                This registration contains no inferred scores, placeholder
-                rankings, or synthetic results. The results release will keep
-                answer coverage beside every headline number and link the
-                reported findings to downloadable data.
+                The published results keep answer coverage beside every
+                headline number. Four exact-string collisions found during
+                manual review were excluded with their question, provider, and
+                rationale preserved in the adjudication file.
               </p>
             </div>
           </section>
@@ -493,7 +727,7 @@ export default function AiVisibilityIndexPage() {
             className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9"
           >
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em]">
-              Planned results release
+              Open results release
             </p>
             <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_0.75fr]">
               <div>
@@ -501,24 +735,52 @@ export default function AiVisibilityIndexPage() {
                   id="release-heading"
                   className="max-w-2xl text-balance text-3xl font-semibold tracking-[-0.035em]"
                 >
-                  Rankings will publish only after collection and coverage review
+                  Every result can be traced back to the collected evidence
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-6 text-emerald-950/80">
-                  The release package is planned to include provider-by-provider
-                  tables, cited-source analysis, methodology changes if any,
-                  machine-readable results, and charts available for editorial
-                  reuse with attribution.
+                  Download brand and provider tables, cited-source frequency,
+                  full answer text with source URLs, the registered inputs,
+                  manual adjudications, and a manifest containing file hashes.
                 </p>
               </div>
               <div className="rounded-2xl bg-zinc-950/[0.08] p-5">
-                <p className="text-sm font-semibold">Release gate</p>
+                <p className="text-sm font-semibold">Release checks passed</p>
                 <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-950/80">
-                  <li>• Cohort and model IDs frozen</li>
-                  <li>• Coverage reviewed by provider</li>
-                  <li>• Brand matching manually checked</li>
-                  <li>• Results CSV reconciled to charts</li>
+                  <li>• 80 of 80 answers grounded</li>
+                  <li>• All four model IDs matched</li>
+                  <li>• 34 positive alias matches reviewed</li>
+                  <li>• Six result files hashed in a manifest</li>
                 </ul>
               </div>
+            </div>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button
+                asChild
+                variant="secondary"
+                className="bg-zinc-950 text-white hover:bg-zinc-800"
+              >
+                <a href="/data/ai-visibility-index-2026-answer-evidence.csv" download>
+                  Download answer evidence <Download aria-hidden="true" />
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="secondary"
+                className="bg-zinc-950 text-white hover:bg-zinc-800"
+              >
+                <a href="/data/ai-visibility-index-2026-provider-results.csv" download>
+                  Provider-level results <Download aria-hidden="true" />
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="secondary"
+                className="bg-zinc-950 text-white hover:bg-zinc-800"
+              >
+                <a href="/data/ai-visibility-index-2026-source-results.csv" download>
+                  Cited-source results <Download aria-hidden="true" />
+                </a>
+              </Button>
             </div>
           </section>
 
@@ -528,7 +790,7 @@ export default function AiVisibilityIndexPage() {
               id="limits-heading"
               className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
             >
-              What the Index will and will not show
+              What the Index shows—and what it cannot prove
             </h2>
             <div className="mt-7 grid gap-5 md:grid-cols-2">
               <div className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">

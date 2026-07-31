@@ -175,6 +175,20 @@ export function GlobalFooter() {
               />
             </a>
             <a
+              href="https://neeed.directory/products/100-questions?utm_source=100-questions"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on neeed.directory"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://neeed.directory/badges/neeed-badge-light.svg"
+                alt="Featured on neeed.directory"
+                width="139"
+                loading="lazy"
+              />
+            </a>
+            <a
               href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
               target="_blank"
               rel="nofollow sponsored noopener"

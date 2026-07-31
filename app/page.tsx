@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   Check,
   CircleGauge,
   Database,
@@ -11,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { JsonLd } from "@/components/json-ld";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,11 +100,7 @@ export default function Home() {
             trust, and five evidence-backed actions—no subscription.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href="/auth/sign-up">
-                Run my first audit — $9 <ArrowRight />
-              </Link>
-            </Button>
+            <MarketingCheckoutButton />
             <Button asChild size="lg" variant="outline">
               <Link href="/sample-report">View a sample report</Link>
             </Button>
@@ -397,9 +393,18 @@ export default function Home() {
                     <Check className="size-4 text-emerald-300" />
                     {billingPackage.credits} complete benchmark{billingPackage.credits === 1 ? "" : "s"}
                   </p>
-                  <Button asChild className="mt-6 w-full" variant={billingPackage.id === "three" ? "default" : "secondary"}>
-                    <Link href="/auth/sign-up">Choose package</Link>
-                  </Button>
+                  {billingPackage.id === "intro" ? (
+                    <MarketingCheckoutButton
+                      className="mt-6"
+                      label="Buy first benchmark — $9"
+                      size="default"
+                      variant="secondary"
+                    />
+                  ) : (
+                    <Button asChild className="mt-6 w-full" variant={billingPackage.id === "three" ? "default" : "secondary"}>
+                      <Link href="/auth/sign-up">Choose package</Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -428,11 +433,7 @@ export default function Home() {
               .
             </p>
           </div>
-          <Button asChild size="lg">
-            <Link href="/auth/sign-up">
-              Create an account <ArrowRight />
-            </Link>
-          </Button>
+          <MarketingCheckoutButton />
         </div>
       </section>
       </main>

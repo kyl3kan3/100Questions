@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   CheckCircle2,
   ExternalLink,
   Scale,
@@ -9,8 +8,8 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -462,16 +461,12 @@ export default function AnswerEngineOptimizationToolsPage() {
                     Freeze the questions and keep the evidence.
                   </h2>
                 </div>
-                <Button
-                  asChild
+                <MarketingCheckoutButton
+                  label="Run a $9 benchmark"
                   variant="secondary"
                   size="lg"
-                  className="bg-zinc-950 text-white hover:bg-zinc-800"
-                >
-                  <Link href="/auth/sign-up">
-                    Run a $9 benchmark <ArrowRight />
-                  </Link>
-                </Button>
+                  buttonClassName="bg-zinc-950 text-white hover:bg-zinc-800"
+                />
               </div>
             </section>
 

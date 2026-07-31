@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   BookOpenText,
   ChevronDown,
   FileText,
@@ -10,13 +9,12 @@ import {
   Users,
 } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AnalyticsEvent } from "@/components/analytics-event";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -245,11 +243,7 @@ export default function SampleReportPage() {
               A point-in-time, web-grounded benchmark across 25 shared questions, four providers, competitors, and citation evidence.
             </p>
           </div>
-          <Button asChild size="lg">
-            <Link href="/auth/sign-up">
-              Run my first audit — $9 <ArrowRight aria-hidden="true" />
-            </Link>
-          </Button>
+          <MarketingCheckoutButton />
         </header>
 
         <section aria-labelledby="sample-verdict-heading">

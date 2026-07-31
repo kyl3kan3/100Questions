@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Button } from "@/components/ui/button";
 
 export function MarketingHeader() {
@@ -31,12 +32,15 @@ export function MarketingHeader() {
           <Button asChild variant="ghost" size="sm">
             <Link href="/auth/sign-in">Sign in</Link>
           </Button>
-          <Button asChild size="sm">
-            <Link href="/auth/sign-up">
+          <MarketingCheckoutButton
+            size="sm"
+            label={
+              <>
               <span className="sm:hidden">Start</span>
               <span className="hidden sm:inline">Start a benchmark</span>
-            </Link>
-          </Button>
+              </>
+            }
+          />
         </nav>
       </div>
     </header>

@@ -36,6 +36,13 @@ const signUpSchema = signInSchema.extend({
     .max(80, "Name must be 80 characters or fewer."),
 });
 
+function checkoutRedirect(formData: FormData) {
+  const value = formData.get("checkoutSessionId");
+  return typeof value === "string" && /^cs_[A-Za-z0-9_]+$/.test(value)
+    ? `/checkout/complete?session_id=${encodeURIComponent(value)}`
+    : "/dashboard";
+}
+
 export type AuthActionState = {
   error?: string;
   fieldErrors?: Partial<Record<"name" | "email" | "password", string[]>>;
@@ -87,7 +94,7 @@ export async function signInWithEmail(
     };
   }
 
-  redirect("/dashboard");
+  redirect(checkoutRedirect(formData));
 }
 export async function signUpWithEmail(
   _previousState: AuthActionState,
@@ -116,5 +123,5 @@ export async function signUpWithEmail(
     };
   }
 
-  redirect("/dashboard");
+  redirect(checkoutRedirect(formData));
 }

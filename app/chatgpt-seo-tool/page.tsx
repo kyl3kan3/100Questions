@@ -9,6 +9,7 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -217,11 +218,7 @@ export default function ChatgptSeoToolPage() {
                 result.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg">
-                  <Link href="/auth/sign-up">
-                    Run a $9 benchmark <ArrowRight />
-                  </Link>
-                </Button>
+                <MarketingCheckoutButton label="Run a $9 benchmark" />
                 <Button asChild size="lg" variant="outline">
                   <Link href="/sample-report">Inspect the sample report</Link>
                 </Button>

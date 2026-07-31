@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth/server";
 import {
@@ -29,6 +30,10 @@ import {
   isStripeWebhookConfigured,
 } from "@/lib/billing/stripe";
 import { buildDataFastCheckoutMetadata } from "@/lib/datafast-attribution";
+import {
+  GUEST_CHECKOUT_COOKIE,
+  hashGuestCheckoutToken,
+} from "@/lib/billing/guest-checkout";
 
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{8,80}$/;
 
@@ -44,10 +49,6 @@ export async function POST(request: Request) {
       { error: "Authentication is temporarily unavailable" },
       { status: 503 },
     );
-  }
-
-  if (!session?.user?.id) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!isStripeWebhookConfigured()) {
@@ -100,6 +101,70 @@ export async function POST(request: Request) {
 
     const stripe = getStripe();
     await assertStripeTaxRegistrationConfigured(stripe);
+
+    if (!session?.user?.id) {
+      if (billingPackage.id !== "intro") {
+        return Response.json(
+          { error: "Sign in to buy additional benchmark packages" },
+          { status: 401 },
+        );
+      }
+
+      const origin = getApplicationOrigin(request);
+      const cookieStore = await cookies();
+      const guestToken = crypto.randomUUID() + crypto.randomUUID();
+      const guestTokenHash = hashGuestCheckoutToken(guestToken);
+      const dataFastMetadata = buildDataFastCheckoutMetadata({
+        visitorId: cookieStore.get("datafast_visitor_id")?.value,
+        sessionId: cookieStore.get("datafast_session_id")?.value,
+      });
+      const guestReference = `guest:${guestTokenHash.slice(0, 48)}`;
+      const checkoutSession = await stripe.checkout.sessions.create(
+        {
+          mode: "payment",
+          integration_identifier: "100_questions_checkout_qmvkzjra",
+          managed_payments: { enabled: false },
+          automatic_tax: { enabled: true },
+          customer_creation: "always",
+          line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
+          client_reference_id: guestReference,
+          metadata: {
+            guestCheckout: "true",
+            guestCheckoutTokenHash: guestTokenHash,
+            billingPackage: billingPackage.id,
+            creditGrant: String(frozenGrant.credits),
+            creditGrantVersion: frozenGrant.version,
+            ...dataFastMetadata,
+          },
+          success_url: `${origin}/checkout/complete?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${origin}/?checkout=cancelled#pricing`,
+        },
+        {
+          idempotencyKey: `100q:guest:${guestTokenHash.slice(0, 48)}:${idempotencyKey}`,
+        },
+      );
+
+      if (!checkoutSession.url) {
+        return Response.json(
+          { error: "Stripe did not return a Checkout URL" },
+          { status: 502 },
+        );
+      }
+
+      const response = NextResponse.json(
+        { url: checkoutSession.url, credits: frozenGrant.credits },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+      response.cookies.set(GUEST_CHECKOUT_COOKIE, guestToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
+      return response;
+    }
+
     let customerId = await getBillingCustomerForUser(session.user.id);
 
     if (!customerId) {

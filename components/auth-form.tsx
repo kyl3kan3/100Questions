@@ -23,6 +23,8 @@ const initialState: AuthActionState = {};
 
 type AuthFormProps = {
   mode: "sign-in" | "sign-up";
+  checkoutSessionId?: string;
+  email?: string;
 };
 
 function FieldError({ messages }: { messages?: string[] }) {
@@ -37,7 +39,11 @@ function FieldError({ messages }: { messages?: string[] }) {
   );
 }
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({
+  mode,
+  checkoutSessionId,
+  email,
+}: AuthFormProps) {
   const isSignUp = mode === "sign-up";
   const action = isSignUp ? signUpWithEmail : signInWithEmail;
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -49,13 +55,24 @@ export function AuthForm({ mode }: AuthFormProps) {
           {isSignUp ? "Create your account" : "Welcome back"}
         </CardTitle>
         <CardDescription>
-          {isSignUp
+          {checkoutSessionId
+            ? isSignUp
+              ? "Payment received. Choose a password to open the workspace tied to your payment email."
+              : "Sign in with the payment email to add the purchased credit to your workspace."
+            : isSignUp
             ? "Create a private workspace for your visibility benchmarks."
             : "Sign in to run benchmarks and review your results."}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
         <form action={formAction} className="space-y-5" noValidate>
+          {checkoutSessionId ? (
+            <input
+              type="hidden"
+              name="checkoutSessionId"
+              value={checkoutSessionId}
+            />
+          ) : null}
           {isSignUp ? (
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -89,6 +106,8 @@ export function AuthForm({ mode }: AuthFormProps) {
               autoComplete="email"
               maxLength={254}
               required
+              defaultValue={email}
+              readOnly={Boolean(email)}
               aria-invalid={Boolean(state.fieldErrors?.email)}
               aria-describedby={
                 state.fieldErrors?.email ? "email-error" : undefined
@@ -143,7 +162,13 @@ export function AuthForm({ mode }: AuthFormProps) {
           {isSignUp ? "Already have an account?" : "New to 100 Questions?"}{" "}
           <Link
             className="font-medium text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
-            href={isSignUp ? "/auth/sign-in" : "/auth/sign-up"}
+            href={
+              checkoutSessionId
+                ? `${isSignUp ? "/auth/sign-in" : "/auth/sign-up"}?checkout_session=${encodeURIComponent(checkoutSessionId)}`
+                : isSignUp
+                  ? "/auth/sign-in"
+                  : "/auth/sign-up"
+            }
           >
             {isSignUp ? "Sign in" : "Create one"}
           </Link>

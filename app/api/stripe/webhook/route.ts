@@ -217,6 +217,11 @@ export async function POST(request: Request) {
 
     const checkoutSession = event.data.object;
 
+    if (checkoutSession.metadata?.guestCheckout === "true") {
+      await persistIgnoredEvent(event);
+      return Response.json({ received: true });
+    }
+
     if (
       event.type === "checkout.session.completed" &&
       checkoutSession.payment_status !== "paid"

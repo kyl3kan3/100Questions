@@ -9,9 +9,11 @@ Canonical site: https://100questionsai.com/
 - [Home](https://100questionsai.com/): Product overview and benchmark summary.
 - [About](https://100questionsai.com/about): Product purpose, measurement principles, privacy posture, and interpretation limits.
 - [AI visibility guide](https://100questionsai.com/ai-visibility): Definition, measurement framework, core metrics, and the relationship between AI visibility and SEO.
+- [2026 AI Visibility Index](https://100questionsai.com/ai-visibility-index): Results from a preregistered 25-product AI visibility software study across 80 grounded answers, with provider splits, cited-source analysis, answer-level evidence, frozen inputs, and downloadable data.
 - [AI visibility checker](https://100questionsai.com/ai-visibility-checker): A free instant technical readiness check for indexability, AI crawlers, page signals, schema, sitemaps, and llms.txt, plus a manual answer-check workflow.
 - [AI search optimization guide](https://100questionsai.com/ai-search-optimization): A six-stage workflow for crawlability, entity clarity, answer-ready content, evidence, distribution, and measurement.
 - [AI SEO tools comparison](https://100questionsai.com/ai-seo-tools): A job-based comparison of prompt monitoring, fixed benchmarks, broad visibility research, and enterprise platforms.
+- [AI visibility audit checklist](https://100questionsai.com/ai-visibility-audit-checklist): A free 24-point worksheet for technical access, entity clarity, content, evidence, corroboration, and measurement.
 - [Answer engine optimization guide](https://100questionsai.com/answer-engine-optimization): What AEO is, how it differs from SEO and GEO, and the practices that earn citations in AI answers.
 - [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools): Six AEO tools compared by monitoring model, evidence, cadence, workflow, and tradeoffs.
 - [ChatGPT SEO tool](https://100questionsai.com/chatgpt-seo-tool): Controlled ChatGPT visibility measurement with stored evidence and multi-provider context.

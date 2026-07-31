@@ -30,6 +30,9 @@ export function GlobalFooter() {
             <Link className="hover:text-zinc-200" href="/ai-visibility">
               AI visibility
             </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility-index">
+              AI Visibility Index
+            </Link>
             <Link className="hover:text-zinc-200" href="/ai-visibility-checker">
               AI visibility checker
             </Link>
@@ -68,6 +71,12 @@ export function GlobalFooter() {
             </Link>
             <Link className="hover:text-zinc-200" href="/for-agencies">
               For agencies
+            </Link>
+            <Link
+              className="hover:text-zinc-200"
+              href="/ai-visibility-audit-checklist"
+            >
+              Audit checklist
             </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ
@@ -121,6 +130,21 @@ export function GlobalFooter() {
               />
             </a>
             <a
+              href="https://www.foundrlist.com/product/100questions?utm_source=badge&amp;utm_medium=embed"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on FoundrList"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://www.foundrlist.com/api/badge/100questions"
+                alt="Featured on FoundrList"
+                width="150"
+                height="48"
+                loading="lazy"
+              />
+            </a>
+            <a
               href="https://saasgrow.app?ref=100questionsai.com"
               target="_blank"
               rel="noopener noreferrer"
@@ -147,6 +171,21 @@ export function GlobalFooter() {
                 alt="Featured on Findly.tools"
                 width="175"
                 height="55"
+                loading="lazy"
+              />
+            </a>
+            <a
+              href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              title="View 100questionsai.com's Google Search Console stats"
+              aria-label="View 100 Questions Google Search Console stats on SEOReceipts"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://seoreceipts.com/api/badge?slug=100questionsai&amp;mode=auto&amp;theme=paper&amp;size=card"
+                alt="Google Search Console stats for 100questionsai.com"
+                height="68"
                 loading="lazy"
               />
             </a>

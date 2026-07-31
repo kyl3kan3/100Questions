@@ -2,7 +2,7 @@
 
 import { Check, CreditCard, LoaderCircle, ReceiptText, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ type BillingActionsProps = {
   billingConfigured: boolean;
   hasCustomer: boolean;
   packages: PurchasePackage[];
+  preferredPackageId?: BillingPackageId | null;
 };
 
 type PendingAction = BillingPackageId | "portal" | "promo" | null;
@@ -40,12 +41,14 @@ export function BillingActions({
   billingConfigured,
   hasCustomer,
   packages,
+  preferredPackageId = null,
 }: BillingActionsProps) {
   const router = useRouter();
   const [pending, setPending] = useState<PendingAction>(null);
   const [error, setError] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
+  const autoStarted = useRef(false);
 
   async function openCheckout(packageId: BillingPackageId) {
     trackEvent("checkout_started", { package_id: packageId });
@@ -70,6 +73,14 @@ export function BillingActions({
       setPending(null);
     }
   }
+
+  useEffect(() => {
+    if (autoStarted.current) return;
+    if (!billingConfigured || !preferredPackageId) return;
+    if (!packages.some((pkg) => pkg.id === preferredPackageId)) return;
+    autoStarted.current = true;
+    void openCheckout(preferredPackageId);
+  }, [billingConfigured, preferredPackageId, packages]);
 
   async function openPortal() {
     setPending("portal");

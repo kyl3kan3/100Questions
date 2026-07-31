@@ -1,0 +1,46 @@
+{
+  "studyId": "ai-visibility-index-2026-software-v1",
+  "status": "published",
+  "publishedAt": "2026-07-30T10:46:53.402Z",
+  "collectionStartedAt": "2026-07-30T10:28:13.421Z",
+  "collectionCompletedAt": "2026-07-30T10:31:59.272Z",
+  "protocolSha256": "ae96e4ec891a64ea30b061e4f18e8c648cdaccdb1179638e87482216e53d4884",
+  "questionSetSha256": "0d8bc1dd996492b90a21c4e85bc2542179e6e47f6674235e98a4e4bb30dbb7a5",
+  "cohortSha256": "345b58f99f1a2495e72b183585864a551974a1c8f45cc829d0472b2cf6b1d6d7",
+  "eligibleAnswers": 80,
+  "plannedAnswers": 80,
+  "coverage": 1,
+  "uniqueCitedDomains": 210,
+  "distributions": [
+    {
+      "name": "brandResults",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-brand-results.csv",
+      "sha256": "f78bd08c13a7727510207d2b19517a070b4a1e2672c86f5b92dc3ef0de718549"
+    },
+    {
+      "name": "providerResults",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-provider-results.csv",
+      "sha256": "0ac4087d3010b4566523280cb4d482a73533d7bcb75ecaee568b638b15f4c040"
+    },
+    {
+      "name": "sourceResults",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-source-results.csv",
+      "sha256": "0eaf37dba20ea85792b482cc2b6130a03f7d2e57e19827c7f1dd94c6eae49997"
+    },
+    {
+      "name": "answerEvidence",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-answer-evidence.csv",
+      "sha256": "e045dde8e3999747ef7d677b7cdc7adf691b82bf87f310140f8093b917e4515c"
+    },
+    {
+      "name": "resultsJson",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-results.json",
+      "sha256": "22b66442582f53b3d8358e6969cae0388c54bcf08296c1b5f87e74cb341c068a"
+    },
+    {
+      "name": "matchAdjudications",
+      "url": "https://100questionsai.com/data/ai-visibility-index-2026-match-adjudications.csv",
+      "sha256": "55b7b2ede074be75e1831373039aab7fd92c943eeeb4aa046b2473ed52495480"
+    }
+  ]
+}

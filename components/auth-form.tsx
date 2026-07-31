@@ -25,6 +25,8 @@ type AuthFormProps = {
   mode: "sign-in" | "sign-up";
   checkoutSessionId?: string;
   email?: string;
+  nextPath?: string;
+  packageId?: string;
 };
 
 function FieldError({ messages }: { messages?: string[] }) {
@@ -43,10 +45,21 @@ export function AuthForm({
   mode,
   checkoutSessionId,
   email,
+  nextPath,
+  packageId,
 }: AuthFormProps) {
   const isSignUp = mode === "sign-up";
   const action = isSignUp ? signUpWithEmail : signInWithEmail;
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const switchHref = (() => {
+    const params = new URLSearchParams();
+    if (checkoutSessionId) params.set("checkout_session", checkoutSessionId);
+    if (packageId) params.set("package", packageId);
+    if (nextPath) params.set("next", nextPath);
+    const qs = params.toString();
+    const base = isSignUp ? "/auth/sign-in" : "/auth/sign-up";
+    return qs ? `${base}?${qs}` : base;
+  })();
 
   return (
     <Card className="w-full max-w-md">
@@ -72,6 +85,10 @@ export function AuthForm({
               name="checkoutSessionId"
               value={checkoutSessionId}
             />
+          ) : null}
+          {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
+          {packageId ? (
+            <input type="hidden" name="package" value={packageId} />
           ) : null}
           {isSignUp ? (
             <div className="space-y-2">
@@ -162,13 +179,7 @@ export function AuthForm({
           {isSignUp ? "Already have an account?" : "New to 100 Questions?"}{" "}
           <Link
             className="font-medium text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
-            href={
-              checkoutSessionId
-                ? `${isSignUp ? "/auth/sign-in" : "/auth/sign-up"}?checkout_session=${encodeURIComponent(checkoutSessionId)}`
-                : isSignUp
-                  ? "/auth/sign-in"
-                  : "/auth/sign-up"
-            }
+            href={switchHref}
           >
             {isSignUp ? "Sign in" : "Create one"}
           </Link>

@@ -8,6 +8,7 @@ import {
   getSignInFailureMessage,
   getSignUpFailureMessage,
 } from "@/lib/auth/errors";
+import { resolvePostAuthPath } from "@/lib/auth/post-auth-path";
 import { auth } from "@/lib/auth/server";
 
 const emailSchema = z
@@ -36,11 +37,16 @@ const signUpSchema = signInSchema.extend({
     .max(80, "Name must be 80 characters or fewer."),
 });
 
-function checkoutRedirect(formData: FormData) {
+function postAuthRedirect(formData: FormData) {
   const value = formData.get("checkoutSessionId");
-  return typeof value === "string" && /^cs_[A-Za-z0-9_]+$/.test(value)
-    ? `/checkout/complete?session_id=${encodeURIComponent(value)}`
-    : "/dashboard";
+  if (typeof value === "string" && /^cs_[A-Za-z0-9_]+$/.test(value)) {
+    return `/checkout/complete?session_id=${encodeURIComponent(value)}`;
+  }
+
+  return resolvePostAuthPath({
+    next: formData.get("next"),
+    packageId: formData.get("package"),
+  });
 }
 
 export type AuthActionState = {
@@ -94,7 +100,7 @@ export async function signInWithEmail(
     };
   }
 
-  redirect(checkoutRedirect(formData));
+  redirect(postAuthRedirect(formData));
 }
 export async function signUpWithEmail(
   _previousState: AuthActionState,
@@ -123,5 +129,5 @@ export async function signUpWithEmail(
     };
   }
 
-  redirect(checkoutRedirect(formData));
+  redirect(postAuthRedirect(formData));
 }

@@ -249,6 +249,34 @@ export default function ForAgenciesPage() {
             </div>
           </section>
 
+          <section
+            aria-labelledby="agency-resource-heading"
+            className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-center"
+          >
+            <div>
+              <p className="eyebrow">Free client resource</p>
+              <h2
+                id="agency-resource-heading"
+                className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+              >
+                Start with the audit checklist
+              </h2>
+            </div>
+            <div className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+              <p className="text-pretty leading-7 text-zinc-400">
+                Use the free 24-point worksheet to review technical access,
+                entity clarity, answer-ready content, citation evidence,
+                off-site corroboration, and measurement before presenting a
+                client roadmap.
+              </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-visibility-audit-checklist">
+                  Open the AI visibility audit checklist
+                </Link>
+              </Button>
+            </div>
+          </section>
+
           <section aria-labelledby="agency-pricing-heading">
             <p className="eyebrow">Per-benchmark economics</p>
             <h2

@@ -1,0 +1,77 @@
+{
+  "studyId": "ai-visibility-index-2026-software-v1",
+  "status": "registered",
+  "registeredAt": "2026-07-30T10:17:46.726Z",
+  "registeredPageCommit": "911bb17b4caf528d0ded756a7200213d21811488",
+  "market": "United States",
+  "locale": "en-US",
+  "questionSet": {
+    "url": "https://100questionsai.com/data/ai-visibility-index-2026-question-set.csv",
+    "sha256": "0d8bc1dd996492b90a21c4e85bc2542179e6e47f6674235e98a4e4bb30dbb7a5",
+    "hashCanonicalization": "UTF-8 text with CRLF and CR line endings normalized to LF",
+    "rankingQuestionCount": 20,
+    "diagnosticTemplateCount": 5
+  },
+  "cohort": {
+    "url": "https://100questionsai.com/data/ai-visibility-index-2026-cohort.csv",
+    "sha256": "345b58f99f1a2495e72b183585864a551974a1c8f45cc829d0472b2cf6b1d6d7",
+    "hashCanonicalization": "UTF-8 text with CRLF and CR line endings normalized to LF",
+    "brandCount": 25,
+    "eligibilityRule": "A product must have a public first-party page explicitly offering measurement, monitoring, benchmarking, or optimization of brand visibility, mentions, citations, or positioning in AI-generated search or answer systems."
+  },
+  "collection": {
+    "plannedAnswerCount": 80,
+    "sharedQuestionDesign": true,
+    "requiredWebGrounding": true,
+    "searchTool": {
+      "provider": "Vercel AI Gateway",
+      "tool": "Exa Search",
+      "type": "fast",
+      "resultsPerAnswer": 5,
+      "maximumSearchesPerAnswer": 1
+    },
+    "maximumAnswerTokens": 600,
+    "maximumRetries": 0,
+    "models": {
+      "openai": "openai/gpt-5.4-mini",
+      "anthropic": "anthropic/claude-sonnet-5",
+      "google": "google/gemini-3.1-flash-lite",
+      "xai": "xai/grok-4.5"
+    }
+  },
+  "eligibility": {
+    "answerEligibleWhen": "The provider call succeeds and returns at least one valid HTTP or HTTPS source URL.",
+    "coverageThreshold": 0.9,
+    "belowThresholdLabel": "provisional"
+  },
+  "matching": {
+    "brandMention": "Exact cohort alias match using Unicode letter-and-number boundaries. Case sensitivity follows each cohort row's match_policy.",
+    "claimedDomainCitation": "A normalized cited hostname exactly matches the claimed domain or is one of its subdomains.",
+    "prominence": {
+      "lead": "The brand is the first cohort brand mentioned in the answer.",
+      "shortlist": "The brand is the second through fifth distinct cohort brand mentioned in the answer.",
+      "incidental": "The brand is the sixth or later distinct cohort brand mentioned in the answer.",
+      "absent": "No approved cohort alias is matched in the answer.",
+      "scores": {
+        "lead": 1,
+        "shortlist": 0.67,
+        "incidental": 0.33,
+        "absent": 0
+      }
+    }
+  },
+  "metrics": {
+    "discoveryVisibility": "Eligible discovery answers mentioning the brand divided by eligible discovery answers.",
+    "prominence": "Mean registered prominence score across eligible discovery answers.",
+    "providerCoverage": "Eligible answers divided by planned answers.",
+    "citationPresence": "Eligible answers citing the brand's claimed domain divided by eligible answers.",
+    "sourceFrequency": "Eligible answers citing each normalized source domain, counting a domain at most once per answer."
+  },
+  "limitations": [
+    "The study is a time-stamped API-grounded comparison and does not claim parity with consumer chat interfaces.",
+    "The registered questions are not a random or statistically representative sample of all buyer questions.",
+    "Brand prominence is an order-based proxy and does not prove recommendation strength.",
+    "A citation does not prove that the cited page caused a brand mention or recommendation.",
+    "The product cohort is a defined comparison set, not an exhaustive list or endorsement."
+  ]
+}

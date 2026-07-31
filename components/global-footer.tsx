@@ -135,6 +135,21 @@ export function GlobalFooter() {
                 loading="lazy"
               />
             </a>
+            <a
+              href="https://findly.tools/100-questions?utm_source=100-questions"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on Findly.tools"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://findly.tools/badges/findly-tools-badge-light.svg"
+                alt="Featured on Findly.tools"
+                width="175"
+                height="55"
+                loading="lazy"
+              />
+            </a>
           </div>
         </div>
       </div>

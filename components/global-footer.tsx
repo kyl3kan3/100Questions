@@ -189,6 +189,21 @@ export function GlobalFooter() {
               />
             </a>
             <a
+              href="https://tools.launchllama.co?utm_source=badge&amp;utm_medium=referral"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on Launch Llama"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://tools.launchllama.co/featured-badge.png?v=2"
+                alt="As seen on Launch Llama Newsletter"
+                width="200"
+                height="50"
+                loading="lazy"
+              />
+            </a>
+            <a
               href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
               target="_blank"
               rel="nofollow sponsored noopener"

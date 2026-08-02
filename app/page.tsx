@@ -37,6 +37,10 @@ import {
 export const metadata: Metadata = {
   title: { absolute: SITE_TITLE },
   description: SITE_DESCRIPTION,
+  other: {
+    "directree-verify":
+      "directree-verify=b3246ee4e6e1b1ca893315f9b6ca5310",
+  },
   keywords: [
     "AI visibility tool",
     "AI search visibility",

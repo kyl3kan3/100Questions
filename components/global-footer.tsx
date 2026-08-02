@@ -204,6 +204,21 @@ export function GlobalFooter() {
               />
             </a>
             <a
+              href="https://www.directree.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on Directree"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://www.directree.io/badge/directree-badge-lightmode.svg"
+                alt="Verified on Directree"
+                width="200"
+                height="37"
+                loading="lazy"
+              />
+            </a>
+            <a
               href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
               target="_blank"
               rel="nofollow sponsored noopener"

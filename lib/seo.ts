@@ -130,9 +130,9 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/peec-ai-alternative"),
-      lastModified,
+      lastModified: new Date("2026-08-02T00:00:00.000Z"),
       changeFrequency: "monthly",
-      priority: 0.75,
+      priority: 0.85,
     },
     {
       url: absoluteUrl("/for-agencies"),

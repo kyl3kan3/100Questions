@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
+import { WebMcpTools } from "@/components/webmcp-tools";
 import {
   absoluteUrl,
   SITE_DESCRIPTION,
@@ -195,6 +196,7 @@ export default function RootLayout({
         {children}
         <GlobalFooter />
         <JsonLd data={structuredData} />
+        <WebMcpTools />
         <Analytics />
       </body>
     </html>

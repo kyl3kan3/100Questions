@@ -1,9 +1,21 @@
 import type { NextConfig } from "next";
 import { withWorkflow } from "workflow/next";
 
+import { AGENT_DISCOVERY_LINK_HEADER } from "./lib/agent-discovery";
 import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/",
+        headers: [
+          { key: "Link", value: AGENT_DISCOVERY_LINK_HEADER },
+          { key: "Vary", value: "Accept" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return PUBLIC_ROUTE_REDIRECTS.map((redirect) => ({ ...redirect }));
   },

@@ -1,0 +1,11 @@
+prompt_id,prompt_type,prompt,result,brand_prominence,owned_citation_url,competitors_mentioned,representation_accuracy,sentiment,test_date,chatgpt_surface,model_label,web_search_state,session_state,answer_evidence_reference,notes
+CHATGPT-01,neutral_discovery,"What are the best [category] options for [target audience]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-02,neutral_discovery,"Which [category] providers should a [buyer role] evaluate?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-03,neutral_discovery,"What tools help [target audience] solve [problem]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-04,neutral_discovery,"Which [category] is best for [use case]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-05,neutral_discovery,"What are the best alternatives to [competitor]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-06,neutral_discovery,"Which [category] vendors publish the clearest methodology?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-07,neutral_discovery,"What evidence should I ask for before buying [category]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-08,brand_diagnostic,"What is [brand] and what does it do?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-09,brand_diagnostic,"What are the strengths and limitations of [brand]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,
+CHATGPT-10,brand_diagnostic,"How does [brand] compare with [competitor]?",not_tested,,,,,,,YYYY-MM-DD,ChatGPT,[visible model label],[on/off/unknown],fresh,,

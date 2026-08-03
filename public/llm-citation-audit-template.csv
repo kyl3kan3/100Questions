@@ -1,0 +1,6 @@
+citation_id,benchmark_id,prompt_id,provider,test_date,cited_url,cited_domain,source_title,source_class,source_owner,claim_supported,brand_effect,competitor_effect,independent_source,accessible,content_date,accuracy_status,freshness_status,evidence_reference,likely_gap,next_action,owner,priority,validation_date,notes
+CIT-001,[benchmark],[prompt],[provider],YYYY-MM-DD,[https://example.com/page],[example.com],[title],[owned/editorial/directory/community/competitor/unknown],[owner],[claim],[supports/neutral/harms],[supports/neutral/harms],[true/false],[true/false],YYYY-MM-DD,[accurate/inaccurate/unclear],[current/outdated/unclear],[controlled reference],[gap],[specific action],[owner],[high/medium/low],YYYY-MM-DD,
+CIT-002,[benchmark],[prompt],[provider],YYYY-MM-DD,,,,,,,,,,,,,,,,,,,,
+CIT-003,[benchmark],[prompt],[provider],YYYY-MM-DD,,,,,,,,,,,,,,,,,,,,
+CIT-004,[benchmark],[prompt],[provider],YYYY-MM-DD,,,,,,,,,,,,,,,,,,,,
+CIT-005,[benchmark],[prompt],[provider],YYYY-MM-DD,,,,,,,,,,,,,,,,,,,,

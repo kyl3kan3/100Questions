@@ -355,6 +355,16 @@ export default function AiSeoToolsPage() {
                 </Link>{" "}
                 measurement model.
               </p>
+              <p className="mt-4 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+                Evaluating Peec specifically? See the{" "}
+                <Link
+                  href="/peec-ai-alternative"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                >
+                  best Peec AI alternatives
+                </Link>{" "}
+                compared by pricing, fit, and honest tradeoffs.
+              </p>
             </section>
 
             <section className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">

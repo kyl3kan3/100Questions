@@ -14,12 +14,19 @@ Canonical site: https://100questionsai.com/
 - [AI search optimization guide](https://100questionsai.com/ai-search-optimization): A six-stage workflow for crawlability, entity clarity, answer-ready content, evidence, distribution, and measurement.
 - [AI SEO tools comparison](https://100questionsai.com/ai-seo-tools): A job-based comparison of prompt monitoring, fixed benchmarks, broad visibility research, and enterprise platforms.
 - [AI visibility audit checklist](https://100questionsai.com/ai-visibility-audit-checklist): A free 24-point worksheet for technical access, entity clarity, content, evidence, corroboration, and measurement.
+- [100 AI visibility prompts](https://100questionsai.com/ai-visibility-prompts): A downloadable bank of 80 neutral discovery questions and 20 brand-named diagnostics, including a balanced 25-question starter benchmark.
+- [AI visibility report template](https://100questionsai.com/ai-visibility-report-template): An ungated report structure for scope, coverage, results, sources, limitations, actions, and comparable reruns.
+- [AI visibility score calculator](https://100questionsai.com/ai-visibility-score-calculator): A transparent observed-answer calculator that keeps visibility, prominence, owned citations, accuracy, and coverage separate.
+- [AI search prompt tracking spreadsheet](https://100questionsai.com/ai-search-prompt-tracking-spreadsheet): A downloadable long-format worksheet for provider conditions, answers, citations, competitors, evidence, and reruns.
+- [ChatGPT brand visibility test](https://100questionsai.com/chatgpt-brand-visibility-test): A free interactive 10-prompt manual test with an ungated evidence worksheet.
+- [LLM citation audit template](https://100questionsai.com/llm-citation-audit-template): A downloadable source-to-claim audit for cited pages, ownership, accuracy, brand effect, gaps, and actions.
+- [GEO client reporting template](https://100questionsai.com/geo-client-reporting-template): An agency-ready report outline separating observed results, interpretation, business outcomes, and limitations.
 - [Answer engine optimization guide](https://100questionsai.com/answer-engine-optimization): What AEO is, how it differs from SEO and GEO, and the practices that earn citations in AI answers.
 - [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools): Six AEO tools compared by monitoring model, evidence, cadence, workflow, and tradeoffs.
 - [ChatGPT SEO tool](https://100questionsai.com/chatgpt-seo-tool): Controlled ChatGPT visibility measurement with stored evidence and multi-provider context.
 - [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
 - [LLM SEO guide](https://100questionsai.com/llm-seo): How language models choose brands, ChatGPT SEO in practice, and honest measurement.
-- [Peec AI alternative](https://100questionsai.com/peec-ai-alternative): Monitoring subscription vs. prepaid benchmark comparison, with fit guidance for each.
+- [Best Peec AI alternatives](https://100questionsai.com/peec-ai-alternative): Four honest alternatives—100 Questions, Otterly.AI, Semrush, and Profound—compared by function, price signal, best-fit user, tradeoffs, and when Peec AI is better.
 - [For agencies](https://100questionsai.com/for-agencies): Client-ready AI visibility reports with prepaid credits, exports, and comparable reruns.
 - [Methodology](https://100questionsai.com/methodology): Question construction, grounding eligibility, metric definitions, evidence retention, and interpretation limits.
 - [FAQ](https://100questionsai.com/faq): Providers, scoring, privacy, billing, and common benchmark questions.

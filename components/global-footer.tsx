@@ -84,6 +84,24 @@ export function GlobalFooter() {
             >
               AI visibility prompts
             </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility-report-template">
+              Report template
+            </Link>
+            <Link className="hover:text-zinc-200" href="/ai-visibility-score-calculator">
+              Score calculator
+            </Link>
+            <Link className="hover:text-zinc-200" href="/chatgpt-brand-visibility-test">
+              ChatGPT visibility test
+            </Link>
+            <Link className="hover:text-zinc-200" href="/llm-citation-audit-template">
+              Citation audit
+            </Link>
+            <Link className="hover:text-zinc-200" href="/ai-search-prompt-tracking-spreadsheet">
+              Prompt tracker
+            </Link>
+            <Link className="hover:text-zinc-200" href="/geo-client-reporting-template">
+              GEO report template
+            </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ
             </Link>

@@ -433,6 +433,30 @@ export default function AiVisibilityPromptsPage() {
             </div>
           </section>
 
+          <section aria-labelledby="workflow-heading">
+            <p className="eyebrow">Put the library to work</p>
+            <h2 id="workflow-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              Test, track, audit, and report the same frozen questions
+            </h2>
+            <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                ["AI visibility score calculator", "/ai-visibility-score-calculator", "Turn observed answer counts into a transparent, component-level score."],
+                ["ChatGPT brand visibility test", "/chatgpt-brand-visibility-test", "Run a focused 10-prompt manual test and preserve the evidence."],
+                ["Prompt tracking spreadsheet", "/ai-search-prompt-tracking-spreadsheet", "Track provider conditions, answers, citations, competitors, and reruns."],
+                ["LLM citation audit", "/llm-citation-audit-template", "Map cited pages to claims, brand effects, gaps, and actions."],
+                ["AI visibility report", "/ai-visibility-report-template", "Summarize scope, results, sources, limitations, and priorities."],
+                ["GEO client report", "/geo-client-reporting-template", "Translate the benchmark into a concise client decision narrative."],
+              ].map(([title, href, description]) => (
+                <article key={href} className="rounded-[22px] bg-white/[0.025] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+                  <h3 className="font-semibold text-white">
+                    <Link className="hover:text-emerald-200" href={href}>{title}</Link>
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400">{description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section aria-labelledby="faq-heading">
             <p className="eyebrow">Questions about the questions</p>
             <h2 id="faq-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">

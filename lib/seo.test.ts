@@ -16,14 +16,20 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(19);
+    expect(urls).toHaveLength(25);
     expect(urls).toContain("/ai-search-optimization");
     expect(urls).toContain("/ai-seo-tools");
     expect(urls).toContain("/ai-visibility-index");
     expect(urls).toContain("/ai-visibility-audit-checklist");
     expect(urls).toContain("/ai-visibility-prompts");
+    expect(urls).toContain("/ai-visibility-report-template");
+    expect(urls).toContain("/ai-visibility-score-calculator");
+    expect(urls).toContain("/ai-search-prompt-tracking-spreadsheet");
     expect(urls).toContain("/answer-engine-optimization-tools");
+    expect(urls).toContain("/chatgpt-brand-visibility-test");
     expect(urls).toContain("/chatgpt-seo-tool");
+    expect(urls).toContain("/geo-client-reporting-template");
+    expect(urls).toContain("/llm-citation-audit-template");
     expect(urls).not.toContain("/dashboard");
     expect(urls).not.toContain("/auth/sign-in");
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
@@ -40,6 +46,28 @@ describe("public SEO metadata", () => {
     expect(rows[0]).toBe("id,category,prompt_type,starter,prompt");
     expect(rows.filter((row) => row.includes(",true,"))).toHaveLength(25);
     expect(rows[100]).toContain("Brand-named diagnostics");
+  });
+
+  it("ships every resource-library download without an email gate", () => {
+    const resources = [
+      "ai-visibility-report-template.md",
+      "chatgpt-brand-visibility-test.csv",
+      "llm-citation-audit-template.csv",
+      "ai-search-prompt-tracking-spreadsheet.csv",
+      "geo-client-reporting-template.md",
+    ];
+
+    for (const resource of resources) {
+      const resourcePath = join(process.cwd(), "public", resource);
+      expect(existsSync(resourcePath), resource).toBe(true);
+      expect(readFileSync(resourcePath, "utf8").length, resource).toBeGreaterThan(500);
+    }
+
+    const tracker = readFileSync(
+      join(process.cwd(), "public", "ai-search-prompt-tracking-spreadsheet.csv"),
+      "utf8",
+    );
+    expect(tracker.trim().split(/\r?\n/)).toHaveLength(26);
   });
 
   it("advertises the canonical sitemap and keeps private APIs out of crawls", () => {

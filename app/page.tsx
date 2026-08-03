@@ -40,6 +40,7 @@ export const metadata: Metadata = {
   other: {
     "directree-verify":
       "directree-verify=b3246ee4e6e1b1ca893315f9b6ca5310",
+    "stackscope-claim": "ee5e56jq",
   },
   keywords: [
     "AI visibility tool",

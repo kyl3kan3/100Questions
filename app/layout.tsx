@@ -163,10 +163,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <Script id="datafast-queue" strategy="beforeInteractive">
+          {`
+            window.datafast = window.datafast || function() {
+              window.datafast.q = window.datafast.q || [];
+              window.datafast.q.push(arguments);
+            };
+          `}
+        </Script>
         <Script
           src="https://datafa.st/js/script.js"
           data-website-id="dfid_WIXXIARdwVFPbyM6Mib8P"
           data-domain="100questionsai.com"
+          data-disable-payments="true"
           strategy="afterInteractive"
         />
         <Script

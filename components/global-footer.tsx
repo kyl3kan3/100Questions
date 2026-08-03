@@ -219,6 +219,20 @@ export function GlobalFooter() {
               />
             </a>
             <a
+              href="https://peerlist.io/kyl3kan3/project/100-questions"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View 100 Questions on Peerlist"
+              className="opacity-85 transition-opacity hover:opacity-100"
+            >
+              <img
+                src="https://peerlist.io/api/v1/projects/embed/PRJHLKLOEN7QGO8BKIL6BJP6RP6R7P?showUpvote=false&amp;theme=light"
+                alt="100 Questions on Peerlist"
+                style={{ width: "auto", height: "72px" }}
+                loading="lazy"
+              />
+            </a>
+            <a
               href="https://seoreceipts.com/site/100questionsai/?ref=badge&amp;utm_source=embed&amp;utm_medium=badge&amp;utm_campaign=status-auto"
               target="_blank"
               rel="nofollow sponsored noopener"

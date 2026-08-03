@@ -16,16 +16,30 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(18);
+    expect(urls).toHaveLength(19);
     expect(urls).toContain("/ai-search-optimization");
     expect(urls).toContain("/ai-seo-tools");
     expect(urls).toContain("/ai-visibility-index");
     expect(urls).toContain("/ai-visibility-audit-checklist");
+    expect(urls).toContain("/ai-visibility-prompts");
     expect(urls).toContain("/answer-engine-optimization-tools");
     expect(urls).toContain("/chatgpt-seo-tool");
     expect(urls).not.toContain("/dashboard");
     expect(urls).not.toContain("/auth/sign-in");
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
+  });
+
+  it("ships the complete AI visibility prompt library as a downloadable CSV", () => {
+    const csv = readFileSync(
+      join(process.cwd(), "public", "ai-visibility-prompts.csv"),
+      "utf8",
+    );
+    const rows = csv.trim().split(/\r?\n/);
+
+    expect(rows).toHaveLength(101);
+    expect(rows[0]).toBe("id,category,prompt_type,starter,prompt");
+    expect(rows.filter((row) => row.includes(",true,"))).toHaveLength(25);
+    expect(rows[100]).toContain("Brand-named diagnostics");
   });
 
   it("advertises the canonical sitemap and keeps private APIs out of crawls", () => {

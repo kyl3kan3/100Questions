@@ -78,6 +78,12 @@ export function GlobalFooter() {
             >
               Audit checklist
             </Link>
+            <Link
+              className="hover:text-zinc-200"
+              href="/ai-visibility-prompts"
+            >
+              AI visibility prompts
+            </Link>
             <Link className="hover:text-zinc-200" href="/faq">
               FAQ
             </Link>

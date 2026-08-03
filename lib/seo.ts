@@ -11,6 +11,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-seo-tools",
   "/ai-visibility-index",
   "/ai-visibility-audit-checklist",
+  "/ai-visibility-prompts",
   "/answer-engine-optimization",
   "/answer-engine-optimization-tools",
   "/chatgpt-seo-tool",
@@ -92,6 +93,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.8,
+    },
+    {
+      url: absoluteUrl("/ai-visibility-prompts"),
+      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      changeFrequency: "monthly",
+      priority: 0.85,
     },
     {
       url: absoluteUrl("/answer-engine-optimization"),

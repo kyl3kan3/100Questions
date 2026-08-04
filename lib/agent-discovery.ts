@@ -5,6 +5,7 @@ import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
 export const AGENT_DISCOVERY_LINK_HEADER = [
   '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
   '</openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"',
+  '</.well-known/mcp/server-card.json>; rel="describedby"; type="application/json"',
   '</ai-visibility-checker>; rel="service-doc"; type="text/html"',
   '</llms.txt>; rel="describedby"; type="text/plain"',
 ].join(", ");
@@ -31,11 +32,89 @@ export const HOME_MARKDOWN = `# 100 Questions
 - [Public API catalog](${absoluteUrl("/.well-known/api-catalog")})
 - [OpenAPI description](${absoluteUrl("/openapi.json")})
 - [Agent skills index](${absoluteUrl("/.well-known/agent-skills/index.json")})
+- [MCP server card](${absoluteUrl("/.well-known/mcp/server-card.json")})
+- [Agent authentication guidance](${absoluteUrl("/auth.md")})
 
 ## Important limitation
 
 AI answers vary by provider, model, grounding source, locale, and time. Results are directional snapshots, not ranking guarantees. Failed or unsourced provider calls remain visible in coverage and are excluded from eligible-score denominators.
 `;
+
+export const AUTH_MARKDOWN = `# 100 Questions auth.md
+
+This document describes how agents and developers may access 100 Questions services.
+
+## Public agent access
+
+No registration or credential is required for the public AI readiness service:
+
+- MCP Streamable HTTP endpoint: ${absoluteUrl("/mcp")}
+- MCP server card: ${absoluteUrl("/.well-known/mcp/server-card.json")}
+- REST endpoint: ${absoluteUrl("/api/tools/ai-readiness")}
+- OpenAPI description: ${absoluteUrl("/openapi.json")}
+
+The public service is read-only. Clients must provide a public website domain and must not submit secrets, private network addresses, or personal data.
+
+## Interactive benchmark accounts
+
+The paid benchmark application uses browser-based account registration and secure session cookies. Create an account at ${absoluteUrl("/auth/sign-up")}.
+
+100 Questions does not currently issue OAuth bearer tokens, API keys, or autonomous agent credentials for protected benchmark APIs. Agents must not automate interactive account creation or present browser session cookies as machine credentials.
+`;
+
+export const MCP_PROTOCOL_VERSION = "2025-11-25";
+
+export const MCP_TOOL = {
+  name: "check_ai_visibility_readiness",
+  title: "Check AI visibility readiness",
+  description:
+    "Inspect a public website for technical AI-search crawlability and discovery signals.",
+  inputSchema: {
+    type: "object",
+    required: ["website"],
+    additionalProperties: false,
+    properties: {
+      website: {
+        type: "string",
+        maxLength: 500,
+        description: "A public website hostname such as example.com.",
+      },
+    },
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: true,
+  },
+} as const;
+
+export function buildMcpServerCard() {
+  return {
+    $schema: "https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json",
+    version: "1.0",
+    protocolVersion: MCP_PROTOCOL_VERSION,
+    serverInfo: {
+      name: "100questions-ai-readiness",
+      title: "100 Questions AI Readiness",
+      version: "1.0.0",
+    },
+    description:
+      "A public, read-only MCP service for checking a website's technical AI visibility readiness.",
+    iconUrl: absoluteUrl("/icon-192.png"),
+    documentationUrl: absoluteUrl("/ai-visibility-checker"),
+    transport: {
+      type: "streamable-http",
+      endpoint: absoluteUrl("/mcp"),
+    },
+    capabilities: { tools: {} },
+    authentication: {
+      required: false,
+      schemes: [],
+    },
+    tools: [MCP_TOOL],
+  };
+}
 
 export const AGENT_SKILL_MARKDOWN = `---
 name: audit-ai-visibility-readiness

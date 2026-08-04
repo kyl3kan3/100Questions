@@ -5,11 +5,13 @@ import { describe, expect, it } from "vitest";
 import {
   acceptsMarkdown,
   AGENT_DISCOVERY_LINK_HEADER,
+  AUTH_MARKDOWN,
   AGENT_SKILL_DIGEST,
   AGENT_SKILL_MARKDOWN,
   API_CATALOG_CONTENT_TYPE,
   buildAgentSkillsIndex,
   buildApiCatalog,
+  buildMcpServerCard,
   buildOpenApiDocument,
   buildRobotsText,
   HOME_MARKDOWN,
@@ -56,6 +58,29 @@ describe("agent discovery", () => {
     expect(document.paths).toHaveProperty("/api/tools/ai-readiness");
     expect(document.paths).toHaveProperty("/api/health");
     expect(document.paths).not.toHaveProperty("/api/runs");
+  });
+
+  it("publishes an unauthenticated MCP server card for the public tool", () => {
+    expect(buildMcpServerCard()).toMatchObject({
+      protocolVersion: "2025-11-25",
+      transport: {
+        type: "streamable-http",
+        endpoint: "https://100questionsai.com/mcp",
+      },
+      capabilities: { tools: {} },
+      authentication: { required: false },
+      tools: [
+        expect.objectContaining({
+          name: "check_ai_visibility_readiness",
+        }),
+      ],
+    });
+  });
+
+  it("keeps auth guidance honest about supported machine credentials", () => {
+    expect(AUTH_MARKDOWN).toContain("# 100 Questions auth.md");
+    expect(AUTH_MARKDOWN).toContain("No registration or credential is required");
+    expect(AUTH_MARKDOWN).toContain("does not currently issue OAuth bearer tokens");
   });
 
   it("publishes a valid skill digest", () => {

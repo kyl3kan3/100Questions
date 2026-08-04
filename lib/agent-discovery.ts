@@ -55,6 +55,15 @@ No registration or credential is required for the public AI readiness service:
 
 The public service is read-only. Clients must provide a public website domain and must not submit secrets, private network addresses, or personal data.
 
+## Agent registration
+
+- Agent audience: MCP clients and API clients performing public website readiness checks.
+- Supported registration method: anonymous access; no pre-registration or account provisioning is required.
+- Provisioning endpoint: ${absoluteUrl("/mcp")} performs the standard MCP initialization handshake and exposes the public tool.
+- Supported identity type: anonymous.
+- Supported credential type: none. Do not send an Authorization header or browser cookie to the public service.
+- Credential use: not applicable for anonymous access.
+
 ## Interactive benchmark accounts
 
 The paid benchmark application uses browser-based account registration and secure session cookies. Create an account at ${absoluteUrl("/auth/sign-up")}.

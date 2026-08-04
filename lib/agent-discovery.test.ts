@@ -80,6 +80,8 @@ describe("agent discovery", () => {
   it("keeps auth guidance honest about supported machine credentials", () => {
     expect(AUTH_MARKDOWN).toContain("# 100 Questions auth.md");
     expect(AUTH_MARKDOWN).toContain("No registration or credential is required");
+    expect(AUTH_MARKDOWN).toContain("## Agent registration");
+    expect(AUTH_MARKDOWN).toContain("Supported identity type: anonymous");
     expect(AUTH_MARKDOWN).toContain("does not currently issue OAuth bearer tokens");
   });
 

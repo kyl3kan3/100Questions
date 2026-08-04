@@ -42,6 +42,18 @@ AI answers vary by provider, model, grounding source, locale, and time. Results 
 
 export const AUTH_MARKDOWN = `# 100 Questions auth.md
 
+## Agent registration
+
+Agent audience: MCP clients and API clients performing public website readiness checks.
+
+- \`register_uri\`: not applicable; anonymous access requires no registration.
+- Provisioning endpoint: ${absoluteUrl("/mcp")} performs the standard MCP initialization handshake and exposes the public tool.
+- Supported registration method: anonymous access; no pre-registration or account provisioning is required.
+- \`identity_types_supported\`: \`["anonymous"]\`
+- \`credential_types_supported\`: \`["none"]\`
+- \`claim_uri\`: not applicable; the service does not issue credentials.
+- Credential use: do not send an Authorization header or browser cookie to the public service.
+
 This document describes how agents and developers may access 100 Questions services.
 
 ## Public agent access
@@ -54,15 +66,6 @@ No registration or credential is required for the public AI readiness service:
 - OpenAPI description: ${absoluteUrl("/openapi.json")}
 
 The public service is read-only. Clients must provide a public website domain and must not submit secrets, private network addresses, or personal data.
-
-## Agent registration
-
-- Agent audience: MCP clients and API clients performing public website readiness checks.
-- Supported registration method: anonymous access; no pre-registration or account provisioning is required.
-- Provisioning endpoint: ${absoluteUrl("/mcp")} performs the standard MCP initialization handshake and exposes the public tool.
-- Supported identity type: anonymous.
-- Supported credential type: none. Do not send an Authorization header or browser cookie to the public service.
-- Credential use: not applicable for anonymous access.
 
 ## Interactive benchmark accounts
 

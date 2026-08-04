@@ -44,15 +44,17 @@ export const AUTH_MARKDOWN = `# 100 Questions auth.md
 
 ## Agent registration
 
-Agent audience: MCP clients and API clients performing public website readiness checks.
+You are an agent. This service supports credential-free agent registration for MCP clients and API clients performing public website readiness checks.
 
 - \`register_uri\`: not applicable; anonymous access requires no registration.
-- Provisioning endpoint: ${absoluteUrl("/mcp")} performs the standard MCP initialization handshake and exposes the public tool.
+- Registration and provisioning endpoint: \`POST ${absoluteUrl("/mcp")}\`. Send a standard MCP \`initialize\` request to start a stateless client session and discover the public tool.
 - Supported registration method: anonymous access; no pre-registration or account provisioning is required.
 - \`identity_types_supported\`: \`["anonymous"]\`
 - \`credential_types_supported\`: \`["none"]\`
 - \`claim_uri\`: not applicable; the service does not issue credentials.
 - Credential use: do not send an Authorization header or browser cookie to the public service.
+
+Registration is complete when MCP initialization succeeds. The service returns no account, access token, API key, or persistent agent identity.
 
 This document describes how agents and developers may access 100 Questions services.
 

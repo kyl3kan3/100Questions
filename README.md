@@ -120,7 +120,12 @@ For Google Search Console and Bing Webmaster Tools, set the production
 `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` values supplied by the
 respective ownership flows. The site also hosts an IndexNow ownership key at
 the domain root so newly published or materially updated public URLs can be
-submitted to participating search engines after deployment.
+submitted to participating search engines after deployment. Run
+`npm run indexnow:check` to validate the hosted key and live sitemap without
+submitting anything, or `npm run indexnow:submit` to submit the complete public
+sitemap as one IndexNow batch. `.github/workflows/indexnow.yml` runs the same
+submission after GitHub receives a successful Vercel production deployment;
+preview deployments are excluded.
 
 ## Required production checks
 

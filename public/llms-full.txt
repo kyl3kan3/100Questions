@@ -31,11 +31,20 @@ LLM SEO guide: https://100questionsai.com/llm-seo
 Best Peec AI alternatives comparison: https://100questionsai.com/peec-ai-alternative
 For agencies: https://100questionsai.com/for-agencies
 
+Independent entity references:
+- VerifiedDR: https://verifieddr.com/website/100questionsai-com
+- Findly.tools: https://findly.tools/100-questions
+- neeed.directory: https://neeed.directory/products/100-questions
+- Peerlist: https://peerlist.io/kyl3kan3/project/100-questions
+- SEOReceipts: https://seoreceipts.com/site/100questionsai/
+
 ## What the product does
 
 100 Questions is an authenticated, paid web application for directional AI visibility benchmarking. A user supplies a subject name, canonical domain, aliases, category and use-case description, market, locale, and optional competitors. The system freezes a test and compares web-grounded answers from OpenAI, Anthropic, Google, and xAI through Vercel AI Gateway.
 
 It is an API-grounded benchmark. It does not claim that its responses are identical to the providers' consumer chat interfaces, which can differ in prompts, personalization, routing, model selection, and search behavior.
+
+The product is best suited to consultants, agencies, and in-house teams that need a bounded baseline, evidence-linked deliverable, or comparable post-implementation rerun. Continuous monitoring is a better fit when a team needs daily alerts, long-running prompt trends, Perplexity coverage, or consumer-interface replication.
 
 ## AI visibility
 

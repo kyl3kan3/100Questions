@@ -26,5 +26,8 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate live raw HTML and structured data
+        run: node scripts/validate-discovery.mjs
+
       - name: Submit the live sitemap to IndexNow
         run: node scripts/indexnow-submit.mjs

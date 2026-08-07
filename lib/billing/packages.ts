@@ -46,7 +46,7 @@ export const BILLING_PACKAGES = [
     priceCents: 900,
     priceEnvironmentVariable: "STRIPE_PRICE_INTRO",
     introductory: true,
-    description: "A complete first benchmark at the launch price.",
+    description: "A complete first benchmark at the introductory first-purchase price.",
   },
   {
     id: "single",

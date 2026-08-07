@@ -35,6 +35,19 @@ describe("public SEO metadata", () => {
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
   });
 
+  it("publishes accurate modification dates for changed product pages", () => {
+    const pages = new Map(
+      buildSitemap().map(({ url, lastModified }) => [
+        new URL(url).pathname,
+        lastModified,
+      ]),
+    );
+
+    for (const path of ["/", "/about", "/faq"]) {
+      expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));
+    }
+  });
+
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {
     const csv = readFileSync(
       join(process.cwd(), "public", "ai-visibility-prompts.csv"),

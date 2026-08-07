@@ -12,6 +12,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PRODUCT_SKU, PRODUCT_UPDATED_AT } from "@/lib/product-facts";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -150,6 +151,7 @@ export default function ChatgptSeoToolPage() {
         name: "100 Questions ChatGPT SEO Tool",
         url: pageUrl,
         datePublished: CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso,
+        dateModified: PRODUCT_UPDATED_AT,
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         description:
@@ -158,8 +160,12 @@ export default function ChatgptSeoToolPage() {
           "@type": "Offer",
           price: "9",
           priceCurrency: "USD",
+          availability: "https://schema.org/OnlineOnly",
+          sku: `${PRODUCT_SKU}-INTRO`,
+          url: absoluteUrl("/#pricing"),
           description: "Introductory first benchmark price",
         },
+        brand: { "@id": `${absoluteUrl()}#brand` },
         provider: { "@id": `${absoluteUrl()}#organization` },
         featureList: measuredSignals.map(([name]) => name),
       },

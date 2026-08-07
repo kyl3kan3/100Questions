@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
 import { WebMcpTools } from "@/components/webmcp-tools";
+import { buildSiteStructuredData } from "@/lib/site-structured-data";
 import {
   absoluteUrl,
   SITE_DESCRIPTION,
@@ -130,33 +131,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": `${absoluteUrl()}#organization`,
-        name: SITE_NAME,
-        url: absoluteUrl(),
-        description:
-          "A source-backed AI visibility benchmark comparing one shared question set across OpenAI, Claude, Gemini, and Grok.",
-        logo: {
-          "@type": "ImageObject",
-          url: absoluteUrl("/logo-mark.svg"),
-        },
-      },
-      {
-        "@type": "WebSite",
-        "@id": `${absoluteUrl()}#website`,
-        name: SITE_NAME,
-        url: absoluteUrl(),
-        description:
-          "Measure brand visibility, citations, competitor share of voice, and coverage across web-grounded AI answers.",
-        publisher: { "@id": `${absoluteUrl()}#organization` },
-        inLanguage: "en-US",
-      },
-    ],
-  };
+  const structuredData = buildSiteStructuredData();
 
   return (
     <html

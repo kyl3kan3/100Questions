@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PRODUCT_UPDATED_AT } from "@/lib/product-facts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   absoluteUrl,
@@ -195,13 +196,17 @@ export default function AiVisibilityCheckerPage() {
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         browserRequirements: "Requires a modern web browser",
+        dateModified: PRODUCT_UPDATED_AT,
         description:
           "A free technical preflight for public website signals used in AI search discovery.",
         offers: {
           "@type": "Offer",
           price: "0",
           priceCurrency: "USD",
+          availability: "https://schema.org/OnlineOnly",
+          url: pageUrl,
         },
+        brand: { "@id": `${absoluteUrl()}#brand` },
         provider: { "@id": `${absoluteUrl()}#organization` },
         featureList: [
           "Indexability check",

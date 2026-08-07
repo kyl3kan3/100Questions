@@ -123,9 +123,14 @@ the domain root so newly published or materially updated public URLs can be
 submitted to participating search engines after deployment. Run
 `npm run indexnow:check` to validate the hosted key and live sitemap without
 submitting anything, or `npm run indexnow:submit` to submit the complete public
-sitemap as one IndexNow batch. `.github/workflows/indexnow.yml` runs the same
-submission after GitHub receives a successful Vercel production deployment;
-preview deployments are excluded.
+sitemap as one IndexNow batch. Run `npm run discovery:validate` to confirm that
+the live raw HTML exposes the expected product, brand, offer, FAQ, and comparison
+facts. `.github/workflows/indexnow.yml` runs that validation before submitting
+the sitemap after a successful Vercel production deployment; preview deployments
+are excluded.
+
+The SaaS-specific schema decisions and intentionally inapplicable retail fields
+are documented in `AEO_GEO_IMPLEMENTATION.md`.
 
 ## Required production checks
 

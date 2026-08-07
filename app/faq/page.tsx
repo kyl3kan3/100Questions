@@ -6,14 +6,15 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PRODUCT_FAQS } from "@/lib/product-facts";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const faqUrl = absoluteUrl("/faq");
 const FAQ_PUBLISHED_DATE = "2026-07-20";
 // Update this only when the FAQ questions or answers below materially change.
 const FAQ_LAST_MODIFIED = {
-  iso: "2026-07-21",
-  label: "July 21, 2026",
+  iso: "2026-08-07",
+  label: "August 7, 2026",
 } as const;
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export const metadata: Metadata = {
 };
 
 const faqs = [
+  ...PRODUCT_FAQS,
   {
     id: "what-is-ai-visibility",
     question: "What does an AI visibility benchmark measure?",

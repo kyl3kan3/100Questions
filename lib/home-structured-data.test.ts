@@ -5,6 +5,18 @@ import {
   buildHomeProductStructuredData,
   buildHomeStructuredData,
 } from "./home-structured-data";
+import {
+  PRODUCT_FAQS,
+  PRODUCT_FEATURES,
+  PRODUCT_SKU,
+  PRODUCT_UPDATED_AT,
+} from "./product-facts";
+
+function hasType(item: { "@type": string | readonly string[] }, type: string) {
+  return Array.isArray(item["@type"])
+    ? item["@type"].includes(type)
+    : item["@type"] === type;
+}
 
 describe("homepage structured data", () => {
   it("publishes exact prepaid package facts instead of only a price range", () => {
@@ -35,6 +47,17 @@ describe("homepage structured data", () => {
   it("makes the benchmark scope and billing model machine-readable", () => {
     const product = buildHomeProductStructuredData();
 
+    expect(hasType(product, "Product")).toBe(true);
+    expect(hasType(product, "SoftwareApplication")).toBe(true);
+    expect(product).toMatchObject({
+      sku: PRODUCT_SKU,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      dateModified: PRODUCT_UPDATED_AT,
+      featureList: [...PRODUCT_FEATURES],
+      brand: { "@id": "https://100questionsai.com/#brand" },
+    });
+
     expect(product.additionalProperty).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "Question set", value: "25 frozen questions" }),
@@ -47,13 +70,42 @@ describe("homepage structured data", () => {
     );
   });
 
+  it("publishes online availability without inventing physical inventory or reviews", () => {
+    const product = buildHomeProductStructuredData();
+
+    expect(product.offers.availability).toBe("https://schema.org/OnlineOnly");
+    expect(
+      product.offers.offers.every(
+        (offer) => offer.availability === "https://schema.org/OnlineOnly",
+      ),
+    ).toBe(true);
+    expect(product).not.toHaveProperty("aggregateRating");
+    expect(product).not.toHaveProperty("review");
+    expect(product).not.toHaveProperty("gtin");
+  });
+
+  it("keeps product questions identical in visible content and FAQ schema", () => {
+    const structuredData = buildHomeStructuredData();
+    const faqPage = structuredData["@graph"].find((item) =>
+      hasType(item, "FAQPage"),
+    );
+
+    expect(faqPage).toMatchObject({
+      mainEntity: PRODUCT_FAQS.map(({ question, answer }) => ({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: { "@type": "Answer", text: answer },
+      })),
+    });
+  });
+
   it("links the page and product to one descriptive product image", () => {
     const structuredData = buildHomeStructuredData();
     const webPage = structuredData["@graph"].find(
       (item) => item["@type"] === "WebPage",
     );
     const product = structuredData["@graph"].find(
-      (item) => item["@type"] === "Product",
+      (item) => hasType(item, "Product"),
     );
 
     expect(webPage).toMatchObject({

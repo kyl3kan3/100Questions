@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { PRODUCT_UPDATED_AT } from "./product-facts";
 import { absoluteUrl, SITE_UPDATED_AT, SITE_URL } from "./site";
 
 export const PUBLIC_MARKETING_PATHS = [
@@ -45,18 +46,19 @@ export const PUBLIC_ROUTE_REDIRECTS = [
 
 export function buildSitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date(SITE_UPDATED_AT);
+  const productLastModified = new Date(PRODUCT_UPDATED_AT);
 
   return [
     {
       url: absoluteUrl(),
-      lastModified,
+      lastModified: productLastModified,
       changeFrequency: "weekly",
       priority: 1,
       images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/about"),
-      lastModified,
+      lastModified: productLastModified,
       changeFrequency: "monthly",
       priority: 0.7,
     },
@@ -197,7 +199,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/faq"),
-      lastModified,
+      lastModified: productLastModified,
       changeFrequency: "monthly",
       priority: 0.7,
     },

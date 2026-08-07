@@ -1,5 +1,12 @@
 import { BILLING_PACKAGES } from "./billing/packages";
-import { absoluteUrl, SITE_UPDATED_AT } from "./site";
+import {
+  PRODUCT_FAQS,
+  PRODUCT_FEATURES,
+  PRODUCT_NAME,
+  PRODUCT_SKU,
+  PRODUCT_UPDATED_AT,
+} from "./product-facts";
+import { absoluteUrl } from "./site";
 
 const PRODUCT_IMAGE = {
   "@type": "ImageObject",
@@ -16,15 +23,30 @@ export function buildHomeProductStructuredData() {
   const homeUrl = absoluteUrl();
 
   return {
-    "@type": "Product",
+    "@type": ["Product", "SoftwareApplication"],
     "@id": `${homeUrl}#product`,
-    name: "100 Questions AI Visibility Benchmark",
+    name: PRODUCT_NAME,
     url: homeUrl,
     image: PRODUCT_IMAGE,
+    sku: PRODUCT_SKU,
     description:
       "A prepaid, source-backed AI visibility audit with one 25-question set, four model providers, and a prioritized action plan.",
-    brand: { "@id": `${homeUrl}#organization` },
+    brand: { "@id": `${homeUrl}#brand` },
+    provider: { "@id": `${homeUrl}#organization` },
     category: "AI visibility analytics",
+    applicationCategory: "BusinessApplication",
+    applicationSubCategory: "AI visibility analytics",
+    operatingSystem: "Web",
+    browserRequirements: "Requires a modern web browser",
+    softwareVersion: "benchmark-v2",
+    inLanguage: "en-US",
+    dateModified: PRODUCT_UPDATED_AT,
+    isAccessibleForFree: false,
+    featureList: [...PRODUCT_FEATURES],
+    audience: {
+      "@type": "Audience",
+      audienceType: "Consultants, agencies, and in-house marketing teams",
+    },
     additionalProperty: [
       {
         "@type": "PropertyValue",
@@ -63,16 +85,17 @@ export function buildHomeProductStructuredData() {
         Math.max(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) / 100,
       ),
       offerCount: BILLING_PACKAGES.length,
-      availability: "https://schema.org/InStock",
+      availability: "https://schema.org/OnlineOnly",
       seller: { "@id": `${homeUrl}#organization` },
       offers: BILLING_PACKAGES.map((billingPackage) => ({
         "@type": "Offer",
+        sku: `${PRODUCT_SKU}-${billingPackage.id.toUpperCase()}`,
         name: billingPackage.name,
         description: billingPackage.description,
         url: absoluteUrl("/#pricing"),
         price: (billingPackage.priceCents / 100).toFixed(2),
         priceCurrency: "USD",
-        availability: "https://schema.org/InStock",
+        availability: "https://schema.org/OnlineOnly",
         seller: { "@id": `${homeUrl}#organization` },
         eligibleQuantity: {
           "@type": "QuantitativeValue",
@@ -103,10 +126,22 @@ export function buildHomeStructuredData() {
         isPartOf: { "@id": `${homeUrl}#website` },
         about: { "@id": `${homeUrl}#product` },
         primaryImageOfPage: { "@id": PRODUCT_IMAGE["@id"] },
-        dateModified: SITE_UPDATED_AT,
+        dateModified: PRODUCT_UPDATED_AT,
         inLanguage: "en-US",
       },
       buildHomeProductStructuredData(),
+      {
+        "@type": "FAQPage",
+        "@id": `${homeUrl}#faq`,
+        mainEntity: PRODUCT_FAQS.map(({ question, answer }) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: answer,
+          },
+        })),
+      },
     ],
   };
 }

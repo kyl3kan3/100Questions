@@ -27,6 +27,12 @@ import {
 } from "@/lib/billing/packages";
 import { buildHomeStructuredData } from "@/lib/home-structured-data";
 import {
+  PRODUCT_BEST_FITS,
+  PRODUCT_FAQS,
+  PRODUCT_FEATURES,
+  PRODUCT_LIMITATIONS,
+} from "@/lib/product-facts";
+import {
   absoluteUrl,
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -195,7 +201,7 @@ export default function Home() {
               <Button asChild variant="link" className="mt-4"><Link href="/sample-report">Open the complete sample report</Link></Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              {["25 buyer questions", "Four web-grounded providers", "Competitor comparison", "Answer and citation evidence", "Five prioritized actions", "PDF and CSV exports"].map((item) => (
+              {PRODUCT_FEATURES.map((item) => (
                 <p key={item} className="flex items-center gap-3 rounded-xl bg-black/20 px-4 py-3 text-sm text-zinc-200"><Check className="size-4 shrink-0 text-emerald-300" />{item}</p>
               ))}
             </div>
@@ -248,6 +254,32 @@ export default function Home() {
             All four models receive the same 25 questions, locale, and prompt
             version; the run freezes its timestamp with the results.
           </FeatureCard>
+        </div>
+      </section>
+
+      <section className="border-t border-white/[0.07]">
+        <div className="page-shell py-20 md:py-24">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Choose the right measurement model</p>
+            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              Best for a controlled benchmark—not an always-on dashboard.
+            </h2>
+            <p className="mt-5 text-pretty leading-7 text-zinc-400">
+              100 Questions trades monitoring frequency for a frozen test,
+              inspectable evidence, and a bounded project cost. That makes it a
+              strong fit for specific decisions, but not every AI visibility job.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-4 lg:grid-cols-2">
+            <DecisionCard title="Use 100 Questions for" items={PRODUCT_BEST_FITS} />
+            <DecisionCard
+              title="Choose continuous monitoring when"
+              items={PRODUCT_LIMITATIONS}
+            />
+          </div>
+          <Button asChild variant="link" className="mt-5">
+            <Link href="/ai-seo-tools">Compare monitoring, suites, and fixed benchmarks</Link>
+          </Button>
         </div>
       </section>
 
@@ -367,6 +399,32 @@ export default function Home() {
       </section>
 
       <section className="border-t border-white/[0.07]">
+        <div className="page-shell py-20 md:py-24">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Product questions</p>
+            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              Clear answers before you buy.
+            </h2>
+          </div>
+          <div className="mt-10 divide-y divide-white/[0.08] border-y border-white/[0.08]">
+            {PRODUCT_FAQS.map(({ id, question, answer }) => (
+              <article key={id} id={id} className="scroll-mt-8 py-7 sm:py-8">
+                <h3 className="text-balance text-xl font-semibold tracking-[-0.02em] text-zinc-100 sm:text-2xl">
+                  {question}
+                </h3>
+                <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
+                  {answer}
+                </p>
+              </article>
+            ))}
+          </div>
+          <Button asChild variant="link" className="mt-5">
+            <Link href="/faq">Read every product and methodology question</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="border-t border-white/[0.07]">
         <div id="pricing" className="page-shell scroll-mt-8 py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow">Simple, prepaid pricing</p>
@@ -466,6 +524,28 @@ function MetricPreview({
         {detail}
       </p>
     </div>
+  );
+}
+
+function DecisionCard({
+  title,
+  items,
+}: {
+  title: string;
+  items: readonly string[];
+}) {
+  return (
+    <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+      <h3 className="text-xl font-semibold text-white">{title}</h3>
+      <ul className="mt-5 space-y-3">
+        {items.map((item) => (
+          <li key={item} className="flex gap-3 text-sm leading-6 text-zinc-300">
+            <Check className="mt-1 size-4 shrink-0 text-emerald-300" aria-hidden="true" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
   );
 }
 

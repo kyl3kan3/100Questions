@@ -54,13 +54,6 @@ export const metadata: Metadata = {
   title: "2026 AI Visibility Index: AI SEO Software",
   description:
     "Peec AI led the 25-product 2026 AI Visibility Index. Explore 80 grounded answers, four-provider results, cited sources, methodology, and downloadable data.",
-  keywords: [
-    "AI Visibility Index",
-    "AI visibility benchmark",
-    "AEO software benchmark",
-    "GEO tools research",
-    "LLM SEO data",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "2026 AI Visibility Index",
@@ -331,6 +324,12 @@ export default function AiVisibilityIndexPage() {
           {
             "@type": "ListItem",
             position: 2,
+            name: "Resources",
+            item: absoluteUrl("/resources"),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: "2026 AI Visibility Index",
             item: pageUrl,
           },
@@ -356,6 +355,10 @@ export default function AiVisibilityIndexPage() {
             <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
               <Link className="hover:text-zinc-200" href="/">
                 Home
+              </Link>{" "}
+              <span aria-hidden="true">/</span>{" "}
+              <Link className="hover:text-zinc-200" href="/resources">
+                Resources
               </Link>{" "}
               <span aria-hidden="true">/</span>{" "}
               <span className="text-zinc-300">AI Visibility Index</span>

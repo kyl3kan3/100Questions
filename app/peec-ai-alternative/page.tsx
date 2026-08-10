@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -24,17 +25,9 @@ const peecBaseline = {
 } as const;
 
 export const metadata: Metadata = {
-  title: "4 Best Peec AI Alternatives (Honest 2026 Guide)",
+  title: "4 Peec AI Alternatives for 2026",
   description:
-    "Compare four Peec AI alternatives by pricing, best-fit user, tradeoffs, and when Peec is the better choice. Includes 100 Questions, Otterly, Semrush, and Profound.",
-  keywords: [
-    "Peec AI alternatives",
-    "best Peec AI alternative",
-    "Peec AI competitors",
-    "Peec AI vs Otterly",
-    "Peec AI vs 100 Questions",
-    "AI visibility tools",
-  ],
+    "Compare four Peec AI alternatives by fit, tradeoffs, and when Peec is the better choice: 100 Questions, Otterly, Semrush, and Profound.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "4 Best Peec AI Alternatives: An Honest Comparison",
@@ -255,6 +248,13 @@ export default function PeecAiAlternativePage() {
                 to do. The ranking is not a claim that it replaces Peec AI or
                 the other products for continuous monitoring.
               </p>
+              <ContentByline
+                publishedAt={publishedAt}
+                publishedLabel="July 24, 2026"
+                modifiedAt={reviewedAt}
+                modifiedLabel="August 2, 2026"
+                note="First-party documentation review"
+              />
             </div>
           </header>
 

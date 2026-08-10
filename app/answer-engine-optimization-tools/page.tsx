@@ -4,8 +4,10 @@ import {
   Scale,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
@@ -13,40 +15,33 @@ import { Badge } from "@/components/ui/badge";
 import {
   absoluteUrl,
   SITE_NAME,
-  SITE_UPDATED_AT,
   SOCIAL_IMAGE,
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/answer-engine-optimization-tools");
+const publishedAt = "2026-07-24T00:00:00.000Z";
+const reviewedAt = "2026-08-10T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "Answer Engine Optimization Tools: 6 AEO Tools Compared",
+  title: "6 AEO Tools Compared for Different Jobs",
   description:
-    "Compare six answer engine optimization tools for AI visibility monitoring, fixed benchmarks, citations, enterprise workflows, and broader SEO research.",
-  keywords: [
-    "answer engine optimization tools",
-    "AEO tools",
-    "AEO tool",
-    "best AEO tools",
-    "AI answer optimization tools",
-    "answer engine visibility software",
-  ],
+    "Compare six AEO tools by workflow, cadence, evidence, fit, and tradeoffs using linked first-party documentation and a transparent selection method.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Answer Engine Optimization Tools: 6 AEO Tools Compared",
+    title: "6 AEO Tools Compared for Different Jobs",
     description:
       "Choose an AEO tool by measurement model, evidence, cadence, and workflow rather than the longest feature list.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
     locale: "en_US",
-    publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
+    publishedTime: publishedAt,
+    modifiedTime: reviewedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Answer Engine Optimization Tools: 6 AEO Tools Compared",
+    title: "6 AEO Tools Compared for Different Jobs",
     description:
       "A practical comparison of monitoring, benchmarking, research, and enterprise AEO workflows.",
     images: [SOCIAL_IMAGE],
@@ -130,6 +125,51 @@ const tools = [
   },
 ] as const;
 
+const comparisonRows = [
+  {
+    name: "100 Questions",
+    workflow: "Frozen evidence-linked benchmark",
+    cadence: "Point-in-time baseline and like-for-like rerun",
+    evidence: "Stored answers, source URLs, coverage, PDF, and CSV exports",
+  },
+  {
+    name: "Ahrefs Brand Radar",
+    workflow: "Large-scale AI visibility research inside an SEO suite",
+    cadence: "Index research plus configurable prompt tracking",
+    evidence: "Brand, citation, source, and share-of-voice analysis",
+  },
+  {
+    name: "Semrush AI Visibility Toolkit",
+    workflow: "AI visibility research connected to wider SEO workflows",
+    cadence: "Recurring research and monitoring",
+    evidence: "Prompt, competitor, source, and visibility analysis",
+  },
+  {
+    name: "Profound",
+    workflow: "Enterprise answer-engine analytics and operations",
+    cadence: "Ongoing multi-team program",
+    evidence: "Citation, answer-engine, content, and agent analytics",
+  },
+  {
+    name: "Otterly.AI",
+    workflow: "Focused scheduled AI search monitoring",
+    cadence: "Recurring prompt checks",
+    evidence: "Visibility, citation, and supported-platform tracking",
+  },
+  {
+    name: "Peec AI",
+    workflow: "AI search analytics and brand monitoring",
+    cadence: "Recurring prompt and source analysis",
+    evidence: "Visibility, position, sentiment, sources, and competitors",
+  },
+] as const;
+
+const selectionCriteria = [
+  "The product has a current first-party page documenting an AI visibility, answer-engine, citation, or prompt-measurement workflow.",
+  "Its measurement model represents a distinct buying job: fixed benchmarking, recurring monitoring, broad research, integrated SEO, or enterprise operations.",
+  "The comparison can describe a concrete best fit and limitation without relying on affiliate commissions, undisclosed access, or invented scores.",
+] as const;
+
 const buyingQuestions = [
   [
     "Do we need a snapshot or a trend?",
@@ -192,13 +232,13 @@ export default function AnswerEngineOptimizationToolsPage() {
       {
         "@type": "Article",
         "@id": `${pageUrl}#article`,
-        headline: "Answer Engine Optimization Tools: 6 AEO Tools Compared",
+        headline: "6 AEO Tools Compared for Different Jobs",
         description:
           "A job-based comparison of AEO tools for monitoring, fixed benchmarks, citation research, enterprise workflows, and broader SEO.",
         url: pageUrl,
         mainEntityOfPage: pageUrl,
-        datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
+        datePublished: publishedAt,
+        dateModified: reviewedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -276,14 +316,95 @@ export default function AnswerEngineOptimizationToolsPage() {
                 research, enterprise workflows, and controlled benchmarks.
                 Choose the measurement model before comparing feature lists.
               </p>
-              <p className="mt-5 max-w-3xl text-pretty text-xs leading-5 text-zinc-400">
-                Reviewed July 24, 2026 from public product documentation. Verify
-                current platform coverage and terms before purchasing.
-              </p>
+              <ContentByline
+                publishedAt={publishedAt}
+                publishedLabel="July 24, 2026"
+                modifiedAt={reviewedAt}
+                modifiedLabel="August 10, 2026"
+                note="First-party documentation review"
+              />
             </div>
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <section
+              className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start"
+              aria-labelledby="comparison-method-heading"
+            >
+              <div>
+                <p className="eyebrow">How this comparison was produced</p>
+                <h2
+                  id="comparison-method-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+                >
+                  Documentation review, not a fabricated hands-on ranking
+                </h2>
+              </div>
+              <div className="space-y-5 text-pretty text-sm leading-6 text-zinc-400">
+                <p>
+                  100 Questions publishes this page and has direct product
+                  evidence only for its own benchmark. Competitor descriptions
+                  below come from the linked first-party product and help pages,
+                  checked on August 10, 2026. No vendor paid for inclusion, and
+                  the order is not a best-to-worst ranking.
+                </p>
+                <ul className="space-y-3">
+                  {selectionCriteria.map((criterion) => (
+                    <li className="flex gap-3" key={criterion}>
+                      <CheckCircle2
+                        className="mt-0.5 size-4 shrink-0 text-emerald-300"
+                        aria-hidden="true"
+                      />
+                      <span>{criterion}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section aria-labelledby="matrix-heading">
+              <p className="eyebrow">At-a-glance matrix</p>
+              <h2
+                id="matrix-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                Compare workflow before comparing features
+              </h2>
+              <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
+                These categories summarize the documented measurement model.
+                Confirm current provider coverage, limits, pricing, and evidence
+                access directly with each vendor before purchasing.
+              </p>
+              <div className="mt-8 overflow-x-auto rounded-[22px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+                <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+                  <thead className="bg-white/[0.045] text-xs uppercase tracking-[0.1em] text-zinc-400">
+                    <tr>
+                      <th className="px-5 py-4 font-semibold">Tool</th>
+                      <th className="px-5 py-4 font-semibold">Primary workflow</th>
+                      <th className="px-5 py-4 font-semibold">Cadence</th>
+                      <th className="px-5 py-4 font-semibold">Documented evidence</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.07] bg-[#0b0e0c] text-zinc-300">
+                    {comparisonRows.map((row) => (
+                      <tr key={row.name}>
+                        <th className="px-5 py-5 font-semibold text-white">
+                          {row.name}
+                        </th>
+                        <td className="px-5 py-5 leading-6">{row.workflow}</td>
+                        <td className="px-5 py-5 leading-6 text-zinc-400">
+                          {row.cadence}
+                        </td>
+                        <td className="px-5 py-5 leading-6 text-zinc-400">
+                          {row.evidence}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
             <section aria-labelledby="tools-heading">
               <p className="eyebrow">The comparison</p>
               <h2
@@ -293,15 +414,15 @@ export default function AnswerEngineOptimizationToolsPage() {
                 Match the tool to the decision
               </h2>
               <div className="mt-8 space-y-4">
-                {tools.map((tool, index) => (
+                {tools.map((tool) => (
                   <article
                     key={tool.name}
                     className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-7"
                   >
                     <div className="grid gap-5 lg:grid-cols-[0.5fr_1fr_1fr]">
                       <div>
-                        <span className="font-mono text-xs tabular-nums text-emerald-300">
-                          {String(index + 1).padStart(2, "0")}
+                        <span className="font-mono text-xs uppercase tracking-[0.1em] text-emerald-300">
+                          Documented workflow
                         </span>
                         <h3 className="mt-3 text-xl font-semibold text-white">
                           {tool.name}
@@ -354,6 +475,51 @@ export default function AnswerEngineOptimizationToolsPage() {
                     </div>
                   </article>
                 ))}
+              </div>
+            </section>
+
+            <section
+              className="grid gap-8 rounded-[28px] bg-white/[0.025] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
+              aria-labelledby="owned-evidence-heading"
+            >
+              <div className="overflow-hidden rounded-[18px] bg-[#101411] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+                <Image
+                  src="/sample-report-preview.png"
+                  alt="100 Questions sample report showing AI visibility, source evidence, competitor findings, and prioritized actions"
+                  width={1440}
+                  height={900}
+                  sizes="(min-width: 1024px) 52vw, 100vw"
+                  className="h-auto w-full"
+                />
+              </div>
+              <div>
+                <p className="eyebrow">First-hand evidence boundary</p>
+                <h2
+                  id="owned-evidence-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+                >
+                  Inspect our output; verify every competitor at its source
+                </h2>
+                <p className="mt-4 text-pretty leading-7 text-zinc-400">
+                  The public sample shows the report format 100 Questions can
+                  substantiate directly. For the other five tools, this page
+                  links to vendor documentation and deliberately avoids
+                  unsupported performance scores or claims of hands-on access.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
+                  <Link
+                    className="text-emerald-300 hover:text-emerald-200"
+                    href="/sample-report"
+                  >
+                    Open the sample report
+                  </Link>
+                  <Link
+                    className="text-emerald-300 hover:text-emerald-200"
+                    href="/methodology"
+                  >
+                    Review the methodology
+                  </Link>
+                </div>
               </div>
             </section>
 

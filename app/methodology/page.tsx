@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, CircleAlert, Scale } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -20,12 +21,6 @@ export const metadata: Metadata = {
   title: "AI Visibility Benchmark Methodology",
   description:
     "Learn how 100 Questions builds a frozen 25-question test, collects 100 planned web-grounded answers, and calculates transparent AI visibility metrics.",
-  keywords: [
-    "AI visibility methodology",
-    "generative engine optimization benchmark",
-    "LLM brand visibility measurement",
-    "AI search share of voice",
-  ],
   alternates: { canonical: methodologyUrl },
   openGraph: {
     title: "AI Visibility Benchmark Methodology · 100 Questions",
@@ -168,6 +163,10 @@ export default function MethodologyPage() {
               question set, asks it across four AI providers with web search, and
               keeps coverage and metric denominators visible beside the results.
             </p>
+            <ContentByline
+              publishedAt={SITE_UPDATED_AT}
+              publishedLabel="July 24, 2026"
+            />
           </div>
         </section>
 

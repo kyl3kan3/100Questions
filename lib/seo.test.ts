@@ -16,7 +16,11 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(25);
+    expect(urls).toHaveLength(29);
+    expect(urls).toContain("/resources");
+    expect(urls).toContain("/contact");
+    expect(urls).toContain("/privacy");
+    expect(urls).toContain("/terms");
     expect(urls).toContain("/ai-search-optimization");
     expect(urls).toContain("/ai-seo-tools");
     expect(urls).toContain("/ai-visibility-index");
@@ -43,7 +47,22 @@ describe("public SEO metadata", () => {
       ]),
     );
 
-    for (const path of ["/", "/about", "/faq"]) {
+    for (const path of ["/", "/faq"]) {
+      expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));
+    }
+
+    for (const path of [
+      "/resources",
+      "/about",
+      "/contact",
+      "/privacy",
+      "/terms",
+      "/answer-engine-optimization-tools",
+    ]) {
+      expect(pages.get(path)).toEqual(new Date("2026-08-10T00:00:00.000Z"));
+    }
+
+    for (const path of ["/ai-visibility-checker", "/chatgpt-seo-tool"]) {
       expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));
     }
   });
@@ -102,7 +121,12 @@ describe("public SEO metadata", () => {
     });
     expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
       source: "/support",
-      destination: "/faq",
+      destination: "/contact",
+      permanent: true,
+    });
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/tools",
+      destination: "/resources",
       permanent: true,
     });
     expect(

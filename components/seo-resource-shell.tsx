@@ -2,6 +2,7 @@ import { ArrowRight, Download } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +51,7 @@ export function SeoResourceShell({
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: "2026-08-03",
-        dateModified: "2026-08-03",
+        dateModified: "2026-08-10",
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -75,6 +76,12 @@ export function SeoResourceShell({
           {
             "@type": "ListItem",
             position: 2,
+            name: "Resources",
+            item: absoluteUrl("/resources"),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: breadcrumb,
             item: pageUrl,
           },
@@ -94,6 +101,10 @@ export function SeoResourceShell({
                 Home
               </Link>{" "}
               <span aria-hidden="true">/</span>{" "}
+              <Link className="hover:text-zinc-200" href="/resources">
+                Resources
+              </Link>{" "}
+              <span aria-hidden="true">/</span>{" "}
               <span className="text-zinc-300">{breadcrumb}</span>
             </nav>
             <Badge
@@ -108,9 +119,12 @@ export function SeoResourceShell({
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
               {description}
             </p>
-            <p className="mt-4 text-sm text-zinc-400">
-              Published: <time dateTime="2026-08-03">August 3, 2026</time>
-            </p>
+            <ContentByline
+              publishedAt="2026-08-03"
+              publishedLabel="August 3, 2026"
+              modifiedAt="2026-08-10"
+              modifiedLabel="August 10, 2026"
+            />
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {download ? (
                 <Button asChild size="lg">

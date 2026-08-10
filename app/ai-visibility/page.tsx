@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -20,16 +21,6 @@ export const metadata: Metadata = {
   title: "AI Visibility: How to Measure and Improve It",
   description:
     "AI visibility measures how often your brand appears in AI answers. Learn the core metrics, see a worked example, and find practical ways to improve it.",
-  keywords: [
-    "AI visibility",
-    "AI search visibility",
-    "AI brand visibility",
-    "AI visibility tool",
-    "LLM visibility",
-    "AI brand monitoring",
-    "AI citation tracking",
-    "AI share of voice",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI Visibility: What It Is, How to Measure and Improve It",
@@ -240,6 +231,10 @@ export default function AiVisibilityGuidePage() {
                 buyer questions. This guide explains the metrics, shows a worked
                 example, and outlines practical ways to improve your visibility.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+              />
             </div>
           </header>
 

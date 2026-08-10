@@ -9,12 +9,6 @@ export const metadata = buildResourceMetadata({
   title: "AI Visibility Score Calculator with Formula",
   description:
     "Calculate AI visibility from observed answers using a transparent formula for mention rate, prominence, owned citations, accuracy, and coverage.",
-  keywords: [
-    "AI visibility score calculator",
-    "GEO score calculator",
-    "AI search visibility score",
-    "LLM visibility calculator",
-  ],
 });
 
 const faqs = [

@@ -2,6 +2,10 @@
 
 Canonical site: https://100questionsai.com/
 About: https://100questionsai.com/about
+Resources: https://100questionsai.com/resources
+Contact: https://100questionsai.com/contact
+Privacy: https://100questionsai.com/privacy
+Terms: https://100questionsai.com/terms
 Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility

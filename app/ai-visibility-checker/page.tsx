@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AiReadinessChecker } from "@/components/ai-readiness-checker";
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,20 +18,12 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-checker");
+const checkerModifiedAt = "2026-08-07T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "Free AI Visibility Checker: Test Technical Readiness",
+  title: "Free AI Visibility Readiness Checker",
   description:
     "Run a free AI visibility readiness check for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt. No account required.",
-  keywords: [
-    "AI visibility checker",
-    "AI visibility check",
-    "AI visibility score",
-    "check AI visibility",
-    "ChatGPT brand visibility",
-    "AI brand visibility check",
-    "AI visibility audit",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Free AI Visibility Checker: Test Technical Readiness",
@@ -41,7 +34,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
+    modifiedTime: checkerModifiedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -176,7 +169,7 @@ export default function AiVisibilityCheckerPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
+        dateModified: checkerModifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -277,6 +270,12 @@ export default function AiVisibilityCheckerPage() {
                 llms.txt. Then use the manual check below to test what AI
                 assistants actually say.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+                modifiedAt={checkerModifiedAt}
+                modifiedLabel="August 7, 2026"
+              />
             </div>
           </header>
 

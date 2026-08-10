@@ -7,6 +7,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
@@ -24,19 +25,15 @@ const CHATGPT_SEO_TOOL_PUBLISHED_DATE = {
   iso: "2026-07-24",
   label: "July 24, 2026",
 } as const;
+const CHATGPT_SEO_TOOL_REVIEWED_DATE = {
+  iso: "2026-08-07",
+  label: "August 7, 2026",
+} as const;
 
 export const metadata: Metadata = {
   title: "ChatGPT SEO Tool: Measure Brand Visibility",
   description:
     "Use a ChatGPT SEO tool to measure brand mentions, prominence, competitors, and citations across a frozen question set, with evidence and multi-model context.",
-  keywords: [
-    "ChatGPT SEO tool",
-    "ChatGPT SEO checker",
-    "ChatGPT ranking checker",
-    "ChatGPT visibility tool",
-    "SEO for ChatGPT",
-    "AI visibility benchmark",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "ChatGPT SEO Tool: Measure Brand Visibility with Evidence",
@@ -222,18 +219,18 @@ export default function ChatgptSeoToolPage() {
                 Measure ChatGPT visibility without confusing a spot check for a
                 benchmark
               </h1>
-              <p className="mt-4 text-sm text-zinc-400">
-                Published:{" "}
-                <time dateTime={CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso}>
-                  {CHATGPT_SEO_TOOL_PUBLISHED_DATE.label}
-                </time>
-              </p>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
                 See whether AI answers mention your brand, who appears instead,
                 and which sources shape the answer. Every run preserves the
                 questions, answers, citations, and provider coverage behind the
                 result.
               </p>
+              <ContentByline
+                publishedAt={CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso}
+                publishedLabel={CHATGPT_SEO_TOOL_PUBLISHED_DATE.label}
+                modifiedAt={CHATGPT_SEO_TOOL_REVIEWED_DATE.iso}
+                modifiedLabel={CHATGPT_SEO_TOOL_REVIEWED_DATE.label}
+              />
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <MarketingCheckoutButton label="Run a $9 benchmark" />
                 <Button asChild size="lg" variant="outline">

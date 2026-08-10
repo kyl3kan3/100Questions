@@ -78,7 +78,17 @@ describe("raw HTML discovery validation", () => {
 
   it("checks fetched pages through the production entry point", async () => {
     const html = page(
-      [{ "@type": "Brand", name: "100 Questions" }],
+      [
+        {
+          "@type": "Brand",
+          name: "100 Questions",
+          sameAs: [
+            "https://example.com/profile-one",
+            "https://example.com/profile-two",
+            "https://example.com/profile-three",
+          ],
+        },
+      ],
       "<h1>100 Questions</h1>",
     );
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(

@@ -9,12 +9,6 @@ export const metadata = buildResourceMetadata({
   title: "Free ChatGPT Brand Visibility Test",
   description:
     "Run a free 10-prompt ChatGPT brand visibility test and record brand mentions, owned citations, discovery gaps, and brand accuracy without signup.",
-  keywords: [
-    "ChatGPT brand visibility test",
-    "check brand visibility in ChatGPT",
-    "ChatGPT visibility checker",
-    "ChatGPT brand test",
-  ],
 });
 
 const faqs = [

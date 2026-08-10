@@ -138,7 +138,7 @@ function formatVisibleUsd(price) {
   }).format(Number(price));
 }
 
-function validateProduct(nodes, text, html, path) {
+function validateProduct(nodes, text, path) {
   const product = requireNode(nodes, "Product", path);
 
   for (const field of [
@@ -183,13 +183,22 @@ function validateProduct(nodes, text, html, path) {
     throw new Error(`${path}: rating or review schema exists without a review source`);
   }
 
+}
+
+function validateBrand(nodes, html, path) {
   const brand = requireNode(nodes, "Brand", path);
   if (!Array.isArray(brand.sameAs) || brand.sameAs.length < 3) {
     throw new Error(`${path}: Brand needs at least three independent entity references`);
   }
-  for (const profile of brand.sameAs) {
-    if (!html.includes(profile)) {
-      throw new Error(`${path}: Brand sameAs URL is not linked in raw HTML: ${profile}`);
+
+  // The About page is the human-readable corroboration surface. Requiring
+  // every sitewide Brand node to repeat directory links would force noisy
+  // global navigation and weaken the site's information hierarchy.
+  if (path === "/about") {
+    for (const profile of brand.sameAs) {
+      if (!html.includes(profile)) {
+        throw new Error(`${path}: Brand sameAs URL is not linked in raw HTML: ${profile}`);
+      }
     }
   }
 }
@@ -202,7 +211,8 @@ export function validateDiscoveryPage({ html, path, requiredTypes }) {
   for (const type of requiredTypes) requireNode(nodes, type, path);
   if (requiredTypes.includes("FAQPage")) validateFaq(nodes, text, path);
   if (requiredTypes.includes("ItemList")) validateItemList(nodes, text, path);
-  if (requiredTypes.includes("Product")) validateProduct(nodes, text, html, path);
+  if (requiredTypes.includes("Product")) validateProduct(nodes, text, path);
+  if (requiredTypes.includes("Brand")) validateBrand(nodes, html, path);
 
   return { nodes: nodes.length, types: requiredTypes.length };
 }

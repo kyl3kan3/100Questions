@@ -10,12 +10,6 @@ export const metadata = buildResourceMetadata({
   title: "Free LLM Citation Audit Template",
   description:
     "Download an LLM citation audit template for recording cited URLs, source ownership, claims supported, competitor citations, gaps, and evidence-based actions.",
-  keywords: [
-    "LLM citation audit template",
-    "AI citation audit",
-    "ChatGPT citation tracking template",
-    "AI search source audit",
-  ],
 });
 
 const fields = [

@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +18,9 @@ import {
 const pageUrl = absoluteUrl("/llm-seo");
 
 export const metadata: Metadata = {
-  title: "LLM SEO: How to Show Up When Language Models Answer",
+  title: "LLM SEO: Get Cited in AI Answers",
   description:
     "LLM SEO is the work of earning mentions and citations in AI answers. How models choose brands, what ChatGPT SEO involves, and how to measure progress.",
-  keywords: [
-    "LLM SEO",
-    "LLM SEO tool",
-    "ChatGPT SEO",
-    "AI search optimization",
-    "LLM optimization",
-    "AI visibility",
-    "LLM visibility",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "LLM SEO: How to Show Up When Language Models Answer",
@@ -214,9 +206,10 @@ export default function LlmSeoGuidePage() {
                 two channels that put brands into answers, doing the work each
                 channel rewards, and measuring the answers instead of guessing.
               </p>
-              <p className="mt-5 font-mono text-xs text-zinc-400">
-                Reviewed July 24, 2026
-              </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+              />
             </div>
           </header>
 

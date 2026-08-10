@@ -10,12 +10,6 @@ export const metadata = buildResourceMetadata({
   title: "Free AI Visibility Report Template",
   description:
     "Download a transparent AI visibility report template covering scope, coverage, mentions, prominence, citations, competitors, limitations, and next actions.",
-  keywords: [
-    "AI visibility report template",
-    "AEO report template",
-    "LLM visibility report",
-    "AI search reporting template",
-  ],
 });
 
 const sections = [

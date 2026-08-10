@@ -10,12 +10,6 @@ export const metadata = buildResourceMetadata({
   title: "Free AI Search Prompt Tracking Spreadsheet",
   description:
     "Download an AI search prompt tracking spreadsheet for time-stamped ChatGPT, Claude, Gemini, Grok, and Perplexity answer evidence and reruns.",
-  keywords: [
-    "AI search prompt tracking spreadsheet",
-    "AI visibility tracking template",
-    "LLM prompt tracker spreadsheet",
-    "GEO tracking spreadsheet",
-  ],
 });
 
 const columns = [

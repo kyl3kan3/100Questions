@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +18,9 @@ import {
 const pageUrl = absoluteUrl("/ai-search-optimization");
 
 export const metadata: Metadata = {
-  title: "AI Search Optimization: A Measurable Workflow",
+  title: "AI Search Optimization: Practical Workflow",
   description:
     "AI search optimization improves how answer systems retrieve, understand, cite, and recommend your brand. Use this six-stage workflow and measurement plan.",
-  keywords: [
-    "AI search optimization",
-    "AI search optimization strategy",
-    "optimize for AI search",
-    "ChatGPT search optimization",
-    "AI SEO",
-    "AEO",
-    "GEO",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI Search Optimization: A Practical, Measurable Workflow",
@@ -225,6 +217,10 @@ export default function AiSearchOptimizationPage() {
                 evidence, earn corroboration, and measure what models actually
                 return.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+              />
             </div>
           </header>
 

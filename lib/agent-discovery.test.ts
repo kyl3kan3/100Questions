@@ -119,5 +119,7 @@ describe("agent discovery", () => {
     expect(HOME_MARKDOWN).toContain(
       "https://100questionsai.com/.well-known/api-catalog",
     );
+    expect(HOME_MARKDOWN).toContain("https://100questionsai.com/resources");
+    expect(HOME_MARKDOWN).toContain("https://100questionsai.com/privacy");
   });
 });

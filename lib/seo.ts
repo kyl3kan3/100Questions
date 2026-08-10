@@ -6,6 +6,10 @@ import { absoluteUrl, SITE_UPDATED_AT, SITE_URL } from "./site";
 export const PUBLIC_MARKETING_PATHS = [
   "/",
   "/about",
+  "/resources",
+  "/contact",
+  "/privacy",
+  "/terms",
   "/ai-visibility",
   "/ai-visibility-checker",
   "/ai-search-optimization",
@@ -34,10 +38,11 @@ export const PUBLIC_MARKETING_PATHS = [
 export const PUBLIC_ROUTE_REDIRECTS = [
   { source: "/about-us", destination: "/about", permanent: true },
   { source: "/team", destination: "/about", permanent: true },
-  { source: "/contact", destination: "/faq", permanent: true },
-  { source: "/contact-us", destination: "/faq", permanent: true },
-  { source: "/help", destination: "/faq", permanent: true },
-  { source: "/support", destination: "/faq", permanent: true },
+  { source: "/contact-us", destination: "/contact", permanent: true },
+  { source: "/help", destination: "/contact", permanent: true },
+  { source: "/support", destination: "/contact", permanent: true },
+  { source: "/guides", destination: "/resources", permanent: true },
+  { source: "/tools", destination: "/resources", permanent: true },
   { source: "/aeo", destination: "/answer-engine-optimization", permanent: true },
   { source: "/agencies", destination: "/for-agencies", permanent: true },
   { source: "/checker", destination: "/ai-visibility-checker", permanent: true },
@@ -47,6 +52,8 @@ export const PUBLIC_ROUTE_REDIRECTS = [
 export function buildSitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date(SITE_UPDATED_AT);
   const productLastModified = new Date(PRODUCT_UPDATED_AT);
+  const augustSeventh = new Date("2026-08-07T00:00:00.000Z");
+  const augustTenth = new Date("2026-08-10T00:00:00.000Z");
 
   return [
     {
@@ -54,41 +61,61 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified: productLastModified,
       changeFrequency: "weekly",
       priority: 1,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
+      images: [absoluteUrl("/sample-report-preview.png")],
     },
     {
       url: absoluteUrl("/about"),
-      lastModified: productLastModified,
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.7,
+    },
+    {
+      url: absoluteUrl("/resources"),
+      lastModified: augustTenth,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/contact"),
+      lastModified: augustTenth,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/privacy"),
+      lastModified: augustTenth,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: absoluteUrl("/terms"),
+      lastModified: augustTenth,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
     {
       url: absoluteUrl("/ai-visibility"),
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/ai-visibility-checker"),
-      lastModified,
+      lastModified: augustSeventh,
       changeFrequency: "monthly",
       priority: 0.85,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/ai-search-optimization"),
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/ai-seo-tools"),
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/ai-visibility-index"),
@@ -98,31 +125,31 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility-audit-checklist"),
-      lastModified,
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: absoluteUrl("/ai-visibility-prompts"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/ai-visibility-report-template"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: absoluteUrl("/ai-visibility-score-calculator"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/ai-search-prompt-tracking-spreadsheet"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
@@ -131,44 +158,40 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.85,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/answer-engine-optimization-tools"),
-      lastModified,
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/chatgpt-brand-visibility-test"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/chatgpt-seo-tool"),
-      lastModified,
+      lastModified: augustSeventh,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/generative-engine-optimization"),
       lastModified,
       changeFrequency: "monthly",
       priority: 0.85,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/geo-client-reporting-template"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: absoluteUrl("/llm-citation-audit-template"),
-      lastModified: new Date("2026-08-03T00:00:00.000Z"),
+      lastModified: augustTenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
@@ -177,7 +200,6 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.85,
-      images: [absoluteUrl("/hero-ai-visibility.png")],
     },
     {
       url: absoluteUrl("/peec-ai-alternative"),
@@ -208,7 +230,6 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
-      images: [absoluteUrl("/sample-report-preview.png")],
     },
   ];
 }

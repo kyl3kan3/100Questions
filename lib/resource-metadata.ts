@@ -6,21 +6,18 @@ type ResourceMetadataInput = {
   path: `/${string}`;
   title: string;
   description: string;
-  keywords: string[];
 };
 
 export function buildResourceMetadata({
   path,
   title,
   description,
-  keywords,
 }: ResourceMetadataInput): Metadata {
   const url = absoluteUrl(path);
 
   return {
     title,
     description,
-    keywords,
     alternates: { canonical: url },
     openGraph: {
       title,
@@ -30,7 +27,7 @@ export function buildResourceMetadata({
       type: "article",
       locale: "en_US",
       publishedTime: "2026-08-03",
-      modifiedTime: "2026-08-03",
+      modifiedTime: "2026-08-10",
       images: [SOCIAL_IMAGE],
     },
     twitter: {

@@ -2,6 +2,7 @@ import { ArrowRight, Download, ListChecks, SearchCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -10,19 +11,12 @@ import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-prompts");
 const RESOURCE_DATE = { iso: "2026-08-03", label: "August 3, 2026" } as const;
+const REVIEW_DATE = { iso: "2026-08-10", label: "August 10, 2026" } as const;
 
 export const metadata: Metadata = {
   title: "100 AI Visibility Prompts to Test Your Brand",
   description:
     "Use 100 AI visibility prompts to test brand discovery, buyer fit, comparisons, risk, proof, and brand accuracy across ChatGPT, Claude, Gemini, and Grok.",
-  keywords: [
-    "AI visibility prompts",
-    "AI visibility questions",
-    "ChatGPT brand visibility prompts",
-    "AI search prompt list",
-    "GEO prompt tracking template",
-    "LLM visibility audit prompts",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "100 AI Visibility Prompts to Test Your Brand",
@@ -33,7 +27,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: RESOURCE_DATE.iso,
-    modifiedTime: RESOURCE_DATE.iso,
+    modifiedTime: REVIEW_DATE.iso,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -257,7 +251,7 @@ export default function AiVisibilityPromptsPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: RESOURCE_DATE.iso,
-        dateModified: RESOURCE_DATE.iso,
+        dateModified: REVIEW_DATE.iso,
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -299,6 +293,12 @@ export default function AiVisibilityPromptsPage() {
           {
             "@type": "ListItem",
             position: 2,
+            name: "Resources",
+            item: absoluteUrl("/resources"),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: "AI visibility prompts",
             item: pageUrl,
           },
@@ -316,6 +316,10 @@ export default function AiVisibilityPromptsPage() {
             <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
               <Link className="hover:text-zinc-200" href="/">Home</Link>{" "}
               <span aria-hidden="true">/</span>{" "}
+              <Link className="hover:text-zinc-200" href="/resources">
+                Resources
+              </Link>{" "}
+              <span aria-hidden="true">/</span>{" "}
               <span className="text-zinc-300">AI visibility prompts</span>
             </nav>
             <Badge variant="outline" className="mt-8 border-emerald-300/25 text-emerald-200">
@@ -329,9 +333,13 @@ export default function AiVisibilityPromptsPage() {
               or another answer engine. Start with neutral buyer discovery, then
               keep brand-named accuracy checks in a separate diagnostic group.
             </p>
-            <p className="mt-4 text-sm text-zinc-400">
-              Published: <time dateTime={RESOURCE_DATE.iso}>{RESOURCE_DATE.label}</time>
-            </p>
+            <ContentByline
+              publishedAt={RESOURCE_DATE.iso}
+              publishedLabel={RESOURCE_DATE.label}
+              modifiedAt={REVIEW_DATE.iso}
+              modifiedLabel={REVIEW_DATE.label}
+              note="Reviewed for question balance, scoring boundaries, and download consistency."
+            />
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
                 <a href="/ai-visibility-prompts.csv" download>

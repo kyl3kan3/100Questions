@@ -14,10 +14,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  PRODUCT_UPDATED_AT,
-  VERIFIED_BRAND_PROFILES,
-} from "@/lib/product-facts";
+import { VERIFIED_BRAND_PROFILES } from "@/lib/product-facts";
 import {
   absoluteUrl,
   SITE_DESCRIPTION,
@@ -26,17 +23,12 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/about");
+const aboutUpdatedAt = "2026-08-10T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: "About",
   description:
     "Why 100 Questions exists, what its AI visibility benchmark measures, and the evidence, privacy, and interpretation principles behind each report.",
-  keywords: [
-    "about 100 Questions",
-    "AI visibility benchmark methodology",
-    "AI search measurement",
-    "AI citation benchmark",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "About 100 Questions",
@@ -97,7 +89,7 @@ const structuredData = {
         { "@id": `${absoluteUrl()}#organization` },
         { "@id": `${absoluteUrl()}#product` },
       ],
-      dateModified: PRODUCT_UPDATED_AT,
+      dateModified: aboutUpdatedAt,
       mentions: VERIFIED_BRAND_PROFILES.map(({ name, url }) => ({
         "@type": "WebPage",
         name,
@@ -217,6 +209,30 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section className="border-t border-white/[0.07] bg-white/[0.018]">
+          <div className="page-shell grid gap-10 py-16 md:grid-cols-[0.75fr_1.25fr] md:py-20">
+            <div>
+              <p className="eyebrow">Editorial accountability</p>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+                Every guide has a visible owner and review date.
+              </h2>
+            </div>
+            <div className="space-y-5 text-pretty text-base leading-7 text-zinc-400">
+              <p>
+                The 100 Questions editorial team publishes and reviews the
+                guides, templates, comparisons, and research on this site.
+                Comparisons identify their evidence boundary and link to the
+                first-party documentation used for claims about other products.
+              </p>
+              <p>
+                Corrections should be sent through the <Link className="text-emerald-300 hover:text-emerald-200" href="/contact">contact page</Link>.
+                Measurement definitions and known limits remain available in
+                the <Link className="text-emerald-300 hover:text-emerald-200" href="/methodology">public methodology</Link>.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="border-t border-white/[0.07]">
           <div className="page-shell py-20 md:py-24">
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
@@ -237,7 +253,7 @@ export default function AboutPage() {
                     <a
                       href={url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="nofollow noopener noreferrer"
                       className="flex h-full items-start justify-between gap-4 rounded-2xl bg-[#0b0e0c] p-5 text-zinc-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] transition-colors hover:bg-white/[0.045]"
                     >
                       <span>

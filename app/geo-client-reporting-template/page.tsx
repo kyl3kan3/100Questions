@@ -10,12 +10,6 @@ export const metadata = buildResourceMetadata({
   title: "Free GEO Client Reporting Template",
   description:
     "Download a GEO client reporting template for explaining AI visibility, citations, competitor evidence, coverage, limitations, actions, and rerun plans.",
-  keywords: [
-    "GEO client reporting template",
-    "GEO report template",
-    "AI visibility client report",
-    "generative engine optimization report template",
-  ],
 });
 
 const reportFlow = [

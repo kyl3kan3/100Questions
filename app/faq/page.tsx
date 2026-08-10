@@ -21,12 +21,6 @@ export const metadata: Metadata = {
   title: "AI Visibility Benchmark FAQ",
   description:
     "Answers about 100 Questions pricing, privacy, AI providers, web grounding, scoring, coverage, and how to interpret an AI visibility benchmark.",
-  keywords: [
-    "AI visibility FAQ",
-    "AI brand monitoring",
-    "GEO benchmark questions",
-    "AI answer citations",
-  ],
   alternates: { canonical: faqUrl },
   openGraph: {
     title: "AI Visibility Benchmark FAQ · 100 Questions",

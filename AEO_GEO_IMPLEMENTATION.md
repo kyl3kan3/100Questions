@@ -9,9 +9,10 @@ This repository adapts Microsoft's retail-oriented [AEO/GEO guidance](https://ab
 - Product features, best-fit use cases, limitations, and FAQs come from one shared facts module used by visible HTML and structured data.
 - The FAQ page exposes every marked-up question and answer in server-rendered HTML.
 - Comparison and alternatives pages use `ItemList`, show the compared products, cite their sources, and describe real tradeoffs.
-- The global `Organization` and `Brand` entities link to public third-party profiles. The About page labels these accurately as independent references, not endorsements or reviews.
+- The global `Organization` and `Brand` entities identify public third-party profiles. Those links appear visibly on the About page, which labels them accurately as independent references rather than endorsements or reviews.
 - Product images use descriptive alt text and `ImageObject` markup. There are no product videos requiring transcripts.
-- The sitemap and `llms.txt` files expose the updated product facts, limitations, and canonical public pages.
+- The resource hub, descriptive internal navigation, and lightweight footer establish clear research, guide, tool, comparison, and trust-page paths without loading third-party badge images on every page.
+- The sitemap and `llms.txt` files expose the updated product facts, limitations, resource hierarchy, policies, and canonical public pages.
 - The post-deployment workflow validates the live raw HTML before sending the sitemap to IndexNow.
 
 ## Intentionally omitted

@@ -21,9 +21,17 @@ export const HOME_MARKDOWN = `# 100 Questions
 
 - [Run an AI visibility benchmark](${absoluteUrl("/auth/sign-up")})
 - [Use the free AI visibility checker](${absoluteUrl("/ai-visibility-checker")})
+- [Browse the resource library](${absoluteUrl("/resources")})
 - [Read the methodology](${absoluteUrl("/methodology")})
 - [View a sample report](${absoluteUrl("/sample-report")})
 - [Explore the 2026 AI Visibility Index](${absoluteUrl("/ai-visibility-index")})
+
+## Company and policies
+
+- [About the product and editorial team](${absoluteUrl("/about")})
+- [Contact and corrections](${absoluteUrl("/contact")})
+- [Privacy](${absoluteUrl("/privacy")})
+- [Terms](${absoluteUrl("/terms")})
 
 ## Machine-readable resources
 

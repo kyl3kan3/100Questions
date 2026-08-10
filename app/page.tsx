@@ -48,15 +48,6 @@ export const metadata: Metadata = {
       "directree-verify=b3246ee4e6e1b1ca893315f9b6ca5310",
     "stackscope-claim": "ee5e56jq",
   },
-  keywords: [
-    "AI visibility tool",
-    "AI search visibility",
-    "AI brand visibility",
-    "LLM visibility tool",
-    "AI search monitoring",
-    "AI citation tracking",
-    "AI share of voice",
-  ],
   alternates: { canonical: absoluteUrl() },
   openGraph: {
     title: SITE_TITLE,

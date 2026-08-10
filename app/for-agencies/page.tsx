@@ -21,18 +21,9 @@ import {
 const pageUrl = absoluteUrl("/for-agencies");
 
 export const metadata: Metadata = {
-  title: "AI Visibility Reports for Agencies & Consultants",
+  title: "AI Visibility Reports for Agencies",
   description:
     "Deliver client-ready AI visibility audits without another subscription: prepaid credits, evidence-linked findings, PDF and CSV exports, and comparable reruns.",
-  keywords: [
-    "AI visibility report",
-    "AI visibility audit for agencies",
-    "GEO services",
-    "AI search audit",
-    "client SEO report",
-    "AI visibility for clients",
-    "agency AI report",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI Visibility Reports for Agencies & Consultants",

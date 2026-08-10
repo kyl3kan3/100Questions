@@ -17,6 +17,9 @@ export function MarketingHeader() {
               <Link href="/ai-visibility">AI visibility</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
+              <Link href="/resources">Resources</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
               <Link href="/methodology">Methodology</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">

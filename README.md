@@ -112,9 +112,10 @@ Do not run a paid provider canary or a full fixed benchmark without deliberate a
 ## Search discovery
 
 Public search inventory is generated from `lib/seo.ts` and includes the home
-page, the sample report, the AI visibility guide, the generative engine optimization guide, the
-methodology, and the FAQ. Private authentication, dashboard, run, workflow, and
-API URLs are excluded from the sitemap or marked `noindex` at the page level.
+page, a central resource library, research, guides, free tools, comparisons,
+trust pages, the methodology, and the FAQ. Private authentication, dashboard,
+run, workflow, and API URLs are excluded from the sitemap or marked `noindex`
+at the page level.
 
 For Google Search Console and Bing Webmaster Tools, set the production
 `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` values supplied by the

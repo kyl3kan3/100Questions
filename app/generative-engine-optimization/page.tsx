@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -21,16 +22,6 @@ export const metadata: Metadata = {
   title: "Generative Engine Optimization Guide",
   description:
     "A practical guide to generative engine optimization: improve entity clarity, useful content, source authority, technical access, and AI visibility.",
-  keywords: [
-    "generative engine optimization",
-    "GEO",
-    "GEO strategy",
-    "AI search optimization",
-    "AI answer optimization",
-    "LLM optimization",
-    "AI citation optimization",
-    "AI search monitoring",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Generative Engine Optimization Guide",
@@ -167,6 +158,10 @@ export default function GeoGuidePage() {
                 retrieve, and cite. It extends good SEO and content practice; it does
                 not create a guaranteed way to control generated answers.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+              />
             </div>
           </header>
 

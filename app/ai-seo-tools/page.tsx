@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -20,15 +21,6 @@ export const metadata: Metadata = {
   title: "AI SEO Tools: Monitor, Benchmark, Audit",
   description:
     "Compare AI SEO tools by the job they do: prompt monitoring, fixed benchmarks, broad AI visibility research, enterprise workflows, and technical audits.",
-  keywords: [
-    "AI SEO tool",
-    "AI SEO tools",
-    "best AI SEO tools",
-    "AI visibility tools",
-    "GEO tools",
-    "AEO tools",
-    "LLM SEO tools",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI SEO Tools: Monitor, Benchmark, Audit",
@@ -244,6 +236,11 @@ export default function AiSeoToolsPage() {
                 benchmark. Choose the measurement model before comparing
                 feature counts.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+                note="First-party documentation review"
+              />
             </div>
           </header>
 

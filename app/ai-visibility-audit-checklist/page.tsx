@@ -7,6 +7,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -18,18 +19,15 @@ const RESOURCE_DATE = {
   iso: "2026-07-29",
   label: "July 29, 2026",
 } as const;
+const REVIEW_DATE = {
+  iso: "2026-08-10",
+  label: "August 10, 2026",
+} as const;
 
 export const metadata: Metadata = {
   title: "Free AI Visibility Audit Checklist",
   description:
-    "Use this free AI visibility audit checklist to review crawl access, brand entities, answer-ready content, citation evidence, off-site corroboration, and measurement.",
-  keywords: [
-    "AI visibility audit checklist",
-    "AI search readiness checklist",
-    "GEO audit checklist",
-    "AEO checklist",
-    "LLM SEO checklist",
-  ],
+    "Use this free AI visibility audit checklist to review crawl access, brand entities, answer-ready content, evidence, corroboration, and measurement.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Free AI Visibility Audit Checklist",
@@ -40,7 +38,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: RESOURCE_DATE.iso,
-    modifiedTime: RESOURCE_DATE.iso,
+    modifiedTime: REVIEW_DATE.iso,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -134,7 +132,7 @@ export default function AiVisibilityAuditChecklistPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: RESOURCE_DATE.iso,
-        dateModified: RESOURCE_DATE.iso,
+        dateModified: REVIEW_DATE.iso,
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -157,6 +155,12 @@ export default function AiVisibilityAuditChecklistPage() {
           {
             "@type": "ListItem",
             position: 2,
+            name: "Resources",
+            item: absoluteUrl("/resources"),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
             name: "AI visibility audit checklist",
             item: pageUrl,
           },
@@ -174,6 +178,10 @@ export default function AiVisibilityAuditChecklistPage() {
             <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
               <Link className="hover:text-zinc-200" href="/">
                 Home
+              </Link>{" "}
+              <span aria-hidden="true">/</span>{" "}
+              <Link className="hover:text-zinc-200" href="/resources">
+                Resources
               </Link>{" "}
               <span aria-hidden="true">/</span>{" "}
               <span className="text-zinc-300">
@@ -194,10 +202,13 @@ export default function AiVisibilityAuditChecklistPage() {
               be retrieved, understood, supported, and measured across
               AI-generated answers.
             </p>
-            <p className="mt-4 text-sm text-zinc-400">
-              Published:{" "}
-              <time dateTime={RESOURCE_DATE.iso}>{RESOURCE_DATE.label}</time>
-            </p>
+            <ContentByline
+              publishedAt={RESOURCE_DATE.iso}
+              publishedLabel={RESOURCE_DATE.label}
+              modifiedAt={REVIEW_DATE.iso}
+              modifiedLabel={REVIEW_DATE.label}
+              note="Reviewed against the public methodology and downloadable worksheet."
+            />
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
                 <a href="/ai-visibility-audit-checklist.csv" download>

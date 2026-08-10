@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -17,19 +18,9 @@ import {
 const pageUrl = absoluteUrl("/answer-engine-optimization");
 
 export const metadata: Metadata = {
-  title: "Answer Engine Optimization (AEO): Practical Guide",
+  title: "Answer Engine Optimization: AEO Guide",
   description:
     "What answer engine optimization is, how AEO differs from SEO and GEO, the practices that earn citations in AI answers, and how to measure the results.",
-  keywords: [
-    "answer engine optimization",
-    "AEO",
-    "AEO tool",
-    "answer engine optimization tool",
-    "AEO audit",
-    "AI answer optimization",
-    "AI citations",
-    "AI visibility",
-  ],
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Answer Engine Optimization (AEO): A Practical Guide",
@@ -197,6 +188,10 @@ export default function AeoGuidePage() {
                 ten links, being rankable stops being enough—you have to be
                 quotable.
               </p>
+              <ContentByline
+                publishedAt={SITE_UPDATED_AT}
+                publishedLabel="July 24, 2026"
+              />
             </div>
           </header>
 

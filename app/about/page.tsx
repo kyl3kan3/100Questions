@@ -2,13 +2,13 @@ import {
   ArrowRight,
   BadgeCheck,
   Eye,
-  ExternalLink,
   LockKeyhole,
   Scale,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
@@ -233,43 +233,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-white/[0.07]">
-          <div className="page-shell py-20 md:py-24">
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-              <div>
-                <p className="eyebrow">Independent references</p>
-                <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
-                  Verify the product beyond this website.
-                </h2>
-                <p className="mt-5 text-pretty text-sm leading-6 text-zinc-400">
-                  These public profiles corroborate that the product and domain
-                  exist outside our own pages. A directory listing is not an
-                  endorsement, rating, or customer review.
-                </p>
-              </div>
-              <ul className="grid gap-3 sm:grid-cols-2">
-                {VERIFIED_BRAND_PROFILES.map(({ name, url, description }) => (
-                  <li key={url}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="nofollow noopener noreferrer"
-                      className="flex h-full items-start justify-between gap-4 rounded-2xl bg-[#0b0e0c] p-5 text-zinc-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] transition-colors hover:bg-white/[0.045]"
-                    >
-                      <span>
-                        <span className="font-medium">{name}</span>
-                        <span className="mt-1 block text-xs leading-5 text-zinc-400">
-                          {description}
-                        </span>
-                      </span>
-                      <ExternalLink className="mt-1 size-4 shrink-0 text-emerald-300" aria-hidden="true" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+        <FeaturedOnSection />
 
         <section className="border-t border-white/[0.07]">
           <div className="page-shell py-20 md:py-24">

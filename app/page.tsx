@@ -111,6 +111,14 @@ export default function Home() {
           <p className="mt-5 flex items-center gap-2 text-xs text-zinc-400">
             <LockKeyhole className="size-3.5" /> Private by default · 30-day answer retention
           </p>
+          <p className="mt-3 text-sm text-zinc-400">
+            <Link
+              className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+              href="/ai-visibility-audit"
+            >
+              See how the AI visibility audit works
+            </Link>
+          </p>
         </div>
 
         <Card className="animate-enter relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d] [animation-delay:120ms]">
@@ -192,7 +200,7 @@ export default function Home() {
             <div>
               <p className="eyebrow">Know what you receive</p>
               <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">A client-ready audit, not another monitoring dashboard.</h2>
-              <Button asChild variant="link" className="mt-4"><Link href="/sample-report">Open the complete sample report</Link></Button>
+              <Button asChild variant="link" className="mt-4"><Link href="/ai-visibility-audit">Explore the AI visibility audit</Link></Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {PRODUCT_FEATURES.map((item) => (
@@ -272,7 +280,7 @@ export default function Home() {
             />
           </div>
           <Button asChild variant="link" className="mt-5">
-            <Link href="/ai-seo-tools">Compare monitoring, suites, and fixed benchmarks</Link>
+            <Link href="/ai-seo-tools">Compare the best AI visibility tools</Link>
           </Button>
         </div>
       </section>
@@ -378,14 +386,14 @@ export default function Home() {
             <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
               <p className="eyebrow">Comparison</p>
               <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Choose the right AI SEO tool
+                Compare the best AI visibility tools
               </h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
                 Compare monitoring, large-scale research, enterprise suites, and
                 fixed evidence-linked benchmarks by the job each one does.
               </p>
               <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-seo-tools">Compare AI SEO tools</Link>
+                <Link href="/ai-seo-tools">Compare AI visibility tools</Link>
               </Button>
             </article>
           </div>

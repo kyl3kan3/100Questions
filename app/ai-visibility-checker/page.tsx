@@ -402,6 +402,23 @@ export default function AiVisibilityCheckerPage() {
                   </Link>
                   .
                 </p>
+                <p>
+                  Read how the paid{" "}
+                  <Link
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                    href="/ai-visibility-audit"
+                  >
+                    AI visibility audit
+                  </Link>{" "}
+                  works, or browse the complete{" "}
+                  <Link
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                    href="/ai-visibility-tools"
+                  >
+                    AI visibility tools hub
+                  </Link>
+                  .
+                </p>
               </div>
             </section>
 

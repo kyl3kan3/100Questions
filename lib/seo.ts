@@ -11,7 +11,9 @@ export const PUBLIC_MARKETING_PATHS = [
   "/privacy",
   "/terms",
   "/ai-visibility",
+  "/ai-visibility-tools",
   "/ai-visibility-checker",
+  "/ai-visibility-audit",
   "/ai-search-optimization",
   "/ai-seo-tools",
   "/ai-visibility-index",
@@ -72,7 +74,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/resources"),
-      lastModified: augustTenth,
+      lastModified: augustEleventh,
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -101,10 +103,22 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: absoluteUrl("/ai-visibility-tools"),
+      lastModified: augustEleventh,
+      changeFrequency: "monthly",
+      priority: 0.95,
+    },
+    {
       url: absoluteUrl("/ai-visibility-checker"),
       lastModified: augustSeventh,
       changeFrequency: "monthly",
       priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/ai-visibility-audit"),
+      lastModified: augustEleventh,
+      changeFrequency: "monthly",
+      priority: 0.95,
     },
     {
       url: absoluteUrl("/ai-search-optimization"),
@@ -114,7 +128,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-seo-tools"),
-      lastModified,
+      lastModified: augustEleventh,
       changeFrequency: "monthly",
       priority: 0.9,
     },
@@ -162,7 +176,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/answer-engine-optimization-tools"),
-      lastModified: augustTenth,
+      lastModified: augustEleventh,
       changeFrequency: "monthly",
       priority: 0.9,
     },

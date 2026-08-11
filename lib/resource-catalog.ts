@@ -1,10 +1,16 @@
 export const RESOURCE_GROUPS = [
   {
     id: "research",
-    label: "Research and evidence",
+    label: "Research, audits, and evidence",
     description:
-      "Inspect the measurement method, open dataset, and finished report before relying on a score.",
+      "Inspect the paid audit, measurement method, open dataset, and finished report before relying on a score.",
     resources: [
+      {
+        href: "/ai-visibility-audit",
+        title: "AI visibility audit",
+        description:
+          "Run one frozen 25-question benchmark across four AI providers with evidence and prioritized actions.",
+      },
       {
         href: "/ai-visibility-index",
         title: "2026 AI Visibility Index",
@@ -31,6 +37,12 @@ export const RESOURCE_GROUPS = [
     description:
       "Learn the distinct jobs behind AI visibility, AI search optimization, AEO, GEO, and LLM SEO.",
     resources: [
+      {
+        href: "/ai-visibility-tools",
+        title: "AI visibility tools hub",
+        description:
+          "Choose free checkers, audits, trackers, calculators, templates, and platforms by measurement job.",
+      },
       {
         href: "/ai-visibility",
         title: "AI visibility guide",
@@ -139,9 +151,9 @@ export const RESOURCE_GROUPS = [
       },
       {
         href: "/ai-seo-tools",
-        title: "AI SEO tools compared",
+        title: "Best AI visibility tools",
         description:
-          "Compare monitoring, controlled benchmarks, broad research, and enterprise workflows.",
+          "Compare six tracking, research, SEO, enterprise GEO, and audit tools by the job each one does.",
       },
       {
         href: "/chatgpt-seo-tool",

@@ -9,6 +9,7 @@ Terms: https://100questionsai.com/terms
 Methodology: https://100questionsai.com/methodology
 FAQ: https://100questionsai.com/faq
 AI visibility guide: https://100questionsai.com/ai-visibility
+AI visibility tools hub: https://100questionsai.com/ai-visibility-tools
 2026 AI Visibility Index: https://100questionsai.com/ai-visibility-index
 2026 AI Visibility Index cohort: https://100questionsai.com/data/ai-visibility-index-2026-cohort.csv
 2026 AI Visibility Index protocol: https://100questionsai.com/data/ai-visibility-index-2026-protocol.json
@@ -17,8 +18,9 @@ AI visibility guide: https://100questionsai.com/ai-visibility
 2026 AI Visibility Index cited-source results: https://100questionsai.com/data/ai-visibility-index-2026-source-results.csv
 2026 AI Visibility Index answer evidence: https://100questionsai.com/data/ai-visibility-index-2026-answer-evidence.csv
 AI visibility checker: https://100questionsai.com/ai-visibility-checker
+AI visibility audit: https://100questionsai.com/ai-visibility-audit
 AI search optimization guide: https://100questionsai.com/ai-search-optimization
-AI SEO tools comparison: https://100questionsai.com/ai-seo-tools
+Best AI visibility tools comparison: https://100questionsai.com/ai-seo-tools
 AI visibility audit checklist: https://100questionsai.com/ai-visibility-audit-checklist
 100 AI visibility prompts: https://100questionsai.com/ai-visibility-prompts
 AI visibility report template: https://100questionsai.com/ai-visibility-report-template

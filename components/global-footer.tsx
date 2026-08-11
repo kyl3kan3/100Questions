@@ -7,6 +7,7 @@ const footerGroups = [
     label: "Explore",
     links: [
       ["Resources", "/resources"],
+      ["AI visibility tools", "/ai-visibility-tools"],
       ["AI visibility guide", "/ai-visibility"],
       ["AI Visibility Index", "/ai-visibility-index"],
       ["Methodology", "/methodology"],
@@ -16,6 +17,7 @@ const footerGroups = [
   {
     label: "Use",
     links: [
+      ["AI visibility audit", "/ai-visibility-audit"],
       ["Free readiness checker", "/ai-visibility-checker"],
       ["AEO tools comparison", "/answer-engine-optimization-tools"],
       ["For agencies", "/for-agencies"],

@@ -27,6 +27,14 @@ export const PAGE_REQUIREMENTS = [
     types: ["WebApplication", "FAQPage", "Brand"],
   },
   {
+    path: "/ai-visibility-audit",
+    types: ["Service", "FAQPage", "Brand"],
+  },
+  {
+    path: "/ai-visibility-tools",
+    types: ["Article", "ItemList", "FAQPage", "Brand"],
+  },
+  {
     path: "/ai-seo-tools",
     types: ["Article", "ItemList", "FAQPage", "Brand"],
   },

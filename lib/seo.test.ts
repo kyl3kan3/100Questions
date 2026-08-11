@@ -47,9 +47,8 @@ describe("public SEO metadata", () => {
       ]),
     );
 
-    for (const path of ["/", "/faq"]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));
-    }
+    expect(pages.get("/")).toEqual(new Date("2026-08-11T00:00:00.000Z"));
+    expect(pages.get("/faq")).toEqual(new Date("2026-08-07T00:00:00.000Z"));
 
     for (const path of [
       "/resources",

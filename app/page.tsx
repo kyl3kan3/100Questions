@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -182,6 +183,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <FeaturedOnSection />
 
       <section className="page-shell py-20 md:py-24">
         <div className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/[0.025] p-7 sm:p-9">

@@ -54,11 +54,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   const productLastModified = new Date(PRODUCT_UPDATED_AT);
   const augustSeventh = new Date("2026-08-07T00:00:00.000Z");
   const augustTenth = new Date("2026-08-10T00:00:00.000Z");
+  const augustEleventh = new Date("2026-08-11T00:00:00.000Z");
 
   return [
     {
       url: absoluteUrl(),
-      lastModified: productLastModified,
+      lastModified: augustEleventh,
       changeFrequency: "weekly",
       priority: 1,
       images: [absoluteUrl("/sample-report-preview.png")],

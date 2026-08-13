@@ -57,6 +57,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   const augustSeventh = new Date("2026-08-07T00:00:00.000Z");
   const augustTenth = new Date("2026-08-10T00:00:00.000Z");
   const augustEleventh = new Date("2026-08-11T00:00:00.000Z");
+  const augustThirteenth = new Date("2026-08-13T00:00:00.000Z");
 
   return [
     {
@@ -104,7 +105,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility-tools"),
-      lastModified: augustEleventh,
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.95,
     },
@@ -128,7 +129,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-seo-tools"),
-      lastModified: augustEleventh,
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.9,
     },

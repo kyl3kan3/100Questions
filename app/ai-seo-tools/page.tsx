@@ -15,7 +15,7 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-seo-tools");
-const modifiedAt = "2026-08-11T00:00:00.000Z";
+const modifiedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   // Keep base title short: layout appends the site name (target <= 60 full).
@@ -266,7 +266,7 @@ export default function AiSeoToolsPage() {
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"
                 modifiedAt={modifiedAt}
-                modifiedLabel="August 11, 2026"
+                modifiedLabel="August 13, 2026"
                 note="First-party documentation review"
               />
             </div>
@@ -399,15 +399,15 @@ export default function AiSeoToolsPage() {
                 compared by pricing, fit, and honest tradeoffs.
               </p>
               <p className="mt-4 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
-                Need the full map before choosing software? Start at the{" "}
+                Want to cross-check without buying software? Review the{" "}
                 <Link
-                  href="/ai-visibility-tools"
+                  href="/ai-visibility-tools#free-alternatives"
                   className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
-                  AI visibility tools hub
+                  free AI visibility alternatives
                 </Link>{" "}
-                for free checkers, calculators, templates, audits, and platform
-                buying criteria.
+                and their measurement limits, or browse the rest of the hub for
+                calculators, templates, audits, and platform buying criteria.
               </p>
             </section>
 

@@ -3,6 +3,7 @@ import {
   BarChart3,
   CheckCircle2,
   ClipboardCheck,
+  ExternalLink,
   FileSearch,
   Gauge,
   Radar,
@@ -23,6 +24,7 @@ import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-tools");
 const publishedAt = "2026-08-11T00:00:00.000Z";
+const reviewedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: "AI Visibility Tools: Check, Audit & Track",
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: publishedAt,
-    modifiedTime: publishedAt,
+    modifiedTime: reviewedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -125,6 +127,54 @@ const toolMap = [
   },
 ] as const;
 
+const freeAlternatives = [
+  {
+    name: "Ahrefs AI Visibility Checker",
+    category: "Brand-answer snapshot",
+    scope:
+      "Checks brand mentions across ChatGPT, Gemini, Perplexity, Copilot, Google AI Overviews, and AI Mode using search-backed prompts.",
+    limitation:
+      "The free report is a limited preview; historical tracking and full competitive data belong to Brand Radar.",
+    href: "https://ahrefs.com/ai-visibility-checker",
+  },
+  {
+    name: "Semrush AI Search Visibility Checker",
+    category: "Brand and competitor snapshot",
+    scope:
+      "Uses a submitted domain to surface prompts, mentions, competitors, and opportunities across ChatGPT, Gemini, and Google AI Overviews.",
+    limitation:
+      "It is a free snapshot rather than a substitute for Semrush's recurring AI visibility toolkit.",
+    href: "https://www.semrush.com/free-tools/ai-search-visibility-checker/",
+  },
+  {
+    name: "HubSpot AEO Grader",
+    category: "Scored brand perception check",
+    scope:
+      "Scores recognition, presence quality, sentiment, share of voice, and competition across GPT-5.4 mini, Perplexity, and Gemini.",
+    limitation:
+      "The analysis is free, but HubSpot asks for a short form before showing the full results.",
+    href: "https://www.hubspot.com/aeo-grader",
+  },
+  {
+    name: "Firecrawl AI Visibility Audit",
+    category: "Page-level AEO and GEO readiness",
+    scope:
+      "Audits a public URL for crawler access, structured data, citability, entity clarity, expertise signals, robots.txt, and llms.txt.",
+    limitation:
+      "This is primarily a page-readiness audit, not a controlled multi-provider brand recommendation benchmark.",
+    href: "https://www.firecrawl.dev/tools/ai-visibility-audit",
+  },
+  {
+    name: "isvisible.ai",
+    category: "AI crawler access check",
+    scope:
+      "Checks robots.txt and llms.txt, then maps access rules for 13 AI crawlers without requiring an account.",
+    limitation:
+      "Its score describes crawler access and llms.txt availability, not whether AI answers currently mention the brand.",
+    href: "https://isvisible.ai/",
+  },
+] as const;
+
 const faqs = [
   {
     question: "What are AI visibility tools?",
@@ -149,7 +199,7 @@ const faqs = [
   {
     question: "Are there free AI visibility tools?",
     answer:
-      "Yes. 100 Questions offers a free technical readiness checker, score calculator, manual ChatGPT brand visibility test, audit checklist, prompt library, tracking spreadsheet, and reporting templates. Free tools can establish a useful process, but a manual sample remains vulnerable to personalization, small sample size, and inconsistent evidence capture.",
+      "Yes. Alongside the free tools from 100 Questions, Ahrefs and Semrush offer limited brand-visibility snapshots, HubSpot offers an AEO grader, Firecrawl offers a page-level AEO and GEO audit, and isvisible.ai checks AI crawler access. Compare the stated scope carefully: technical readiness, sampled brand answers, and continuous monitoring are different measurements.",
   },
   {
     question: "Can AI visibility software guarantee a brand recommendation?",
@@ -159,7 +209,7 @@ const faqs = [
 ] as const;
 
 export default function AiVisibilityToolsPage() {
-  const listedTools = [...startingPoints, ...toolMap];
+  const listedTools = [...startingPoints, ...toolMap, ...freeAlternatives];
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -172,7 +222,7 @@ export default function AiVisibilityToolsPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: publishedAt,
-        dateModified: publishedAt,
+        dateModified: reviewedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -257,6 +307,8 @@ export default function AiVisibilityToolsPage() {
               <ContentByline
                 publishedAt={publishedAt}
                 publishedLabel="August 11, 2026"
+                modifiedAt={reviewedAt}
+                modifiedLabel="August 13, 2026"
                 note="Organized by measurement job, not feature count."
               />
             </div>
@@ -325,6 +377,51 @@ export default function AiVisibilityToolsPage() {
                     <p className="mt-3 text-sm leading-6 text-zinc-400">{job}</p>
                   </Link>
                 ))}
+              </div>
+            </section>
+
+            <section id="free-alternatives" aria-labelledby="free-alternatives-heading">
+              <p className="eyebrow">Independent free alternatives</p>
+              <h2
+                id="free-alternatives-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                Free AI visibility alternatives worth cross-checking
+              </h2>
+              <p className="mt-5 max-w-3xl text-pretty leading-7 text-zinc-400">
+                These direct, non-affiliate links lead to the vendors&apos; free
+                tools. They do not all measure the same thing: some sample real
+                AI answers, while others inspect whether a page is technically
+                accessible and answer-ready. Details were checked against each
+                official page on August 13, 2026.
+              </p>
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                {freeAlternatives.map(
+                  ({ name, category, scope, limitation, href }) => (
+                    <article
+                      key={name}
+                      className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-7"
+                    >
+                      <p className="eyebrow">{category}</p>
+                      <h3 className="mt-4 text-xl font-semibold text-white">{name}</h3>
+                      <p className="mt-3 text-sm leading-6 text-zinc-300">{scope}</p>
+                      <p className="mt-3 text-sm leading-6 text-zinc-500">
+                        <strong className="font-medium text-zinc-400">Limit:</strong>{" "}
+                        {limitation}
+                      </p>
+                      <a
+                        className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-emerald-300 hover:text-emerald-200"
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Try the free tool
+                        <ExternalLink className="size-4" aria-hidden="true" />
+                        <span className="sr-only"> at {name}</span>
+                      </a>
+                    </article>
+                  ),
+                )}
               </div>
             </section>
 

@@ -66,11 +66,13 @@ describe("public SEO metadata", () => {
 
     for (const path of [
       "/resources",
-      "/ai-visibility-tools",
-      "/ai-seo-tools",
       "/answer-engine-optimization-tools",
     ]) {
       expect(pages.get(path)).toEqual(new Date("2026-08-11T00:00:00.000Z"));
+    }
+
+    for (const path of ["/ai-visibility-tools", "/ai-seo-tools"]) {
+      expect(pages.get(path)).toEqual(new Date("2026-08-13T00:00:00.000Z"));
     }
 
     for (const path of ["/ai-visibility-checker", "/chatgpt-seo-tool"]) {

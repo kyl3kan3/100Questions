@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -20,7 +21,7 @@ import {
 
 const pageUrl = absoluteUrl("/answer-engine-optimization-tools");
 const publishedAt = "2026-07-24T00:00:00.000Z";
-const reviewedAt = "2026-08-11T00:00:00.000Z";
+const reviewedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: "Best AEO Tools (2026): 6 Compared",
@@ -325,7 +326,7 @@ export default function AnswerEngineOptimizationToolsPage() {
                 publishedAt={publishedAt}
                 publishedLabel="July 24, 2026"
                 modifiedAt={reviewedAt}
-                modifiedLabel="August 11, 2026"
+                modifiedLabel="August 13, 2026"
                 note="First-party documentation review"
               />
             </div>
@@ -634,6 +635,8 @@ export default function AnswerEngineOptimizationToolsPage() {
                 ))}
               </div>
             </section>
+
+            <AiVisibilityLinkCluster currentPath="/answer-engine-optimization-tools" />
 
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <Scale className="size-6" aria-hidden="true" />

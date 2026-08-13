@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AiReadinessChecker } from "@/components/ai-readiness-checker";
+import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -18,15 +19,18 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-checker");
-const checkerModifiedAt = "2026-08-07T00:00:00.000Z";
+const checkerModifiedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "Free AI Visibility Readiness Checker",
+  title: {
+    absolute:
+      "Free AI Visibility Checker - Test Your Site in Seconds | 100 Questions",
+  },
   description:
     "Run a free AI visibility readiness check for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt. No account required.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Free AI Visibility Checker: Test Technical Readiness",
+    title: "Free AI Visibility Checker - Test Your Site in Seconds",
     description:
       "Check whether a public website is technically ready for AI search discovery, then learn how to measure actual brand visibility.",
     url: pageUrl,
@@ -39,7 +43,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free AI Visibility Checker: Test Technical Readiness",
+    title: "Free AI Visibility Checker - Test Your Site in Seconds",
     description:
       "Check indexability, AI crawler access, schema, page signals, sitemaps, and llms.txt without creating an account.",
     images: [SOCIAL_IMAGE],
@@ -163,7 +167,7 @@ export default function AiVisibilityCheckerPage() {
       {
         "@type": "Article",
         "@id": `${pageUrl}#article`,
-        headline: "Free AI Visibility Checker: Test Technical Readiness",
+        headline: "Free AI Visibility Checker - Test Your Site in Seconds",
         description:
           "A free technical readiness checker for indexability, AI crawler access, structured data, page signals, sitemap discovery, and llms.txt.",
         url: pageUrl,
@@ -262,9 +266,12 @@ export default function AiVisibilityCheckerPage() {
                 AI visibility checker
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                Check your site&apos;s AI visibility readiness in seconds
+                Free AI visibility checker
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
+                Check your site&apos;s AI visibility readiness in seconds.
+              </p>
+              <p className="mt-3 max-w-3xl text-pretty text-base leading-7 text-zinc-400">
                 Run a free technical preflight for indexability, AI crawler
                 access, schema, core page signals, sitemap discovery, and
                 llms.txt. Then use the manual check below to test what AI
@@ -274,7 +281,7 @@ export default function AiVisibilityCheckerPage() {
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"
                 modifiedAt={checkerModifiedAt}
-                modifiedLabel="August 7, 2026"
+                modifiedLabel="August 13, 2026"
               />
             </div>
           </header>
@@ -421,6 +428,8 @@ export default function AiVisibilityCheckerPage() {
                 </p>
               </div>
             </section>
+
+            <AiVisibilityLinkCluster currentPath="/ai-visibility-checker" />
 
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <CheckCircle2 className="size-6" aria-hidden="true" />

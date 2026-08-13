@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility");
+const modifiedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: "AI Visibility: How to Measure and Improve It",
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
+    modifiedTime: modifiedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -158,7 +160,7 @@ export default function AiVisibilityGuidePage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
+        dateModified: modifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -234,6 +236,8 @@ export default function AiVisibilityGuidePage() {
               <ContentByline
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"
+                modifiedAt={modifiedAt}
+                modifiedLabel="August 13, 2026"
               />
             </div>
           </header>
@@ -463,6 +467,8 @@ export default function AiVisibilityGuidePage() {
                 </Button>
               </div>
             </section>
+
+            <AiVisibilityLinkCluster currentPath="/ai-visibility" />
 
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <CheckCircle2 className="size-6" aria-hidden="true" />

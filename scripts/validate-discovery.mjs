@@ -39,6 +39,10 @@ export const PAGE_REQUIREMENTS = [
     types: ["Article", "ItemList", "FAQPage", "Brand"],
   },
   {
+    path: "/how-to-get-chatgpt-to-recommend-your-business",
+    types: ["Article", "FAQPage", "Brand"],
+  },
+  {
     path: "/answer-engine-optimization-tools",
     types: ["Article", "ItemList", "FAQPage", "Brand"],
   },

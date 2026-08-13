@@ -50,6 +50,12 @@ export const RESOURCE_GROUPS = [
           "What AI visibility measures, how to interpret it, and which actions can improve it.",
       },
       {
+        href: "/how-to-get-chatgpt-to-recommend-your-business",
+        title: "How to get ChatGPT to recommend your business",
+        description:
+          "A five-input guide to crawlability, entity facts, schema, reviews, citations, and honest measurement.",
+      },
+      {
         href: "/ai-search-optimization",
         title: "AI search optimization workflow",
         description:

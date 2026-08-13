@@ -15,6 +15,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility-checker",
   "/ai-visibility-audit",
   "/ai-search-optimization",
+  "/how-to-get-chatgpt-to-recommend-your-business",
   "/ai-seo-tools",
   "/ai-visibility-index",
   "/ai-visibility-audit-checklist",
@@ -99,7 +100,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility"),
-      lastModified,
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.9,
     },
@@ -111,7 +112,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility-checker"),
-      lastModified: augustSeventh,
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
@@ -124,6 +125,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     {
       url: absoluteUrl("/ai-search-optimization"),
       lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/how-to-get-chatgpt-to-recommend-your-business"),
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.9,
     },
@@ -177,7 +184,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/answer-engine-optimization-tools"),
-      lastModified: augustEleventh,
+      lastModified: augustThirteenth,
       changeFrequency: "monthly",
       priority: 0.9,
     },

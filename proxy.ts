@@ -11,6 +11,10 @@ import {
   AGENT_DISCOVERY_LINK_HEADER,
   HOME_MARKDOWN,
 } from "@/lib/agent-discovery";
+import {
+  machineMarkdownForHtmlPath,
+  machineMarkdownResponse,
+} from "@/lib/machine-pages";
 
 const protectedPrefixes = ["/dashboard", "/runs"];
 const DATAFAST_WEBSITE_ID = "dfid_WIXXIARdwVFPbyM6Mib8P";
@@ -37,6 +41,19 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
         vary: "Accept",
       },
     });
+  }
+
+  if (
+    (request.method === "GET" || request.method === "HEAD") &&
+    acceptsMarkdown(request.headers.get("accept"))
+  ) {
+    const markdownPage = machineMarkdownForHtmlPath(request.nextUrl.pathname);
+    if (markdownPage) {
+      return machineMarkdownResponse(
+        markdownPage,
+        request.method === "HEAD" ? "HEAD" : "GET",
+      );
+    }
   }
 
   const isProtected = protectedPrefixes.some(

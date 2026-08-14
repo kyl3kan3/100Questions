@@ -6,6 +6,8 @@ export const AGENT_DISCOVERY_LINK_HEADER = [
   '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
   '</openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"',
   '</.well-known/mcp/server-card.json>; rel="describedby"; type="application/json"',
+  '</mcp>; rel="service-doc"; type="text/html"',
+  '</mcp.md>; rel="alternate"; type="text/markdown"',
   '</ai-visibility-checker>; rel="service-doc"; type="text/html"',
   '</llms.txt>; rel="describedby"; type="text/plain"',
 ].join(", ");
@@ -41,6 +43,8 @@ export const HOME_MARKDOWN = `# 100 Questions
 - [OpenAPI description](${absoluteUrl("/openapi.json")})
 - [Agent skills index](${absoluteUrl("/.well-known/agent-skills/index.json")})
 - [MCP server card](${absoluteUrl("/.well-known/mcp/server-card.json")})
+- [MCP documentation and public endpoint](${absoluteUrl("/mcp")})
+- [MCP documentation in Markdown](${absoluteUrl("/mcp.md")})
 - [Agent authentication guidance](${absoluteUrl("/auth.md")})
 
 ## Important limitation

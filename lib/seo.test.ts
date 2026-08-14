@@ -16,7 +16,7 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(32);
+    expect(urls).toHaveLength(33);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/contact");
     expect(urls).toContain("/privacy");
@@ -24,6 +24,7 @@ describe("public SEO metadata", () => {
     expect(urls).toContain("/ai-search-optimization");
     expect(urls).toContain("/ai-visibility-tools");
     expect(urls).toContain("/ai-visibility-audit");
+    expect(urls).toContain("/mcp");
     expect(urls).toContain("/ai-seo-tools");
     expect(urls).toContain(
       "/how-to-get-chatgpt-to-recommend-your-business",
@@ -81,6 +82,10 @@ describe("public SEO metadata", () => {
     ]) {
       expect(pages.get(path)).toEqual(new Date("2026-08-13T00:00:00.000Z"));
     }
+
+    expect(pages.get("/mcp")).toEqual(
+      new Date("2026-08-14T00:00:00.000Z"),
+    );
 
     for (const path of ["/chatgpt-seo-tool"]) {
       expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));

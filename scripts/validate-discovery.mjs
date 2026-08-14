@@ -27,6 +27,10 @@ export const PAGE_REQUIREMENTS = [
     types: ["WebApplication", "FAQPage", "Brand"],
   },
   {
+    path: "/mcp",
+    types: ["WebPage", "SoftwareApplication"],
+  },
+  {
     path: "/ai-visibility-audit",
     types: ["Service", "FAQPage", "Brand"],
   },

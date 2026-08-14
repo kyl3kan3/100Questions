@@ -1,6 +1,13 @@
 # 100 Questions: product and methodology reference
 
 Canonical site: https://100questionsai.com/
+MCP documentation and public endpoint: https://100questionsai.com/mcp
+MCP documentation in Markdown: https://100questionsai.com/mcp.md
+AI visibility checker in Markdown: https://100questionsai.com/ai-visibility-checker.md
+AI visibility guide in Markdown: https://100questionsai.com/ai-visibility.md
+Best AI visibility tools in Markdown: https://100questionsai.com/ai-seo-tools.md
+AEO tools comparison in Markdown: https://100questionsai.com/answer-engine-optimization-tools.md
+ChatGPT recommendation guide in Markdown: https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md
 About: https://100questionsai.com/about
 Resources: https://100questionsai.com/resources
 Contact: https://100questionsai.com/contact

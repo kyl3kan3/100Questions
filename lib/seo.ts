@@ -13,6 +13,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility",
   "/ai-visibility-tools",
   "/ai-visibility-checker",
+  "/mcp",
   "/ai-visibility-audit",
   "/ai-search-optimization",
   "/how-to-get-chatgpt-to-recommend-your-business",
@@ -59,6 +60,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   const augustTenth = new Date("2026-08-10T00:00:00.000Z");
   const augustEleventh = new Date("2026-08-11T00:00:00.000Z");
   const augustThirteenth = new Date("2026-08-13T00:00:00.000Z");
+  const augustFourteenth = new Date("2026-08-14T00:00:00.000Z");
 
   return [
     {
@@ -114,6 +116,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       url: absoluteUrl("/ai-visibility-checker"),
       lastModified: augustThirteenth,
       changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/mcp"),
+      lastModified: augustFourteenth,
+      changeFrequency: "weekly",
       priority: 0.85,
     },
     {

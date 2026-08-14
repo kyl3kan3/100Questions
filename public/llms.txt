@@ -4,6 +4,16 @@
 
 Canonical site: https://100questionsai.com/
 
+## Preferred machine-readable routes
+
+- [MCP documentation and public endpoint](https://100questionsai.com/mcp): Crawlable HTML documentation on GET and the read-only Streamable HTTP MCP transport on POST.
+- [MCP documentation in Markdown](https://100questionsai.com/mcp.md): Tool purpose, connection details, limits, and canonical discovery links.
+- [AI visibility checker in Markdown](https://100questionsai.com/ai-visibility-checker.md): Concise checker scope, technical signals, and measurement limits.
+- [AI visibility guide in Markdown](https://100questionsai.com/ai-visibility.md): Core metrics and the improvement loop.
+- [Best AI visibility tools in Markdown](https://100questionsai.com/ai-seo-tools.md): Six tools organized by measurement job.
+- [AEO tools comparison in Markdown](https://100questionsai.com/answer-engine-optimization-tools.md): Selection criteria for technical, monitoring, research, suite, platform, and benchmark tools.
+- [ChatGPT recommendation guide in Markdown](https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md): Five controllable inputs and an honest measurement workflow.
+
 ## Public pages
 
 - [Home](https://100questionsai.com/): Product overview and benchmark summary.

@@ -94,6 +94,12 @@ export const RESOURCE_GROUPS = [
           "Check crawl access, canonicals, structured data, sitemaps, and AI crawler availability.",
       },
       {
+        href: "/mcp",
+        title: "AI visibility readiness MCP",
+        description:
+          "Connect agents to a public, read-only technical readiness check with HTML and Markdown documentation.",
+      },
+      {
         href: "/ai-visibility-audit-checklist",
         title: "AI visibility audit checklist",
         description:

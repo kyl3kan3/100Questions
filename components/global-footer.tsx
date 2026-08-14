@@ -19,6 +19,7 @@ const footerGroups = [
     links: [
       ["AI visibility audit", "/ai-visibility-audit"],
       ["Free readiness checker", "/ai-visibility-checker"],
+      ["MCP for agents", "/mcp"],
       ["AEO tools comparison", "/answer-engine-optimization-tools"],
       ["For agencies", "/for-agencies"],
       ["Pricing", "/#pricing"],

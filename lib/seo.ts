@@ -65,7 +65,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: absoluteUrl(),
-      lastModified: augustEleventh,
+      lastModified: augustFourteenth,
       changeFrequency: "weekly",
       priority: 1,
       images: [absoluteUrl("/sample-report-preview.png")],
@@ -168,19 +168,19 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility-report-template"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: absoluteUrl("/ai-visibility-score-calculator"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/ai-search-prompt-tracking-spreadsheet"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
@@ -198,7 +198,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/chatgpt-brand-visibility-test"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },
@@ -216,13 +216,13 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/geo-client-reporting-template"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: absoluteUrl("/llm-citation-audit-template"),
-      lastModified: augustTenth,
+      lastModified: augustFourteenth,
       changeFrequency: "monthly",
       priority: 0.8,
     },

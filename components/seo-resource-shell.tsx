@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
+import { MeasurementToolkitLinks } from "@/components/measurement-toolkit-links";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { absoluteUrl } from "@/lib/site";
@@ -51,7 +52,7 @@ export function SeoResourceShell({
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: "2026-08-03",
-        dateModified: "2026-08-10",
+        dateModified: "2026-08-14",
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -122,8 +123,8 @@ export function SeoResourceShell({
             <ContentByline
               publishedAt="2026-08-03"
               publishedLabel="August 3, 2026"
-              modifiedAt="2026-08-10"
-              modifiedLabel="August 10, 2026"
+              modifiedAt="2026-08-14"
+              modifiedLabel="August 14, 2026"
             />
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {download ? (
@@ -144,6 +145,8 @@ export function SeoResourceShell({
 
         <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
           {children}
+
+          <MeasurementToolkitLinks currentPath={path} />
 
           <section aria-labelledby={faqId}>
             <p className="eyebrow">Common questions</p>

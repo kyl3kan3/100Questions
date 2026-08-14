@@ -13,6 +13,7 @@ import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
+import { MeasurementToolkitLinks } from "@/components/measurement-toolkit-links";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -258,6 +259,12 @@ export default function Home() {
           </FeatureCard>
         </div>
       </section>
+
+      <div className="border-t border-white/[0.07]">
+        <div className="page-shell py-20 md:py-24">
+          <MeasurementToolkitLinks />
+        </div>
+      </div>
 
       <section className="border-t border-white/[0.07]">
         <div className="page-shell py-20 md:py-24">

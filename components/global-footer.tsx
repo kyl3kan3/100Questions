@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
+import { MEASUREMENT_TOOLKIT_LINKS } from "@/lib/resource-catalog";
 
 const footerGroups = [
   {
@@ -27,6 +28,12 @@ const footerGroups = [
     ],
   },
   {
+    label: "Free resources",
+    links: MEASUREMENT_TOOLKIT_LINKS.map(
+      ({ footerLabel, href }) => [footerLabel, href] as const,
+    ),
+  },
+  {
     label: "Company",
     links: [
       ["About", "/about"],
@@ -41,7 +48,7 @@ const footerGroups = [
 export function GlobalFooter() {
   return (
     <footer className="border-t border-white/[0.07] bg-[#070908] text-zinc-400">
-      <div className="page-shell grid gap-10 py-10 sm:grid-cols-[1.2fr_1.8fr] sm:py-12">
+      <div className="page-shell grid gap-10 py-10 sm:py-12 lg:grid-cols-[1fr_3fr]">
         <div>
           <BrandMark showName={false} />
           <p className="mt-4 max-w-sm text-sm leading-6">
@@ -55,7 +62,7 @@ export function GlobalFooter() {
         </div>
 
         <nav
-          className="grid gap-8 sm:grid-cols-3"
+          className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4"
           aria-label="Footer navigation"
         >
           {footerGroups.map((group) => (

@@ -187,3 +187,48 @@ export const RESOURCE_COUNT = RESOURCE_GROUPS.reduce(
   (total, group) => total + group.resources.length,
   0,
 );
+
+export const MEASUREMENT_TOOLKIT_LINKS = [
+  {
+    href: "/mcp",
+    title: "Technical readiness MCP",
+    footerLabel: "Readiness MCP",
+    description:
+      "Give an agent a read-only check for indexability, canonicals, schema, sitemaps, and crawler access.",
+  },
+  {
+    href: "/ai-visibility-prompts",
+    title: "AI visibility prompt library",
+    footerLabel: "100 AI visibility prompts",
+    description:
+      "Choose and freeze buyer questions before collecting answers across providers.",
+  },
+  {
+    href: "/ai-search-prompt-tracking-spreadsheet",
+    title: "AI prompt tracking spreadsheet",
+    footerLabel: "Prompt tracking spreadsheet",
+    description:
+      "Preserve provider conditions, answers, citations, competitors, and comparable reruns.",
+  },
+  {
+    href: "/llm-citation-audit-template",
+    title: "LLM citation audit template",
+    footerLabel: "LLM citation audit",
+    description:
+      "Map cited pages to supported claims, brand effects, evidence gaps, owners, and actions.",
+  },
+  {
+    href: "/ai-visibility-report-template",
+    title: "AI visibility report template",
+    footerLabel: "AI visibility report",
+    description:
+      "Turn stored answer evidence into a transparent decision-ready report.",
+  },
+  {
+    href: "/geo-client-reporting-template",
+    title: "GEO client reporting template",
+    footerLabel: "GEO client report",
+    description:
+      "Separate observed results, interpretation, business outcomes, and limitations for clients.",
+  },
+] as const;

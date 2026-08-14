@@ -53,7 +53,7 @@ describe("public SEO metadata", () => {
       ]),
     );
 
-    expect(pages.get("/")).toEqual(new Date("2026-08-11T00:00:00.000Z"));
+    expect(pages.get("/")).toEqual(new Date("2026-08-14T00:00:00.000Z"));
     expect(pages.get("/ai-visibility-audit")).toEqual(
       new Date("2026-08-11T00:00:00.000Z"),
     );
@@ -86,6 +86,17 @@ describe("public SEO metadata", () => {
     expect(pages.get("/mcp")).toEqual(
       new Date("2026-08-14T00:00:00.000Z"),
     );
+
+    for (const path of [
+      "/ai-visibility-report-template",
+      "/ai-visibility-score-calculator",
+      "/ai-search-prompt-tracking-spreadsheet",
+      "/chatgpt-brand-visibility-test",
+      "/geo-client-reporting-template",
+      "/llm-citation-audit-template",
+    ]) {
+      expect(pages.get(path)).toEqual(new Date("2026-08-14T00:00:00.000Z"));
+    }
 
     for (const path of ["/chatgpt-seo-tool"]) {
       expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));

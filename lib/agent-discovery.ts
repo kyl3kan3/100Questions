@@ -8,6 +8,7 @@ export const AGENT_DISCOVERY_LINK_HEADER = [
   '</.well-known/mcp/server-card.json>; rel="describedby"; type="application/json"',
   '</mcp>; rel="service-doc"; type="text/html"',
   '</mcp.md>; rel="alternate"; type="text/markdown"',
+  '</index.md>; rel="alternate"; type="text/markdown"',
   '</ai-visibility-checker>; rel="service-doc"; type="text/html"',
   '</llms.txt>; rel="describedby"; type="text/plain"',
 ].join(", ");

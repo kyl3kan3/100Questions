@@ -8,16 +8,57 @@ import {
 import { getAuth } from "@/lib/auth/server";
 import {
   acceptsMarkdown,
-  AGENT_DISCOVERY_LINK_HEADER,
-  HOME_MARKDOWN,
 } from "@/lib/agent-discovery";
 import {
-  machineMarkdownForHtmlPath,
-  machineMarkdownResponse,
-} from "@/lib/machine-pages";
+  publicMarkdownForHtmlPath,
+  publicMarkdownResponse,
+} from "@/lib/public-markdown";
 
 const protectedPrefixes = ["/dashboard", "/runs"];
 const DATAFAST_WEBSITE_ID = "dfid_WIXXIARdwVFPbyM6Mib8P";
+
+const knownMachineClients = [
+  "ChatGPT-User",
+  "ClaudeBot",
+  "Claude-SearchBot",
+  "Google-Extended",
+  "GPTBot",
+  "OAI-SearchBot",
+  "PerplexityBot",
+] as const;
+
+function machineClientName(userAgent: string | null) {
+  if (!userAgent) return "unknown";
+  const normalized = userAgent.toLowerCase();
+  return (
+    knownMachineClients.find((client) =>
+      normalized.includes(client.toLowerCase()),
+    ) ?? "other"
+  );
+}
+
+function logMachineDiscoveryRequest(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const requestedMarkdown = acceptsMarkdown(request.headers.get("accept"));
+  const isMachineResource =
+    pathname === "/llms.txt" ||
+    pathname === "/llms-full.txt" ||
+    pathname.endsWith(".md");
+
+  if (!isMachineResource && !requestedMarkdown) return;
+
+  console.info(
+    JSON.stringify({
+      event: "machine_discovery_request",
+      path: pathname,
+      method: request.method,
+      representation: requestedMarkdown || pathname.endsWith(".md")
+        ? "markdown"
+        : "text",
+      client: machineClientName(request.headers.get("user-agent")),
+    }),
+  );
+}
 
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   // Best-effort and non-blocking: the package uses event.waitUntil() so bot
@@ -27,30 +68,21 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     authToken: process.env.DATAFAST_BOT_TOKEN,
   });
 
-  if (
-    request.nextUrl.pathname === "/" &&
-    (request.method === "GET" || request.method === "HEAD") &&
-    acceptsMarkdown(request.headers.get("accept"))
-  ) {
-    return new NextResponse(request.method === "HEAD" ? null : HOME_MARKDOWN, {
-      headers: {
-        "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
-        "content-location": "/",
-        "content-type": "text/markdown; charset=utf-8",
-        link: AGENT_DISCOVERY_LINK_HEADER,
-        vary: "Accept",
-      },
-    });
-  }
+  logMachineDiscoveryRequest(request);
+
+  const isRepresentationRequest =
+    request.method === "GET" || request.method === "HEAD";
+  const publicMarkdownPage = isRepresentationRequest
+    ? publicMarkdownForHtmlPath(request.nextUrl.pathname)
+    : undefined;
 
   if (
-    (request.method === "GET" || request.method === "HEAD") &&
+    isRepresentationRequest &&
     acceptsMarkdown(request.headers.get("accept"))
   ) {
-    const markdownPage = machineMarkdownForHtmlPath(request.nextUrl.pathname);
-    if (markdownPage) {
-      return machineMarkdownResponse(
-        markdownPage,
+    if (publicMarkdownPage) {
+      return publicMarkdownResponse(
+        publicMarkdownPage,
         request.method === "HEAD" ? "HEAD" : "GET",
       );
     }
@@ -63,7 +95,9 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   );
 
   if (!isProtected) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    if (publicMarkdownPage) response.headers.set("vary", "Accept");
+    return response;
   }
 
   return getAuth().middleware({ loginUrl: "/auth/sign-in" })(request);

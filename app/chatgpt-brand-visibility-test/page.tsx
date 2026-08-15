@@ -1,6 +1,7 @@
 import { ChatgptBrandVisibilityTest } from "@/components/chatgpt-brand-visibility-test";
 import { SeoResourceShell } from "@/components/seo-resource-shell";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
+import { CHATGPT_BRAND_VISIBILITY_PROMPTS } from "@/lib/public-tool-data";
 
 const path = "/chatgpt-brand-visibility-test" as const;
 
@@ -49,6 +50,32 @@ export default function ChatgptBrandVisibilityTestPage() {
       faqs={faqs}
     >
       <ChatgptBrandVisibilityTest />
+
+      <noscript>
+        <section
+          className="rounded-[26px] border border-amber-300/20 bg-amber-300/[0.04] p-6 sm:p-8"
+          aria-labelledby="manual-chatgpt-test-heading"
+        >
+          <p className="eyebrow">No-JavaScript worksheet</p>
+          <h2
+            id="manual-chatgpt-test-heading"
+            className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white"
+          >
+            Run and record the ten prompts manually
+          </h2>
+          <p className="mt-3 max-w-3xl leading-7 text-zinc-400">
+            Replace the bracketed fields, save each answer and its visible source
+            URLs, then mark the brand absent, mentioned, or mentioned with an
+            owned citation. Mention rate = mentioning answers ÷ tested answers;
+            citation rate = answers with an owned citation ÷ tested answers.
+          </p>
+          <ol className="mt-6 list-decimal space-y-2 pl-5 text-sm leading-6 text-zinc-300">
+            {CHATGPT_BRAND_VISIBILITY_PROMPTS.map((prompt) => (
+              <li key={prompt}>{prompt}</li>
+            ))}
+          </ol>
+        </section>
+      </noscript>
 
       <section className="grid gap-5 md:grid-cols-3" aria-label="Test protocol">
         {[

@@ -2,24 +2,13 @@
 
 import { useMemo, useState } from "react";
 
-const prompts = [
-  "What are the best [category] options for [target audience]?",
-  "Which [category] providers should a [buyer role] evaluate?",
-  "What tools help [target audience] solve [problem]?",
-  "Which [category] is best for [use case]?",
-  "What are the best alternatives to [competitor]?",
-  "Which [category] vendors publish the clearest methodology?",
-  "What evidence should I ask for before buying [category]?",
-  "What is [brand], and what does it do?",
-  "What are the strengths and limitations of [brand]?",
-  "How does [brand] compare with [competitor]?",
-] as const;
+import { CHATGPT_BRAND_VISIBILITY_PROMPTS } from "@/lib/public-tool-data";
 
 type Result = "not-tested" | "absent" | "mentioned" | "cited";
 
 export function ChatgptBrandVisibilityTest() {
   const [results, setResults] = useState<Result[]>(() =>
-    prompts.map(() => "not-tested"),
+    CHATGPT_BRAND_VISIBILITY_PROMPTS.map(() => "not-tested"),
   );
 
   const summary = useMemo(() => {
@@ -64,7 +53,7 @@ export function ChatgptBrandVisibilityTest() {
       </div>
 
       <ol className="mt-6 space-y-3">
-        {prompts.map((prompt, index) => (
+        {CHATGPT_BRAND_VISIBILITY_PROMPTS.map((prompt, index) => (
           <li key={prompt} className="grid gap-3 rounded-2xl bg-white/[0.025] p-4 md:grid-cols-[1fr_11rem] md:items-center">
             <div className="flex gap-3 text-sm leading-6 text-zinc-300">
               <span className="font-mono text-[11px] text-zinc-500">{String(index + 1).padStart(2, "0")}</span>

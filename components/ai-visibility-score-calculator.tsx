@@ -4,48 +4,19 @@ import { useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-type Counts = {
-  eligible: number;
-  mentions: number;
-  prominent: number;
-  citations: number;
-  accurate: number;
-};
-
-const fields = [
-  ["eligible", "Eligible answers", "Answers successfully collected with the required grounding."],
-  ["mentions", "Answers mentioning the brand", "Count the brand only when it appears in the answer itself."],
-  ["prominent", "Prominent mentions", "Answers where the brand leads or appears in the primary shortlist."],
-  ["citations", "Claimed-domain citations", "Eligible answers linking to the brand's canonical domain."],
-  ["accurate", "Accurate brand descriptions", "Mentioning answers with materially correct positioning and facts."],
-] as const;
-
-function percent(numerator: number, denominator: number): number {
-  if (denominator <= 0) return 0;
-  return Math.round((Math.min(numerator, denominator) / denominator) * 100);
-}
+import {
+  calculateVisibilityScores,
+  DEFAULT_VISIBILITY_SCORE_COUNTS,
+  VISIBILITY_SCORE_FIELDS,
+  type VisibilityScoreCounts,
+} from "@/lib/public-tool-data";
 
 export function AiVisibilityScoreCalculator() {
-  const [counts, setCounts] = useState<Counts>({
-    eligible: 100,
-    mentions: 25,
-    prominent: 10,
-    citations: 12,
-    accurate: 22,
-  });
+  const [counts, setCounts] = useState<VisibilityScoreCounts>(
+    DEFAULT_VISIBILITY_SCORE_COUNTS,
+  );
 
-  const scores = useMemo(() => {
-    const visibility = percent(counts.mentions, counts.eligible);
-    const prominence = percent(counts.prominent, counts.mentions);
-    const citation = percent(counts.citations, counts.eligible);
-    const accuracy = percent(counts.accurate, counts.mentions);
-    const composite = Math.round(
-      visibility * 0.5 + prominence * 0.2 + citation * 0.2 + accuracy * 0.1,
-    );
-
-    return { visibility, prominence, citation, accuracy, composite };
-  }, [counts]);
+  const scores = useMemo(() => calculateVisibilityScores(counts), [counts]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -55,7 +26,7 @@ export function AiVisibilityScoreCalculator() {
           Enter counts from a real prompt test
         </h2>
         <div className="mt-7 grid gap-5 sm:grid-cols-2">
-          {fields.map(([key, label, help]) => (
+          {VISIBILITY_SCORE_FIELDS.map(([key, label, help]) => (
             <div key={key} className={key === "eligible" ? "sm:col-span-2" : undefined}>
               <Label htmlFor={`score-${key}`}>{label}</Label>
               <Input

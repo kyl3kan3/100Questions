@@ -289,6 +289,32 @@ export default function AiVisibilityCheckerPage() {
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
             <AiReadinessChecker />
 
+            <noscript>
+              <section
+                className="rounded-[26px] border border-amber-300/20 bg-amber-300/[0.04] p-6 sm:p-8"
+                aria-labelledby="manual-readiness-heading"
+              >
+                <p className="eyebrow">No-JavaScript fallback</p>
+                <h2
+                  id="manual-readiness-heading"
+                  className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white"
+                >
+                  Inspect the same readiness signals manually
+                </h2>
+                <ol className="mt-5 list-decimal space-y-2 pl-5 text-sm leading-6 text-zinc-300">
+                  <li>Confirm the public homepage returns HTTP 200 and has one canonical URL.</li>
+                  <li>Open robots.txt and confirm relevant search crawlers can reach public content.</li>
+                  <li>Check the title, description, primary heading, and visible entity facts.</li>
+                  <li>Inspect JSON-LD for organization, product, article, or FAQ data that matches the page.</li>
+                  <li>Confirm sitemap.xml and llms.txt are public and point to canonical URLs.</li>
+                </ol>
+                <p className="mt-4 text-sm leading-6 text-zinc-400">
+                  The automated scan requires JavaScript, but the checklist and
+                  actual-answer workflow below remain fully readable without it.
+                </p>
+              </section>
+            </noscript>
+
             <CheckerFaq />
 
             <section aria-labelledby="manual-check-heading">

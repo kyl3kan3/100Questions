@@ -26,6 +26,9 @@ describe("agent discovery", () => {
     expect(AGENT_DISCOVERY_LINK_HEADER).toContain(
       '</mcp.md>; rel="alternate"; type="text/markdown"',
     );
+    expect(AGENT_DISCOVERY_LINK_HEADER).toContain(
+      '</index.md>; rel="alternate"; type="text/markdown"',
+    );
   });
 
   it("publishes an RFC 9727 Linkset catalog for the public readiness API", () => {

@@ -29,9 +29,13 @@ const footerGroups = [
   },
   {
     label: "Free resources",
-    links: MEASUREMENT_TOOLKIT_LINKS.map(
-      ({ footerLabel, href }) => [footerLabel, href] as const,
-    ),
+    links: [
+      ["llms.txt site index", "/llms.txt"],
+      ["Markdown site index", "/index.md"],
+      ...MEASUREMENT_TOOLKIT_LINKS.map(
+        ({ footerLabel, href }) => [footerLabel, href] as const,
+      ),
+    ],
   },
   {
     label: "Company",

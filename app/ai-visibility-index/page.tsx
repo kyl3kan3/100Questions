@@ -22,6 +22,7 @@ const INDEX_DATE = {
   iso: "2026-07-30",
   label: "July 30, 2026",
 } as const;
+const PAGE_UPDATED_AT = "2026-08-15";
 
 const questionSetUrl = absoluteUrl(
   "/data/ai-visibility-index-2026-question-set.csv",
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: INDEX_DATE.iso,
-    modifiedTime: results.publishedAt,
+    modifiedTime: PAGE_UPDATED_AT,
   },
   twitter: {
     card: "summary_large_image",
@@ -170,6 +171,49 @@ const metrics = [
   },
 ] as const;
 
+const datasetFileGuide = [
+  {
+    name: "Cited-source results",
+    filename: "ai-visibility-index-2026-source-results.csv",
+    format: "CSV",
+    href: "/data/ai-visibility-index-2026-source-results.csv",
+    description:
+      "Ranks the 210 domains cited across eligible answers and reports each domain's cited-answer count and share.",
+  },
+  {
+    name: "Frozen question set",
+    filename: "ai-visibility-index-2026-question-set.csv",
+    format: "CSV",
+    href: "/data/ai-visibility-index-2026-question-set.csv",
+    description:
+      "Contains the 20 neutral discovery questions used for ranking and five diagnostic templates, with IDs, cohort labels, ranking flags, and notes.",
+  },
+  {
+    name: "Provider-level results",
+    filename: "ai-visibility-index-2026-provider-results.csv",
+    format: "CSV",
+    href: "/data/ai-visibility-index-2026-provider-results.csv",
+    description:
+      "Breaks out brand results for OpenAI, Anthropic, Google, and xAI, including model IDs, ranks, eligible answers, visibility, prominence, and citation metrics.",
+  },
+  {
+    name: "Registered study protocol",
+    filename: "ai-visibility-index-2026-protocol.json",
+    format: "JSON",
+    href: "/data/ai-visibility-index-2026-protocol.json",
+    description:
+      "Records the frozen inputs and hashes, collection setup and model IDs, eligibility and matching rules, metric definitions, and study limitations.",
+  },
+  {
+    name: "Metric data dictionary",
+    filename: "ai-visibility-index-2026-data-dictionary.csv",
+    format: "CSV",
+    href: "/data/ai-visibility-index-2026-data-dictionary.csv",
+    description:
+      "Defines the 17 public-release fields, their data types, and the denominator or allowed values needed to interpret the tables consistently.",
+  },
+] as const;
+
 const faq = [
   {
     question: "What is the 2026 AI Visibility Index?",
@@ -207,7 +251,7 @@ export default function AiVisibilityIndexPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: INDEX_DATE.iso,
-        dateModified: results.publishedAt,
+        dateModified: PAGE_UPDATED_AT,
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -248,18 +292,24 @@ export default function AiVisibilityIndexPage() {
           {
             "@type": "DataDownload",
             name: "Frozen question set",
+            description:
+              "Twenty neutral discovery questions used for ranking and five diagnostic templates, with identifiers, cohort labels, ranking flags, and notes.",
             encodingFormat: "text/csv",
             contentUrl: questionSetUrl,
           },
           {
             "@type": "DataDownload",
             name: "Metric data dictionary",
+            description:
+              "Definitions, data types, denominators, and allowed values for the 17 fields used across the public release.",
             encodingFormat: "text/csv",
             contentUrl: dataDictionaryUrl,
           },
           {
             "@type": "DataDownload",
             name: "Registered study protocol",
+            description:
+              "The frozen inputs and hashes, collection configuration, model identifiers, eligibility and matching rules, metrics, and limitations.",
             encodingFormat: "application/json",
             contentUrl: protocolUrl,
           },
@@ -272,12 +322,16 @@ export default function AiVisibilityIndexPage() {
           {
             "@type": "DataDownload",
             name: "Provider results",
+            description:
+              "Provider-by-brand ranks, eligible-answer counts, visibility, prominence, and citation metrics for OpenAI, Anthropic, Google, and xAI.",
             encodingFormat: "text/csv",
             contentUrl: providerResultsUrl,
           },
           {
             "@type": "DataDownload",
             name: "Cited-source results",
+            description:
+              "Cited domains ranked by the number and share of eligible answers in which each domain appeared.",
             encodingFormat: "text/csv",
             contentUrl: sourceResultsUrl,
           },
@@ -723,6 +777,58 @@ export default function AiVisibilityIndexPage() {
                 </div>
               ))}
             </dl>
+          </section>
+
+          <section id="dataset-files" aria-labelledby="dataset-files-heading">
+            <div className="grid gap-5 lg:grid-cols-[0.68fr_1.32fr] lg:items-end">
+              <div>
+                <p className="eyebrow">Dataset file guide</p>
+                <h2
+                  id="dataset-files-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+                >
+                  What each public data file contains
+                </h2>
+              </div>
+              <p className="max-w-2xl text-pretty leading-7 text-zinc-400">
+                These five files document the study inputs, protocol, provider
+                breakdowns, cited sources, and field definitions. Each link
+                opens the original machine-readable file used in this release.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {datasetFileGuide.map((file) => (
+                <article
+                  key={file.href}
+                  className="flex h-full flex-col rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-white">
+                      {file.name}
+                    </h3>
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 border-emerald-300/25 text-emerald-200"
+                    >
+                      {file.format}
+                    </Badge>
+                  </div>
+                  <p className="mt-3 break-all font-mono text-xs leading-5 text-zinc-500">
+                    {file.filename}
+                  </p>
+                  <p className="mt-4 flex-1 text-sm leading-6 text-zinc-400">
+                    {file.description}
+                  </p>
+                  <a
+                    className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
+                    href={file.href}
+                  >
+                    Open {file.name.toLowerCase()} {file.format}
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </a>
+                </article>
+              ))}
+            </div>
           </section>
 
           <section

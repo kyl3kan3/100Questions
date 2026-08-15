@@ -62,6 +62,9 @@ describe("public SEO metadata", () => {
     expect(pages.get("/support")).toEqual(
       new Date("2026-08-15T00:00:00.000Z"),
     );
+    expect(pages.get("/ai-visibility-index")).toEqual(
+      new Date("2026-08-15T00:00:00.000Z"),
+    );
 
     for (const path of [
       "/about",

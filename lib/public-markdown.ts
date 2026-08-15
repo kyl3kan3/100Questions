@@ -95,7 +95,8 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
   "/ai-visibility-index": {
     title: "2026 AI Visibility Index",
     summary:
-      "Open results from a preregistered 25-product AI visibility software study with provider, brand, source, and answer-level evidence.",
+      "Open results from a preregistered 25-product AI visibility software study with provider, brand, source, and answer-level evidence, plus a file-by-file guide to the public dataset.",
+    lastReviewed: "2026-08-15",
   },
   "/ai-visibility-audit-checklist": {
     title: "AI Visibility Audit Checklist",

@@ -157,7 +157,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/ai-visibility-index"),
-      lastModified: new Date("2026-07-30T00:00:00.000Z"),
+      lastModified: augustFifteenth,
       changeFrequency: "weekly",
       priority: 0.95,
     },

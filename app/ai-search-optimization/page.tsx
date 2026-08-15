@@ -319,6 +319,22 @@ export default function AiSearchOptimizationPage() {
                   </div>
                 ))}
               </div>
+              <p className="mt-5 max-w-3xl text-pretty text-sm leading-6 text-zinc-400">
+                When original research is ready to distribute, a creator tool
+                such as{" "}
+                <a
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                  href="https://climbx.so/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ClimbX
+                </a>{" "}
+                can help turn proven topics into posts written in the
+                creator&apos;s voice and maintain a consistent publishing rhythm
+                on X. Social distribution can earn attention and independent
+                discussion, but it does not replace an indexable source page.
+              </p>
             </section>
 
             <section className="grid gap-5 lg:grid-cols-3">

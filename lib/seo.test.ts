@@ -16,9 +16,10 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(33);
+    expect(urls).toHaveLength(34);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/contact");
+    expect(urls).toContain("/support");
     expect(urls).toContain("/privacy");
     expect(urls).toContain("/terms");
     expect(urls).toContain("/ai-search-optimization");
@@ -58,6 +59,9 @@ describe("public SEO metadata", () => {
       new Date("2026-08-11T00:00:00.000Z"),
     );
     expect(pages.get("/faq")).toEqual(new Date("2026-08-07T00:00:00.000Z"));
+    expect(pages.get("/support")).toEqual(
+      new Date("2026-08-15T00:00:00.000Z"),
+    );
 
     for (const path of [
       "/about",
@@ -156,10 +160,15 @@ describe("public SEO metadata", () => {
       permanent: true,
     });
     expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
-      source: "/support",
-      destination: "/contact",
+      source: "/help",
+      destination: "/support",
       permanent: true,
     });
+    expect(
+      PUBLIC_ROUTE_REDIRECTS.map(({ source }) => source as string).includes(
+        "/support",
+      ),
+    ).toBe(false);
     expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
       source: "/tools",
       destination: "/resources",

@@ -41,6 +41,7 @@ const footerGroups = [
     label: "Company",
     links: [
       ["About", "/about"],
+      ["Support", "/support"],
       ["Contact", "/contact"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],

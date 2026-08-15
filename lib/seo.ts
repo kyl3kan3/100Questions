@@ -8,6 +8,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/about",
   "/resources",
   "/contact",
+  "/support",
   "/privacy",
   "/terms",
   "/ai-visibility",
@@ -43,8 +44,7 @@ export const PUBLIC_ROUTE_REDIRECTS = [
   { source: "/about-us", destination: "/about", permanent: true },
   { source: "/team", destination: "/about", permanent: true },
   { source: "/contact-us", destination: "/contact", permanent: true },
-  { source: "/help", destination: "/contact", permanent: true },
-  { source: "/support", destination: "/contact", permanent: true },
+  { source: "/help", destination: "/support", permanent: true },
   { source: "/guides", destination: "/resources", permanent: true },
   { source: "/tools", destination: "/resources", permanent: true },
   { source: "/aeo", destination: "/answer-engine-optimization", permanent: true },
@@ -61,6 +61,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   const augustEleventh = new Date("2026-08-11T00:00:00.000Z");
   const augustThirteenth = new Date("2026-08-13T00:00:00.000Z");
   const augustFourteenth = new Date("2026-08-14T00:00:00.000Z");
+  const augustFifteenth = new Date("2026-08-15T00:00:00.000Z");
 
   return [
     {
@@ -87,6 +88,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       lastModified: augustTenth,
       changeFrequency: "yearly",
       priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/support"),
+      lastModified: augustFifteenth,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: absoluteUrl("/privacy"),

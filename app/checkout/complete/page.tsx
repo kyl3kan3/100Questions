@@ -95,7 +95,7 @@ export default async function CheckoutCompletePage({
               contact support with the receipt Stripe emailed you.
             </p>
             <Button asChild className="w-full" variant="secondary">
-              <Link href="/">Return home</Link>
+              <Link href="/support">Open support</Link>
             </Button>
           </StatusCard>
         )}

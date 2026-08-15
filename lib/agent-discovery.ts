@@ -33,6 +33,7 @@ export const HOME_MARKDOWN = `# 100 Questions
 
 - [About the product and editorial team](${absoluteUrl("/about")})
 - [Contact and corrections](${absoluteUrl("/contact")})
+- [Support center](${absoluteUrl("/support")})
 - [Privacy](${absoluteUrl("/privacy")})
 - [Terms](${absoluteUrl("/terms")})
 

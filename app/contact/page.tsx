@@ -40,6 +40,16 @@ export default function ContactPage() {
       description="Choose the route that matches the issue and share only the minimum information needed to investigate it."
     >
       <section>
+        <h2>Start with the support center</h2>
+        <p className="mt-4">
+          The <Link href="/support">support center</Link> covers sign-in,
+          prepaid credits, billing, run status, reports, exports, the readiness
+          checker, and public APIs. It also explains which details make an issue
+          reproducible and which information should never be posted publicly.
+        </p>
+      </section>
+
+      <section>
         <h2>Account, benchmark, or billing help</h2>
         <p className="mt-4">
           Sign in to your <Link href="/dashboard">private dashboard</Link> to

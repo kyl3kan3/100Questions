@@ -14,6 +14,7 @@ ChatGPT recommendation guide in Markdown: https://100questionsai.com/how-to-get-
 About: https://100questionsai.com/about
 Resources: https://100questionsai.com/resources
 Contact: https://100questionsai.com/contact
+Support center: https://100questionsai.com/support
 Privacy: https://100questionsai.com/privacy
 Terms: https://100questionsai.com/terms
 Methodology: https://100questionsai.com/methodology

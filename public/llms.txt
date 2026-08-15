@@ -14,6 +14,7 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [About](https://100questionsai.com/about.md)
 - [Resources](https://100questionsai.com/resources.md)
 - [Contact](https://100questionsai.com/contact.md)
+- [Support center](https://100questionsai.com/support.md)
 - [Privacy](https://100questionsai.com/privacy.md)
 - [Terms](https://100questionsai.com/terms.md)
 - [AI visibility guide](https://100questionsai.com/ai-visibility.md)
@@ -60,6 +61,7 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [About](https://100questionsai.com/about): Product purpose, measurement principles, privacy posture, and interpretation limits.
 - [Resources](https://100questionsai.com/resources): The central library for open research, practical guides, free tools, templates, and software comparisons.
 - [Contact](https://100questionsai.com/contact): Support routes, corrections, privacy requests, and security reporting guidance.
+- [Support center](https://100questionsai.com/support): Self-service help for accounts, billing, benchmark runs, reports, exports, the readiness checker, and public APIs.
 - [Privacy](https://100questionsai.com/privacy): Data collection, processors, retention, deletion, and user choices.
 - [Terms](https://100questionsai.com/terms): Service scope, acceptable use, prepaid credits, billing, availability, and limitations.
 - [AI visibility guide](https://100questionsai.com/ai-visibility): Definition, measurement framework, core metrics, and the relationship between AI visibility and SEO.

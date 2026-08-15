@@ -12,6 +12,7 @@ type PublicMarketingPath = (typeof PUBLIC_MARKETING_PATHS)[number];
 type PageSummary = {
   title: string;
   summary: string;
+  lastReviewed?: string;
 };
 
 const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
@@ -34,6 +35,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     title: "Contact 100 Questions",
     summary:
       "Support routes for product questions, corrections, privacy requests, and responsible security reports.",
+  },
+  "/support": {
+    title: "100 Questions Support Center",
+    summary:
+      "Self-service help for account access, prepaid credits, billing, benchmark runs, reports, exports, the readiness checker, and public APIs.",
+    lastReviewed: "2026-08-15",
   },
   "/privacy": {
     title: "Privacy Policy",
@@ -189,7 +196,7 @@ function markdownPathForHtmlPath(htmlPath: PublicMarketingPath) {
 function markdownForSummary(
   htmlPath: PublicMarketingPath,
   markdownPath: string,
-  { title, summary }: PageSummary,
+  { title, summary, lastReviewed }: PageSummary,
 ) {
   return [
     `# ${title}`,
@@ -199,7 +206,7 @@ function markdownForSummary(
     `Canonical HTML: ${absoluteUrl(htmlPath)}`,
     `Markdown alternate: ${absoluteUrl(markdownPath)}`,
     `Publisher: ${SITE_NAME}`,
-    "Last reviewed: 2026-08-14",
+    `Last reviewed: ${lastReviewed ?? "2026-08-14"}`,
     "",
     "## Canonical resources",
     "",

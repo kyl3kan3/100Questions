@@ -15,6 +15,8 @@ const DATAFAST_PROPERTY_LIMIT = 10;
 const DATAFAST_PROPERTY_VALUE_LIMIT = 255;
 
 export type ProductEvent =
+  | "seo_landing_viewed"
+  | "purchase_completed"
   | "sample_report_viewed"
   | "signup_started"
   | "checkout_started"

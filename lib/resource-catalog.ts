@@ -6,6 +6,12 @@ export const RESOURCE_GROUPS = [
       "Inspect the paid audit, measurement method, open dataset, and finished report before relying on a score.",
     resources: [
       {
+        href: "/ai-search-visibility-tool",
+        title: "AI search visibility tool",
+        description:
+          "Measure mentions, citations, competitors, and share of voice in one frozen 100-answer benchmark.",
+      },
+      {
         href: "/ai-visibility-audit",
         title: "AI visibility audit",
         description:
@@ -50,6 +56,12 @@ export const RESOURCE_GROUPS = [
           "What AI visibility measures, how to interpret it, and which actions can improve it.",
       },
       {
+        href: "/how-to-measure-ai-search-visibility",
+        title: "How to measure AI search visibility",
+        description:
+          "Build a controlled question set, define denominators, preserve evidence, and compare like-for-like reruns.",
+      },
+      {
         href: "/how-to-get-chatgpt-to-recommend-your-business",
         title: "How to get ChatGPT to recommend your business",
         description:
@@ -92,6 +104,18 @@ export const RESOURCE_GROUPS = [
         title: "AI visibility readiness checker",
         description:
           "Check crawl access, canonicals, structured data, sitemaps, and AI crawler availability.",
+      },
+      {
+        href: "/chatgpt-citations-vs-brand-mentions",
+        title: "ChatGPT citations vs brand mentions",
+        description:
+          "Separate being named in an answer from being used as a source, then act on the right gap.",
+      },
+      {
+        href: "/ai-overviews-tracker-vs-cross-model-visibility-testing",
+        title: "AI Overviews tracker vs cross-model testing",
+        description:
+          "Choose between monitoring one Google surface and benchmarking buyer questions across four providers.",
       },
       {
         href: "/mcp",
@@ -155,6 +179,12 @@ export const RESOURCE_GROUPS = [
     description:
       "Choose software by measurement model, evidence, cadence, and workflow instead of feature count.",
     resources: [
+      {
+        href: "/aeo-vs-geo",
+        title: "AEO vs GEO",
+        description:
+          "Compare target surfaces, optimization inputs, measurement, reporting, and when to use SEO too.",
+      },
       {
         href: "/answer-engine-optimization-tools",
         title: "AEO tools compared",

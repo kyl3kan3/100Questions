@@ -6,12 +6,16 @@ type ResourceMetadataInput = {
   path: `/${string}`;
   title: string;
   description: string;
+  publishedTime?: string;
+  modifiedTime?: string;
 };
 
 export function buildResourceMetadata({
   path,
   title,
   description,
+  publishedTime = "2026-08-03",
+  modifiedTime = "2026-08-10",
 }: ResourceMetadataInput): Metadata {
   const url = absoluteUrl(path);
 
@@ -26,8 +30,8 @@ export function buildResourceMetadata({
       siteName: SITE_NAME,
       type: "article",
       locale: "en_US",
-      publishedTime: "2026-08-03",
-      modifiedTime: "2026-08-10",
+      publishedTime,
+      modifiedTime,
       images: [SOCIAL_IMAGE],
     },
     twitter: {

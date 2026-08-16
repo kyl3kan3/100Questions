@@ -16,6 +16,8 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility-checker",
   "/mcp",
   "/ai-visibility-audit",
+  "/ai-search-visibility-tool",
+  "/how-to-measure-ai-search-visibility",
   "/ai-search-optimization",
   "/how-to-get-chatgpt-to-recommend-your-business",
   "/ai-seo-tools",
@@ -26,10 +28,13 @@ export const PUBLIC_MARKETING_PATHS = [
   "/ai-visibility-score-calculator",
   "/ai-search-prompt-tracking-spreadsheet",
   "/answer-engine-optimization",
+  "/aeo-vs-geo",
   "/answer-engine-optimization-tools",
   "/chatgpt-brand-visibility-test",
+  "/chatgpt-citations-vs-brand-mentions",
   "/chatgpt-seo-tool",
   "/generative-engine-optimization",
+  "/ai-overviews-tracker-vs-cross-model-visibility-testing",
   "/geo-client-reporting-template",
   "/llm-citation-audit-template",
   "/llm-seo",
@@ -62,6 +67,7 @@ export function buildSitemap(): MetadataRoute.Sitemap {
   const augustThirteenth = new Date("2026-08-13T00:00:00.000Z");
   const augustFourteenth = new Date("2026-08-14T00:00:00.000Z");
   const augustFifteenth = new Date("2026-08-15T00:00:00.000Z");
+  const augustSixteenth = new Date("2026-08-16T00:00:00.000Z");
 
   return [
     {
@@ -138,6 +144,19 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
+      url: absoluteUrl("/ai-search-visibility-tool"),
+      lastModified: augustSixteenth,
+      changeFrequency: "monthly",
+      priority: 0.95,
+      images: [absoluteUrl("/sample-report-preview.png")],
+    },
+    {
+      url: absoluteUrl("/how-to-measure-ai-search-visibility"),
+      lastModified: augustSixteenth,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
       url: absoluteUrl("/ai-search-optimization"),
       lastModified,
       changeFrequency: "monthly",
@@ -193,9 +212,15 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: absoluteUrl("/answer-engine-optimization"),
-      lastModified,
+      lastModified: augustSixteenth,
       changeFrequency: "monthly",
       priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/aeo-vs-geo"),
+      lastModified: augustSixteenth,
+      changeFrequency: "monthly",
+      priority: 0.95,
     },
     {
       url: absoluteUrl("/answer-engine-optimization-tools"),
@@ -210,6 +235,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: absoluteUrl("/chatgpt-citations-vs-brand-mentions"),
+      lastModified: augustSixteenth,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
       url: absoluteUrl("/chatgpt-seo-tool"),
       lastModified: augustSeventh,
       changeFrequency: "monthly",
@@ -218,6 +249,12 @@ export function buildSitemap(): MetadataRoute.Sitemap {
     {
       url: absoluteUrl("/generative-engine-optimization"),
       lastModified,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: absoluteUrl("/ai-overviews-tracker-vs-cross-model-visibility-testing"),
+      lastModified: augustSixteenth,
       changeFrequency: "monthly",
       priority: 0.85,
     },

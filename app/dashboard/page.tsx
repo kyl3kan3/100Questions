@@ -75,9 +75,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <div className="page-shell py-10 md:py-14">
         <CheckoutReturnStatus
           state={typeof query.checkout === "string" ? query.checkout : null}
-          hasSessionId={
+          checkoutSessionId={
             typeof query.session_id === "string" &&
             query.session_id.startsWith("cs_")
+              ? query.session_id
+              : null
           }
         />
         <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">

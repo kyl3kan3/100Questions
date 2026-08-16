@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { AuthForm } from "@/components/auth-form";
+import { AnalyticsEvent } from "@/components/analytics-event";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,11 +72,18 @@ export default async function CheckoutCompletePage({
         </Link>
 
         {checkout.state === "paid" ? (
-          <AuthForm
-            mode="sign-up"
-            checkoutSessionId={sessionId}
-            email={checkout.email}
-          />
+          <>
+            <AnalyticsEvent
+              event="purchase_completed"
+              onceKey={`purchase:${sessionId}`}
+              properties={{ checkout_flow: "guest" }}
+            />
+            <AuthForm
+              mode="sign-up"
+              checkoutSessionId={sessionId}
+              email={checkout.email}
+            />
+          </>
         ) : checkout.state === "processing" ? (
           <StatusCard title="Your payment is processing">
             <p>

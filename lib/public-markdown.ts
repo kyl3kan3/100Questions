@@ -77,6 +77,18 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "A prepaid 25-question benchmark across four AI providers with 100 planned answers, stored evidence, citations, and prioritized actions.",
   },
+  "/ai-search-visibility-tool": {
+    title: "AI Search Visibility Tool",
+    summary:
+      "A frozen 100-answer benchmark for measuring mentions, citations, competitors, share of voice, and provider coverage.",
+    lastReviewed: "2026-08-16",
+  },
+  "/how-to-measure-ai-search-visibility": {
+    title: "How to Measure AI Search Visibility",
+    summary:
+      "A controlled measurement framework covering buyer questions, eligibility, denominators, answer evidence, and comparable reruns.",
+    lastReviewed: "2026-08-16",
+  },
   "/ai-search-optimization": {
     title: "AI Search Optimization",
     summary:
@@ -127,6 +139,13 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     title: "Answer Engine Optimization",
     summary:
       "What AEO is, how it differs from SEO and GEO, and practical techniques for earning inclusion and citations in AI answers.",
+    lastReviewed: "2026-08-16",
+  },
+  "/aeo-vs-geo": {
+    title: "AEO vs GEO",
+    summary:
+      "A direct comparison of target surfaces, optimization inputs, measurement, reporting, and when a company needs SEO too.",
+    lastReviewed: "2026-08-16",
   },
   "/answer-engine-optimization-tools": {
     title: "Answer Engine Optimization Tools Compared",
@@ -138,6 +157,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "A free 10-prompt manual test for brand mentions, owned citations, discovery gaps, and factual accuracy.",
   },
+  "/chatgpt-citations-vs-brand-mentions": {
+    title: "ChatGPT Citations vs Brand Mentions",
+    summary:
+      "Definitions, formulas, and actions for separating brand inclusion from source attribution in AI answers.",
+    lastReviewed: "2026-08-16",
+  },
   "/chatgpt-seo-tool": {
     title: "ChatGPT SEO Tool Guide",
     summary:
@@ -147,6 +172,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     title: "Generative Engine Optimization",
     summary:
       "A grounded GEO framework for technical access, answer-ready content, corroborating evidence, and repeatable measurement.",
+  },
+  "/ai-overviews-tracker-vs-cross-model-visibility-testing": {
+    title: "AI Overviews Tracker vs Cross-Model Visibility Testing",
+    summary:
+      "A comparison of single-surface Google AI Overviews monitoring and multi-provider buyer-question benchmarking.",
+    lastReviewed: "2026-08-16",
   },
   "/geo-client-reporting-template": {
     title: "GEO Client Reporting Template",

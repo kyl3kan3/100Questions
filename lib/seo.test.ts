@@ -16,7 +16,7 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(34);
+    expect(urls).toHaveLength(39);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/contact");
     expect(urls).toContain("/support");
@@ -25,6 +25,8 @@ describe("public SEO metadata", () => {
     expect(urls).toContain("/ai-search-optimization");
     expect(urls).toContain("/ai-visibility-tools");
     expect(urls).toContain("/ai-visibility-audit");
+    expect(urls).toContain("/ai-search-visibility-tool");
+    expect(urls).toContain("/how-to-measure-ai-search-visibility");
     expect(urls).toContain("/mcp");
     expect(urls).toContain("/ai-seo-tools");
     expect(urls).toContain(
@@ -37,7 +39,12 @@ describe("public SEO metadata", () => {
     expect(urls).toContain("/ai-visibility-score-calculator");
     expect(urls).toContain("/ai-search-prompt-tracking-spreadsheet");
     expect(urls).toContain("/answer-engine-optimization-tools");
+    expect(urls).toContain("/aeo-vs-geo");
     expect(urls).toContain("/chatgpt-brand-visibility-test");
+    expect(urls).toContain("/chatgpt-citations-vs-brand-mentions");
+    expect(urls).toContain(
+      "/ai-overviews-tracker-vs-cross-model-visibility-testing",
+    );
     expect(urls).toContain("/chatgpt-seo-tool");
     expect(urls).toContain("/geo-client-reporting-template");
     expect(urls).toContain("/llm-citation-audit-template");

@@ -21,6 +21,18 @@ type SeoResourceShellProps = {
   breadcrumb: string;
   title: string;
   description: string;
+  published?: {
+    iso: string;
+    label: string;
+  };
+  modified?: {
+    iso: string;
+    label: string;
+  };
+  primaryAction?: {
+    href: string;
+    label: string;
+  };
   download?: {
     href: string;
     label: string;
@@ -35,6 +47,9 @@ export function SeoResourceShell({
   breadcrumb,
   title,
   description,
+  published = { iso: "2026-08-03", label: "August 3, 2026" },
+  modified = { iso: "2026-08-14", label: "August 14, 2026" },
+  primaryAction,
   download,
   faqs,
   children,
@@ -51,8 +66,8 @@ export function SeoResourceShell({
         description,
         url: pageUrl,
         mainEntityOfPage: pageUrl,
-        datePublished: "2026-08-03",
-        dateModified: "2026-08-14",
+        datePublished: published.iso,
+        dateModified: modified.iso,
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
@@ -121,10 +136,10 @@ export function SeoResourceShell({
               {description}
             </p>
             <ContentByline
-              publishedAt="2026-08-03"
-              publishedLabel="August 3, 2026"
-              modifiedAt="2026-08-14"
-              modifiedLabel="August 14, 2026"
+              publishedAt={published.iso}
+              publishedLabel={published.label}
+              modifiedAt={modified.iso}
+              modifiedLabel={modified.label}
             />
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {download ? (
@@ -135,8 +150,8 @@ export function SeoResourceShell({
                 </Button>
               ) : null}
               <Button asChild size="lg" variant={download ? "outline" : "default"}>
-                <Link href="/ai-visibility-prompts">
-                  Build a question set <ArrowRight aria-hidden="true" />
+                <Link href={primaryAction?.href ?? "/ai-visibility-prompts"}>
+                  {primaryAction?.label ?? "Build a question set"} <ArrowRight aria-hidden="true" />
                 </Link>
               </Button>
             </div>

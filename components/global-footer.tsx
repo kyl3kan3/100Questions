@@ -18,10 +18,12 @@ const footerGroups = [
   {
     label: "Use",
     links: [
+      ["AI search visibility tool", "/ai-search-visibility-tool"],
       ["AI visibility audit", "/ai-visibility-audit"],
       ["Free readiness checker", "/ai-visibility-checker"],
       ["MCP for agents", "/mcp"],
       ["AEO tools comparison", "/answer-engine-optimization-tools"],
+      ["AEO vs GEO", "/aeo-vs-geo"],
       ["For agencies", "/for-agencies"],
       ["Pricing", "/#pricing"],
       ["FAQ", "/faq"],

@@ -11,17 +11,17 @@ import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-prompts");
 const RESOURCE_DATE = { iso: "2026-08-03", label: "August 3, 2026" } as const;
-const REVIEW_DATE = { iso: "2026-08-10", label: "August 10, 2026" } as const;
+const REVIEW_DATE = { iso: "2026-08-16", label: "August 16, 2026" } as const;
 
 export const metadata: Metadata = {
-  title: "100 AI Visibility Prompts to Test Your Brand",
+  title: "How to Choose Buyer Questions (+100 AI Prompts)",
   description:
-    "Use 100 AI visibility prompts to test brand discovery, buyer fit, comparisons, risk, proof, and brand accuracy across ChatGPT, Claude, Gemini, and Grok.",
+    "Learn how to choose buyer questions for an AI visibility audit, then use 100 prompts covering discovery, fit, comparison, proof, and brand accuracy.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "100 AI Visibility Prompts to Test Your Brand",
+    title: "How to Choose Buyer Questions for an AI Visibility Audit",
     description:
-      "A free, downloadable question bank for building a controlled AI visibility benchmark.",
+      "A selection framework, balanced 25-question starter set, and free 100-prompt library for a controlled AI visibility benchmark.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "100 AI Visibility Prompts to Test Your Brand",
+    title: "How to Choose Buyer Questions (+100 AI Prompts)",
     description:
       "Build a repeatable AI visibility test with 80 neutral discovery prompts and 20 brand diagnostics.",
     images: [SOCIAL_IMAGE],
@@ -326,12 +326,13 @@ export default function AiVisibilityPromptsPage() {
               Free 100-question library
             </Badge>
             <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-              100 AI visibility prompts to test your brand
+              How to choose buyer questions for an AI visibility audit
             </h1>
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-              Build a controlled question set for ChatGPT, Claude, Gemini, Grok,
-              or another answer engine. Start with neutral buyer discovery, then
-              keep brand-named accuracy checks in a separate diagnostic group.
+              Build a controlled question set for ChatGPT, Claude, Gemini,
+              Grok, or another answer engine. Use the selection framework, then
+              draw from 100 prompts covering discovery, fit, comparison, proof,
+              and brand accuracy.
             </p>
             <ContentByline
               publishedAt={RESOURCE_DATE.iso}
@@ -356,6 +357,37 @@ export default function AiVisibilityPromptsPage() {
         </header>
 
         <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+          <section aria-labelledby="selection-heading">
+            <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+              <div>
+                <p className="eyebrow">Question selection framework</p>
+                <h2 id="selection-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+                  Choose questions that can change a buying decision
+                </h2>
+              </div>
+              <p className="leading-7 text-zinc-400">
+                A useful question represents a real decision, exposes a
+                meaningful competitive set, and can be judged consistently.
+                Start with customer language from sales calls, support logs,
+                site search, paid-search terms, interviews, and conventional
+                keyword research.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["Decision relevance", "Would the answer influence discovery, a shortlist, risk assessment, or purchase?"],
+                ["Neutral wording", "Does the discovery prompt avoid naming or praising the target brand?"],
+                ["Distinct intent", "Does it add a new audience, use case, constraint, comparison, or proof requirement?"],
+                ["Scorable answer", "Can reviewers label mentions, prominence, competitors, citations, and accuracy consistently?"],
+              ].map(([title, description]) => (
+                <article key={title} className="rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+                  <h3 className="font-semibold text-white">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400">{description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]" aria-labelledby="method-heading">
             <div>
               <p className="eyebrow">Use the bank, not the whole bank</p>
@@ -374,6 +406,12 @@ export default function AiVisibilityPromptsPage() {
                 Do not mix brand-named prompts into a discovery score. If the
                 question already supplies the brand, the answer cannot prove
                 that an AI system would have discovered it independently.
+              </p>
+              <p>
+                Remove near-duplicates that ask the same decision in slightly
+                different words. Balance broad category questions with
+                high-value use cases, constraints, comparisons, and proof
+                checks so one prompt family cannot dominate the score.
               </p>
             </div>
           </section>
@@ -448,6 +486,7 @@ export default function AiVisibilityPromptsPage() {
             </h2>
             <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {[
+                ["AI search visibility tool", "/ai-search-visibility-tool", "Run 25 frozen buyer questions across OpenAI, Claude, Gemini, and Grok."],
                 ["AI visibility score calculator", "/ai-visibility-score-calculator", "Turn observed answer counts into a transparent, component-level score."],
                 ["ChatGPT brand visibility test", "/chatgpt-brand-visibility-test", "Run a focused 10-prompt manual test and preserve the evidence."],
                 ["Prompt tracking spreadsheet", "/ai-search-prompt-tracking-spreadsheet", "Track provider conditions, answers, citations, competitors, and reruns."],
@@ -493,9 +532,14 @@ export default function AiVisibilityPromptsPage() {
                   your own benchmark.
                 </p>
               </div>
-              <Button asChild size="lg">
-                <Link href="/sample-report">View the sample report <ArrowRight aria-hidden="true" /></Link>
-              </Button>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg">
+                  <Link href="/ai-search-visibility-tool">See the AI visibility tool <ArrowRight aria-hidden="true" /></Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/sample-report">View the sample report</Link>
+                </Button>
+              </div>
             </div>
           </section>
         </div>

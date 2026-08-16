@@ -1,5 +1,6 @@
 import { AiVisibilityScoreCalculator } from "@/components/ai-visibility-score-calculator";
 import { SeoResourceShell } from "@/components/seo-resource-shell";
+import Link from "next/link";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
 import {
   calculateVisibilityScores,
@@ -7,12 +8,14 @@ import {
 } from "@/lib/public-tool-data";
 
 const path = "/ai-visibility-score-calculator" as const;
+const modified = { iso: "2026-08-16", label: "August 16, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
-  title: "AI Visibility Score Calculator with Formula",
+  title: "AI Visibility Score: Definition & Calculator",
   description:
-    "Calculate AI visibility from observed answers using a transparent formula for mention rate, prominence, owned citations, accuracy, and coverage.",
+    "Learn what an AI visibility score means and calculate it from real answers using transparent mention, prominence, citation, accuracy, and coverage formulas.",
+  modifiedTime: modified.iso,
 });
 
 const faqs = [
@@ -48,10 +51,40 @@ export default function AiVisibilityScoreCalculatorPage() {
       path={path}
       eyebrow="Free transparent calculator"
       breadcrumb="AI visibility score calculator"
-      title="AI visibility score calculator"
-      description="Turn real prompt-test counts into a transparent composite while keeping visibility, prominence, citations, accuracy, and coverage separate."
+      title="AI visibility score: definition and calculation"
+      description="An AI visibility score summarizes a defined prompt test. Calculate one from real answer counts while keeping visibility, prominence, citations, accuracy, and coverage separate."
+      modified={modified}
+      primaryAction={{ href: "/ai-search-visibility-tool", label: "Measure my AI visibility" }}
       faqs={faqs}
     >
+      <section className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]" aria-labelledby="score-definition-heading">
+        <div>
+          <p className="eyebrow">AI visibility score definition</p>
+          <h2 id="score-definition-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+            A summary of observed answers under one protocol
+          </h2>
+        </div>
+        <div className="space-y-4 text-pretty leading-7 text-zinc-400">
+          <p>
+            An AI visibility score summarizes how a target brand performed in
+            a defined set of AI-generated answers. It is not a permanent rank,
+            a property of the domain, or a universal grade. Its meaning depends
+            on the questions, providers, market, date, grounding rules, and
+            formula used to create it.
+          </p>
+          <p>
+            The calculator below weights discovery visibility at 50%,
+            prominence at 20%, claimed-domain citations at 20%, and factual
+            accuracy at 10%. Coverage stays separate so failed collection
+            cannot masquerade as low brand visibility. See how those metrics
+            map to{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/aeo-vs-geo">
+              AEO and GEO outcomes
+            </Link>.
+          </p>
+        </div>
+      </section>
+
       <AiVisibilityScoreCalculator />
 
       <noscript>
@@ -101,6 +134,14 @@ export default function AiVisibilityScoreCalculatorPage() {
             Compare reruns only against the same frozen benchmark. Read the
             component rates before acting: a citation problem requires a
             different response from an accuracy or discovery problem.
+          </p>
+          <p>
+            Need the underlying answer evidence rather than manual counts? The{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/ai-search-visibility-tool">
+              AI search visibility tool
+            </Link>{" "}
+            runs 25 frozen buyer questions across four grounded providers and
+            preserves every eligible answer, source, and failure.
           </p>
         </div>
       </section>

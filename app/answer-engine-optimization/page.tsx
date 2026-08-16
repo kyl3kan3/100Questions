@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
+import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,13 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/answer-engine-optimization");
+const publishedAt = SITE_UPDATED_AT;
+const modifiedAt = "2026-08-16";
 
 export const metadata: Metadata = {
-  title: "Answer Engine Optimization: AEO Guide",
+  title: "What Is AEO in Marketing? A Practical Guide",
   description:
-    "What answer engine optimization is, how AEO differs from SEO and GEO, the practices that earn citations in AI answers, and how to measure the results.",
+    "Learn what AEO means in marketing, how answer engine optimization differs from SEO and GEO, which practices earn citations, and how to measure results.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Answer Engine Optimization (AEO): A Practical Guide",
@@ -30,8 +33,8 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     type: "article",
     locale: "en_US",
-    publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
+    publishedTime: publishedAt,
+    modifiedTime: modifiedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -78,9 +81,9 @@ const practices = [
 
 const faqs = [
   {
-    question: "What is answer engine optimization (AEO)?",
+    question: "What is AEO in marketing?",
     answer:
-      "Answer engine optimization is the practice of making your content and brand easier for answer-generating systems—AI assistants, AI-augmented search results, and voice assistants—to select, summarize, and cite when they answer a user's question. Where classic SEO optimizes for a ranked list of links, AEO optimizes for inclusion in the single composed answer.",
+      "AEO in marketing means answer engine optimization: making a brand's content easier for AI assistants, AI-augmented search results, and voice systems to select, summarize, and cite when they answer a buyer's question. Where classic SEO optimizes for visibility in a ranked list of links, AEO adds visibility inside the composed answer.",
   },
   {
     question: "How is AEO different from SEO and GEO?",
@@ -116,8 +119,8 @@ export default function AeoGuidePage() {
           "What AEO is, how it differs from SEO and GEO, the practices that earn citations in AI answers, and how to measure the results.",
         url: pageUrl,
         mainEntityOfPage: pageUrl,
-        datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
+        datePublished: publishedAt,
+        dateModified: modifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -179,18 +182,20 @@ export default function AeoGuidePage() {
                 AEO guide
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                Answer engine optimization: earn a place in the answer
+                What is AEO in marketing? Answer engine optimization explained
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                Answer engine optimization, or AEO, is the work of making your
-                content easy for answer-generating systems to select, summarize,
-                and cite. When assistants compose one answer instead of listing
-                ten links, being rankable stops being enough—you have to be
-                quotable.
+                AEO in marketing is the work of making a brand and its content
+                easy for answer-generating systems to select, summarize, and
+                cite. When assistants compose one answer instead of listing ten
+                links, being rankable stops being enough—you also have to be
+                clear, verifiable, and quotable.
               </p>
               <ContentByline
-                publishedAt={SITE_UPDATED_AT}
+                publishedAt={publishedAt}
                 publishedLabel="July 24, 2026"
+                modifiedAt={modifiedAt}
+                modifiedLabel="August 16, 2026"
               />
             </div>
           </header>
@@ -235,6 +240,31 @@ export default function AeoGuidePage() {
               </div>
             </section>
 
+            <section aria-labelledby="marketing-role-heading" className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/[0.035] p-7 sm:p-9">
+              <p className="eyebrow">AEO&apos;s role in marketing</p>
+              <h2 id="marketing-role-heading" className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+                Turn buyer questions into answer-ready, measurable content
+              </h2>
+              <div className="mt-7 grid gap-4 md:grid-cols-3">
+                {[
+                  ["Research", "Collect the category, comparison, constraint, proof, and implementation questions that shape a buying decision."],
+                  ["Publish", "Answer those questions directly with extractable facts, real evidence, clear entities, and useful internal paths."],
+                  ["Measure", "Test neutral buyer questions across the providers buyers use; preserve mentions, citations, competitors, and answer coverage."],
+                ].map(([title, description]) => (
+                  <article key={title} className="rounded-2xl bg-white/[0.035] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+                    <h3 className="font-semibold text-white">{title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-zinc-400">{description}</p>
+                  </article>
+                ))}
+              </div>
+              <p className="mt-6 max-w-3xl leading-7 text-zinc-400">
+                Content, SEO, digital PR, product marketing, and analytics all
+                contribute. Keep one roadmap: the same crawlable page and
+                evidence can support traditional search, direct answers, and
+                generative recommendations.
+              </p>
+            </section>
+
             <section aria-labelledby="aeo-comparison-heading">
               <p className="eyebrow">Three overlapping disciplines</p>
               <h2
@@ -272,7 +302,14 @@ export default function AeoGuidePage() {
               <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-400">
                 Treat the labels loosely: the practices below serve all three.
                 What matters is doing the work once and measuring the outcome in
-                the answers themselves.
+                the answers themselves. Use the full{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/aeo-vs-geo"
+                >
+                  AEO vs GEO comparison and scorecard
+                </Link>{" "}
+                to map each surface to its measurement model.
               </p>
             </section>
 
@@ -356,6 +393,11 @@ export default function AeoGuidePage() {
                 </Link>
                 .
               </p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/ai-search-visibility-tool">
+                  See the AI search visibility tool <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
             </section>
 
             <section aria-labelledby="aeo-faq-heading">
@@ -395,16 +437,11 @@ export default function AeoGuidePage() {
                     don&apos;t.
                   </h2>
                 </div>
-                <Button
-                  asChild
+                <MarketingCheckoutButton
+                  label="Buy my first audit — $9"
                   variant="secondary"
-                  size="lg"
-                  className="bg-zinc-950 text-white hover:bg-zinc-800"
-                >
-                  <Link href="/auth/sign-up">
-                    Start a benchmark <ArrowRight />
-                  </Link>
-                </Button>
+                  buttonClassName="bg-zinc-950 text-white hover:bg-zinc-800"
+                />
               </div>
             </section>
           </div>

@@ -266,7 +266,14 @@ export default function AiSearchOptimizationPage() {
               <p className="mt-4 max-w-3xl text-pretty text-base leading-7 text-zinc-400">
                 Work from technical access to consistent entity facts,
                 answer-ready content, citable evidence, off-site corroboration,
-                and then measurement.
+                and then{" "}
+                <Link
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                  href="/ai-visibility"
+                >
+                  AI visibility measurement
+                </Link>
+                .
               </p>
               <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {stages.map(({ title, description }, index) => (

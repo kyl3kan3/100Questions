@@ -62,6 +62,12 @@ export const RESOURCE_GROUPS = [
           "Build a controlled question set, define denominators, preserve evidence, and compare like-for-like reruns.",
       },
       {
+        href: "/customer-research-methods",
+        title: "Customer research methods for AI search",
+        description:
+          "Combine customer evidence with a benchmark of what answer engines say to prospective buyers.",
+      },
+      {
         href: "/how-to-get-chatgpt-to-recommend-your-business",
         title: "How to get ChatGPT to recommend your business",
         description:
@@ -81,9 +87,9 @@ export const RESOURCE_GROUPS = [
       },
       {
         href: "/generative-engine-optimization",
-        title: "Generative engine optimization guide",
+        title: "GEO vs SEO guide",
         description:
-          "A grounded GEO framework for technical access, answer-ready content, and authority.",
+          "Compare GEO and SEO, then build one program for technical access, answer-ready content, and authority.",
       },
       {
         href: "/llm-seo",
@@ -100,10 +106,22 @@ export const RESOURCE_GROUPS = [
       "Use ungated checkers, prompt libraries, calculators, spreadsheets, and reporting templates.",
     resources: [
       {
+        href: "/ai-brand-risk-checker",
+        title: "AI brand risk checker",
+        description:
+          "Build a structured review for incorrect claims, source gaps, competitor substitution, inconsistency, and unanswered questions.",
+      },
+      {
         href: "/ai-visibility-checker",
         title: "AI visibility readiness checker",
         description:
           "Check crawl access, canonicals, structured data, sitemaps, and AI crawler availability.",
+      },
+      {
+        href: "/llms-txt-checker",
+        title: "llms.txt checker and generator",
+        description:
+          "Generate a concise llms.txt file, validate the proposed format, and check live discovery.",
       },
       {
         href: "/chatgpt-citations-vs-brand-mentions",
@@ -179,6 +197,12 @@ export const RESOURCE_GROUPS = [
     description:
       "Choose software by measurement model, evidence, cadence, and workflow instead of feature count.",
     resources: [
+      {
+        href: "/can-google-alerts-track-chatgpt-mentions",
+        title: "Google Alerts vs ChatGPT mention tracking",
+        description:
+          "See why web-result alerts and answer-level AI visibility evidence require different monitoring methods.",
+      },
       {
         href: "/aeo-vs-geo",
         title: "AEO vs GEO",

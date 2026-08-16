@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AnalyticsEvent } from "@/components/analytics-event";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -16,15 +17,16 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/generative-engine-optimization");
+const modifiedAt = "2026-08-16";
 
 export const metadata: Metadata = {
   // Keep base title short: layout appends " · 100 Questions" (target ≤60 full).
-  title: "Generative Engine Optimization Guide",
+  title: "GEO vs SEO: Generative Engine Optimization",
   description:
-    "A practical guide to generative engine optimization: improve entity clarity, useful content, source authority, technical access, and AI visibility.",
+    "Compare GEO vs SEO, then use a practical generative engine optimization framework for entity clarity, answer-ready content, source authority, and measurement.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Generative Engine Optimization Guide",
+    title: "GEO vs SEO: Generative Engine Optimization Guide",
     description:
       "Improve how AI answer systems understand, retrieve, and cite your brand without abandoning the fundamentals of SEO.",
     url: pageUrl,
@@ -32,12 +34,12 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
+    modifiedTime: modifiedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Generative Engine Optimization Guide",
+    title: "GEO vs SEO: Generative Engine Optimization Guide",
     description:
       "Clear entities, answer-ready pages, credible sources, technical access, and repeatable AI visibility measurement.",
     images: [SOCIAL_IMAGE],
@@ -84,6 +86,24 @@ const loop = [
   ["Re-run", "Repeat the same test after enough time and meaningful changes, then compare directional movement."],
 ] as const;
 
+const faqs = [
+  {
+    question: "What is the difference between GEO and SEO?",
+    answer:
+      "SEO improves discovery and performance in ranked search results. GEO improves the public evidence, entity clarity, and answer-ready material available to generative systems, then measures mentions, prominence, competitors, citations, and coverage inside composed answers. The foundations overlap, but the observed surfaces and metrics differ.",
+  },
+  {
+    question: "Does GEO replace SEO?",
+    answer:
+      "No. Crawlable pages, useful content, internal links, technical access, and earned authority support both. A company should preserve conventional search measurement while adding answer-level evidence where AI systems influence discovery or evaluation.",
+  },
+  {
+    question: "How do you measure GEO?",
+    answer:
+      "Freeze buyer questions, run them under consistent provider conditions, preserve answers and sources, and report target mentions, prominence, selected-competitor share of voice, claimed-domain citations, and coverage. Reruns should reuse the same question set.",
+  },
+] as const;
+
 export default function GeoGuidePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -97,7 +117,7 @@ export default function GeoGuidePage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
+        dateModified: modifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": `${absoluteUrl()}#organization` },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -108,6 +128,14 @@ export default function GeoGuidePage() {
           "AI citations",
         ],
         inLanguage: "en-US",
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -131,6 +159,14 @@ export default function GeoGuidePage() {
 
   return (
     <div className="min-h-screen bg-[#070908] text-zinc-100">
+      <AnalyticsEvent
+        event="seo_landing_viewed"
+        onceKey="geo-vs-seo"
+        properties={{
+          landing_page: "/generative-engine-optimization",
+          keyword_cluster: "geo_vs_seo",
+        }}
+      />
       <MarketingHeader />
       <main>
         <article>
@@ -161,6 +197,8 @@ export default function GeoGuidePage() {
               <ContentByline
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"
+                modifiedAt={modifiedAt}
+                modifiedLabel="August 16, 2026"
               />
             </div>
           </header>
@@ -253,6 +291,50 @@ export default function GeoGuidePage() {
               </p>
             </section>
 
+            <section aria-labelledby="geo-vs-seo-heading">
+              <p className="eyebrow">GEO vs SEO comparison</p>
+              <h2
+                id="geo-vs-seo-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                GEO vs SEO: the practical difference is the surface you observe
+              </h2>
+              <div className="mt-8 overflow-x-auto rounded-[26px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+                <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                  <thead className="bg-white/[0.05] text-zinc-200">
+                    <tr>
+                      <th className="px-5 py-4 font-semibold">Decision</th>
+                      <th className="px-5 py-4 font-semibold">SEO</th>
+                      <th className="px-5 py-4 font-semibold">GEO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ["Primary surface", "Ranked search results and landing pages", "Composed answers and their source sets"],
+                      ["Visibility unit", "A URL position, impression, or click", "A brand mention, prominence label, competitor event, or citation"],
+                      ["Core inputs", "Technical access, relevance, content quality, links, and search experience", "The same foundation plus explicit entity facts, extractable answers, corroboration, and source-worthy evidence"],
+                      ["Measurement", "Rankings, Search Console impressions and clicks, organic sessions, and conversions", "Frozen buyer questions, stored answers and citations, share of voice, accuracy findings, and provider coverage"],
+                      ["Common failure", "A page is not discovered, ranked, or clicked", "The brand is absent, misdescribed, weakly sourced, or displaced by a competitor"],
+                    ].map(([decision, seo, geo]) => (
+                      <tr key={decision} className="border-t border-white/[0.08] bg-[#0b0e0c] text-zinc-400">
+                        <th className="px-5 py-4 font-semibold text-white">{decision}</th>
+                        <td className="px-5 py-4 leading-6">{seo}</td>
+                        <td className="px-5 py-4 leading-6">{geo}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-6 max-w-3xl leading-7 text-zinc-400">
+                Add answer engine optimization when a specific question needs
+                a direct, extractable response. See the complete{" "}
+                <Link className="text-emerald-300 underline underline-offset-4" href="/aeo-vs-geo">
+                  AEO vs GEO decision framework
+                </Link>{" "}
+                instead of creating separate thin pages for every synonym.
+              </p>
+            </section>
+
             <section aria-labelledby="measurement-loop-heading">
               <p className="eyebrow">Repeatable process</p>
               <h2
@@ -321,6 +403,29 @@ export default function GeoGuidePage() {
               </div>
             </section>
 
+            <section aria-labelledby="geo-faq-heading">
+              <p className="eyebrow">Common comparison questions</p>
+              <h2 id="geo-faq-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+                Keep GEO grounded in observable evidence
+              </h2>
+              <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                {faqs.map((faq) => (
+                  <article key={faq.question} className="rounded-[22px] bg-white/[0.025] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]">
+                    <h3 className="font-semibold leading-6 text-white">{faq.question}</h3>
+                    <p className="mt-3 text-sm leading-6 text-zinc-400">{faq.answer}</p>
+                  </article>
+                ))}
+              </div>
+              <p className="mt-6 max-w-3xl text-sm leading-6 text-zinc-400">
+                When the concern is hallucination, source support, or
+                competitor displacement, use the{" "}
+                <Link className="text-emerald-300 underline underline-offset-4" href="/ai-brand-risk-checker">
+                  AI brand risk checker
+                </Link>{" "}
+                to structure the evidence review.
+              </p>
+            </section>
+
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <CheckCircle2 className="size-6" aria-hidden="true" />
               <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -338,8 +443,8 @@ export default function GeoGuidePage() {
                   size="lg"
                   className="bg-zinc-950 text-white hover:bg-zinc-800"
                 >
-                  <Link href="/auth/sign-up">
-                    Start a benchmark <ArrowRight />
+                  <Link href="/ai-search-visibility-tool">
+                    Measure AI visibility <ArrowRight />
                   </Link>
                 </Button>
               </div>

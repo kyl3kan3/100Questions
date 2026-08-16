@@ -16,7 +16,7 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(39);
+    expect(urls).toHaveLength(43);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/contact");
     expect(urls).toContain("/support");

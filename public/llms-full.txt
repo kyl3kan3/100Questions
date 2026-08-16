@@ -29,7 +29,12 @@ AI visibility tools hub: https://100questionsai.com/ai-visibility-tools
 2026 AI Visibility Index cited-source results: https://100questionsai.com/data/ai-visibility-index-2026-source-results.csv
 2026 AI Visibility Index answer evidence: https://100questionsai.com/data/ai-visibility-index-2026-answer-evidence.csv
 AI visibility checker: https://100questionsai.com/ai-visibility-checker
+AI brand risk checker: https://100questionsai.com/ai-brand-risk-checker
+llms.txt checker and generator: https://100questionsai.com/llms-txt-checker
 AI visibility audit: https://100questionsai.com/ai-visibility-audit
+AI search visibility tool: https://100questionsai.com/ai-search-visibility-tool
+How to measure AI search visibility: https://100questionsai.com/how-to-measure-ai-search-visibility
+Customer research methods: https://100questionsai.com/customer-research-methods
 AI search optimization guide: https://100questionsai.com/ai-search-optimization
 How to get ChatGPT to recommend your business: https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business
 Best AI visibility tools comparison: https://100questionsai.com/ai-seo-tools
@@ -39,6 +44,7 @@ AI visibility report template: https://100questionsai.com/ai-visibility-report-t
 AI visibility score calculator: https://100questionsai.com/ai-visibility-score-calculator
 AI search prompt tracking spreadsheet: https://100questionsai.com/ai-search-prompt-tracking-spreadsheet
 ChatGPT brand visibility test: https://100questionsai.com/chatgpt-brand-visibility-test
+Google Alerts vs ChatGPT mention tracking: https://100questionsai.com/can-google-alerts-track-chatgpt-mentions
 LLM citation audit template: https://100questionsai.com/llm-citation-audit-template
 GEO client reporting template: https://100questionsai.com/geo-client-reporting-template
 Answer engine optimization guide: https://100questionsai.com/answer-engine-optimization

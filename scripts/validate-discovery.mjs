@@ -27,6 +27,14 @@ export const PAGE_REQUIREMENTS = [
     types: ["WebApplication", "FAQPage", "Brand"],
   },
   {
+    path: "/ai-brand-risk-checker",
+    types: ["WebApplication", "FAQPage", "Brand"],
+  },
+  {
+    path: "/llms-txt-checker",
+    types: ["WebApplication", "FAQPage", "Brand"],
+  },
+  {
     path: "/mcp",
     types: ["WebPage", "SoftwareApplication"],
   },

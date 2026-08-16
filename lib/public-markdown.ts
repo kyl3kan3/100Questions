@@ -67,6 +67,18 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "A free technical readiness check for indexability, AI crawlers, page signals, schema, sitemaps, and llms.txt.",
   },
+  "/ai-brand-risk-checker": {
+    title: "AI Brand Risk Checker",
+    summary:
+      "A free structured review for incorrect claims, missing citations, competitor substitution, inconsistent descriptions, and unanswered buyer questions.",
+    lastReviewed: "2026-08-16",
+  },
+  "/llms-txt-checker": {
+    title: "llms.txt Checker and Generator",
+    summary:
+      "A free generator, basic format validator, and public discovery check for the proposed llms.txt site file.",
+    lastReviewed: "2026-08-16",
+  },
   "/mcp": {
     title: "AI Visibility Readiness MCP",
     summary:
@@ -87,6 +99,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     title: "How to Measure AI Search Visibility",
     summary:
       "A controlled measurement framework covering buyer questions, eligibility, denominators, answer evidence, and comparable reruns.",
+    lastReviewed: "2026-08-16",
+  },
+  "/customer-research-methods": {
+    title: "Customer Research Methods for the AI Search Era",
+    summary:
+      "A method-selection guide connecting traditional customer research with evidence about what answer engines say to prospective buyers.",
     lastReviewed: "2026-08-16",
   },
   "/ai-search-optimization": {
@@ -163,15 +181,22 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
       "Definitions, formulas, and actions for separating brand inclusion from source attribution in AI answers.",
     lastReviewed: "2026-08-16",
   },
+  "/can-google-alerts-track-chatgpt-mentions": {
+    title: "Can Google Alerts Track ChatGPT Mentions?",
+    summary:
+      "A comparison of Google Search result alerts, manual AI checks, and frozen cross-model visibility testing.",
+    lastReviewed: "2026-08-16",
+  },
   "/chatgpt-seo-tool": {
     title: "ChatGPT SEO Tool Guide",
     summary:
       "A comparison of manual checks, recurring monitoring, and fixed evidence-linked benchmarks for ChatGPT visibility.",
   },
   "/generative-engine-optimization": {
-    title: "Generative Engine Optimization",
+    title: "GEO vs SEO: Generative Engine Optimization",
     summary:
-      "A grounded GEO framework for technical access, answer-ready content, corroborating evidence, and repeatable measurement.",
+      "A GEO vs SEO comparison and grounded framework for technical access, answer-ready content, corroborating evidence, and repeatable measurement.",
+    lastReviewed: "2026-08-16",
   },
   "/ai-overviews-tracker-vs-cross-model-visibility-testing": {
     title: "AI Overviews Tracker vs Cross-Model Visibility Testing",

@@ -20,10 +20,13 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [AI visibility guide](https://100questionsai.com/ai-visibility.md)
 - [AI visibility tools](https://100questionsai.com/ai-visibility-tools.md)
 - [AI visibility checker](https://100questionsai.com/ai-visibility-checker.md)
+- [AI brand risk checker](https://100questionsai.com/ai-brand-risk-checker.md)
+- [llms.txt checker and generator](https://100questionsai.com/llms-txt-checker.md)
 - [AI visibility readiness MCP](https://100questionsai.com/mcp.md)
 - [AI visibility audit](https://100questionsai.com/ai-visibility-audit.md)
 - [AI search visibility tool](https://100questionsai.com/ai-search-visibility-tool.md)
 - [How to measure AI search visibility](https://100questionsai.com/how-to-measure-ai-search-visibility.md)
+- [Customer research methods](https://100questionsai.com/customer-research-methods.md)
 - [AI search optimization guide](https://100questionsai.com/ai-search-optimization.md)
 - [How to get ChatGPT to recommend your business](https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md)
 - [Best AI visibility tools](https://100questionsai.com/ai-seo-tools.md)
@@ -38,6 +41,7 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools.md)
 - [ChatGPT brand visibility test](https://100questionsai.com/chatgpt-brand-visibility-test.md)
 - [ChatGPT citations vs brand mentions](https://100questionsai.com/chatgpt-citations-vs-brand-mentions.md)
+- [Google Alerts vs ChatGPT mention tracking](https://100questionsai.com/can-google-alerts-track-chatgpt-mentions.md)
 - [ChatGPT SEO tool guide](https://100questionsai.com/chatgpt-seo-tool.md)
 - [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization.md)
 - [AI Overviews tracker vs cross-model testing](https://100questionsai.com/ai-overviews-tracker-vs-cross-model-visibility-testing.md)
@@ -73,9 +77,12 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [AI visibility tools](https://100questionsai.com/ai-visibility-tools): A route-by-job hub for free checkers, audits, trackers, calculators, templates, AEO software, and broader platforms.
 - [2026 AI Visibility Index](https://100questionsai.com/ai-visibility-index): Results from a preregistered 25-product AI visibility software study across 80 grounded answers, with provider splits, cited-source analysis, answer-level evidence, frozen inputs, and downloadable data.
 - [AI visibility checker](https://100questionsai.com/ai-visibility-checker): A free instant technical readiness check for indexability, AI crawlers, page signals, schema, sitemaps, and llms.txt, plus a manual answer-check workflow.
+- [AI brand risk checker](https://100questionsai.com/ai-brand-risk-checker): A free interactive planning tool for incorrect claims, missing citations, competitor substitution, inconsistent descriptions, and unanswered buyer questions.
+- [llms.txt checker and generator](https://100questionsai.com/llms-txt-checker): A free generator, format check, and live-site discovery check for the proposed llms.txt file.
 - [AI visibility audit](https://100questionsai.com/ai-visibility-audit): A prepaid 25-question benchmark across OpenAI, Claude, Gemini, and Grok with 100 planned answers, competitor evidence, citations, and prioritized actions.
 - [AI search visibility tool](https://100questionsai.com/ai-search-visibility-tool): A frozen 25-question by four-provider benchmark with an ungated sample report, evidence, competitors, and a $9 first-audit offer.
 - [How to measure AI search visibility](https://100questionsai.com/how-to-measure-ai-search-visibility): A protocol for buyer questions, provider conditions, evidence, eligibility, component metrics, and comparable reruns.
+- [Customer research methods](https://100questionsai.com/customer-research-methods): A method-selection guide linking interviews, surveys, behavioral evidence, search data, and AI answer-engine perception.
 - [AI search optimization guide](https://100questionsai.com/ai-search-optimization): A six-stage workflow for crawlability, entity clarity, answer-ready content, evidence, distribution, and measurement.
 - [How to get ChatGPT to recommend your business](https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business): Five controllable inputs—crawlability, entity consistency, structured data, authentic reviews, and relevant citations—plus an evidence-conscious measurement loop.
 - [Best AI visibility tools](https://100questionsai.com/ai-seo-tools): Six tracking, research, SEO, enterprise GEO, and audit tools compared by measurement model and use case.
@@ -86,13 +93,14 @@ Every public HTML page has an explicit Markdown alternate. Use the exact URLs be
 - [AI search prompt tracking spreadsheet](https://100questionsai.com/ai-search-prompt-tracking-spreadsheet): A downloadable long-format worksheet for provider conditions, answers, citations, competitors, evidence, and reruns.
 - [ChatGPT brand visibility test](https://100questionsai.com/chatgpt-brand-visibility-test): A free interactive 10-prompt manual test with an ungated evidence worksheet.
 - [ChatGPT citations vs brand mentions](https://100questionsai.com/chatgpt-citations-vs-brand-mentions): Definitions, formulas, examples, and actions for separating brand inclusion from source attribution.
+- [Google Alerts vs ChatGPT mention tracking](https://100questionsai.com/can-google-alerts-track-chatgpt-mentions): Why Google Search result alerts do not capture answer-level AI mentions or citations, plus a practical combined monitoring stack.
 - [LLM citation audit template](https://100questionsai.com/llm-citation-audit-template): A downloadable source-to-claim audit for cited pages, ownership, accuracy, brand effect, gaps, and actions.
 - [GEO client reporting template](https://100questionsai.com/geo-client-reporting-template): An agency-ready report outline separating observed results, interpretation, business outcomes, and limitations.
 - [Answer engine optimization guide](https://100questionsai.com/answer-engine-optimization): What AEO is, how it differs from SEO and GEO, and the practices that earn citations in AI answers.
 - [AEO vs GEO](https://100questionsai.com/aeo-vs-geo): A direct comparison of target surfaces, inputs, measurement, reporting, buyer questions, and a decision scorecard.
 - [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools): Six AEO tools compared by monitoring model, evidence, cadence, workflow, and tradeoffs.
 - [ChatGPT SEO tool](https://100questionsai.com/chatgpt-seo-tool): Controlled ChatGPT visibility measurement with stored evidence and multi-provider context.
-- [Generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): Practical GEO principles, priorities, and a repeatable measurement loop.
+- [GEO vs SEO and generative engine optimization guide](https://100questionsai.com/generative-engine-optimization): A direct GEO vs SEO comparison, practical GEO priorities, and a repeatable measurement loop.
 - [AI Overviews tracker vs cross-model testing](https://100questionsai.com/ai-overviews-tracker-vs-cross-model-visibility-testing): A comparison of Google AI Overviews monitoring and frozen multi-provider buyer-question testing.
 - [LLM SEO guide](https://100questionsai.com/llm-seo): How language models choose brands, ChatGPT SEO in practice, and honest measurement.
 - [Best Peec AI alternatives](https://100questionsai.com/peec-ai-alternative): Four honest alternatives—100 Questions, Otterly.AI, Semrush, and Profound—compared by function, price signal, best-fit user, tradeoffs, and when Peec AI is better.

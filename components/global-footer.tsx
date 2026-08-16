@@ -20,6 +20,7 @@ const footerGroups = [
     links: [
       ["AI search visibility tool", "/ai-search-visibility-tool"],
       ["AI visibility audit", "/ai-visibility-audit"],
+      ["AI brand risk checker", "/ai-brand-risk-checker"],
       ["Free readiness checker", "/ai-visibility-checker"],
       ["MCP for agents", "/mcp"],
       ["AEO tools comparison", "/answer-engine-optimization-tools"],
@@ -32,6 +33,7 @@ const footerGroups = [
   {
     label: "Free resources",
     links: [
+      ["llms.txt checker", "/llms-txt-checker"],
       ["llms.txt site index", "/llms.txt"],
       ["Markdown site index", "/index.md"],
       ...MEASUREMENT_TOOLKIT_LINKS.map(

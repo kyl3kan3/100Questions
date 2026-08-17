@@ -6,18 +6,8 @@ import {
   PRODUCT_SKU,
   PRODUCT_UPDATED_AT,
 } from "./product-facts";
+import { PRODUCT_IMAGE } from "./product-image";
 import { absoluteUrl } from "./site";
-
-const PRODUCT_IMAGE = {
-  "@type": "ImageObject",
-  "@id": `${absoluteUrl()}#product-image`,
-  url: absoluteUrl("/sample-report-preview.png"),
-  contentUrl: absoluteUrl("/sample-report-preview.png"),
-  width: 1440,
-  height: 900,
-  caption:
-    "Sample AI visibility report showing brand visibility, competitor evidence, cited sources, and recommended actions.",
-} as const;
 
 export function buildHomeProductStructuredData() {
   const homeUrl = absoluteUrl();

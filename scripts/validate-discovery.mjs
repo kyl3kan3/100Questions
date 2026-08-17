@@ -27,6 +27,10 @@ export const PAGE_REQUIREMENTS = [
     types: ["WebApplication", "FAQPage", "Brand"],
   },
   {
+    path: "/ai-search-visibility-tool",
+    types: ["Product", "SoftwareApplication", "FAQPage", "Brand"],
+  },
+  {
     path: "/ai-brand-risk-checker",
     types: ["WebApplication", "FAQPage", "Brand"],
   },
@@ -177,6 +181,13 @@ function validateProduct(nodes, text, path) {
   if (!nodeHasType(product, "SoftwareApplication")) {
     throw new Error(`${path}: the primary Product is not typed as SoftwareApplication`);
   }
+  const imageUrl =
+    typeof product.image === "string"
+      ? product.image
+      : product.image?.contentUrl || product.image?.url;
+  if (!imageUrl) {
+    throw new Error(`${path}: Product is missing a crawlable image`);
+  }
   if (!Array.isArray(product.featureList) || product.featureList.length < 5) {
     throw new Error(`${path}: Product featureList is incomplete`);
   }
@@ -184,12 +195,20 @@ function validateProduct(nodes, text, path) {
     assertVisible(text, feature, path, `product feature "${feature}"`);
   }
 
-  const offers = product.offers?.offers;
+  const offers = Array.isArray(product.offers?.offers)
+    ? product.offers.offers
+    : product.offers
+      ? [product.offers]
+      : [];
   if (!Array.isArray(offers) || offers.length === 0) {
     throw new Error(`${path}: Product has no concrete offers`);
   }
   for (const offer of offers) {
-    if (offer.priceCurrency !== "USD" || !offer.price || !offer.sku) {
+    if (
+      offer.priceCurrency !== "USD" ||
+      offer.price === undefined ||
+      !offer.sku
+    ) {
       throw new Error(`${path}: Offer is missing price, USD currency, or SKU`);
     }
     if (offer.availability !== "https://schema.org/OnlineOnly") {

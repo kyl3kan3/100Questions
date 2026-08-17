@@ -26,7 +26,9 @@ import {
   PRODUCT_LIMITATIONS,
   PRODUCT_NAME,
   PRODUCT_SKU,
+  PRODUCT_UPDATED_AT,
 } from "@/lib/product-facts";
+import { PRODUCT_IMAGE } from "@/lib/product-image";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const path = "/ai-search-visibility-tool" as const;
@@ -130,13 +132,19 @@ export default function AiSearchVisibilityToolPage() {
         description:
           "A prepaid, source-backed AI search visibility benchmark across OpenAI, Claude, Gemini, and Grok.",
         url: pageUrl,
+        image: PRODUCT_IMAGE,
         sku: PRODUCT_SKU,
         brand: { "@id": `${absoluteUrl()}#brand` },
+        provider: { "@id": `${absoluteUrl()}#organization` },
+        category: "AI visibility analytics",
         applicationCategory: "BusinessApplication",
         applicationSubCategory: "AI search visibility measurement",
         operatingSystem: "Web",
         browserRequirements: "Requires a modern web browser",
-        featureList: PRODUCT_FEATURES.join(", "),
+        dateModified: PRODUCT_UPDATED_AT,
+        inLanguage: "en-US",
+        isAccessibleForFree: false,
+        featureList: [...PRODUCT_FEATURES],
         audience: {
           "@type": "Audience",
           audienceType: "Consultants, agencies, and in-house marketing teams",
@@ -146,8 +154,10 @@ export default function AiSearchVisibilityToolPage() {
           price: String(introPrice),
           priceCurrency: "USD",
           availability: "https://schema.org/OnlineOnly",
+          sku: `${PRODUCT_SKU}-INTRO`,
           url: pageUrl,
           description: "Introductory first-purchase price for one benchmark",
+          seller: { "@id": `${absoluteUrl()}#organization` },
         },
       },
       {
@@ -222,6 +232,14 @@ export default function AiSearchVisibilityToolPage() {
                   First-purchase price. No subscription. Results are directional
                   and do not guarantee future placement.
                 </p>
+                <ul className="mt-5 grid max-w-2xl gap-2 text-xs text-zinc-300 sm:grid-cols-2">
+                  {PRODUCT_FEATURES.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2">
+                      <Check className="size-3.5 shrink-0 text-emerald-300" aria-hidden="true" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0b0e0c] p-3 shadow-2xl shadow-emerald-950/20">

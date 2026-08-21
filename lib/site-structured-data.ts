@@ -1,4 +1,5 @@
 import { VERIFIED_BRAND_PROFILES } from "./product-facts";
+import { buildEditorialPersonStructuredData, EDITORIAL_AUTHOR_ID } from "./editorial";
 import { absoluteUrl, SITE_NAME } from "./site";
 
 export function buildSiteStructuredData() {
@@ -20,8 +21,10 @@ export function buildSiteStructuredData() {
           url: absoluteUrl("/logo-mark.svg"),
         },
         brand: { "@id": `${homeUrl}#brand` },
+        member: { "@id": EDITORIAL_AUTHOR_ID },
         sameAs,
       },
+      buildEditorialPersonStructuredData(),
       {
         "@type": "Brand",
         "@id": `${homeUrl}#brand`,

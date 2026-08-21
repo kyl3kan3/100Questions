@@ -9,6 +9,7 @@ import { MarketingCheckoutButton } from "@/components/marketing-checkout-button"
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl(
@@ -113,7 +114,8 @@ export default function ChatGptRecommendationGuidePage() {
         datePublished: publishedAt,
         dateModified: publishedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": absoluteUrl() + "#organization" },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": absoluteUrl() + "#organization" },
         about: [
           "ChatGPT business recommendations",
@@ -122,15 +124,6 @@ export default function ChatGptRecommendationGuidePage() {
           "generative engine optimization",
         ],
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": pageUrl + "#faq",
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -353,8 +346,10 @@ export default function ChatGptRecommendationGuidePage() {
                 <p>
                   Use the most specific valid Schema.org types for the business
                   and page: Organization or LocalBusiness for the entity,
-                  Product or Service for the offer, and Article, FAQPage, or
-                  BreadcrumbList where the visible content supports them.
+                  Product or Service for the offer, and Article or
+                  BreadcrumbList where the visible content supports them. Add
+                  review, rating, or FAQ markup only when the content and
+                  platform eligibility requirements are genuinely met.
                 </p>
                 <p>
                   Keep names, URLs, prices, availability, and descriptions

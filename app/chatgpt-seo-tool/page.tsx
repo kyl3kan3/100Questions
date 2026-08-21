@@ -13,7 +13,9 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BILLING_PACKAGES } from "@/lib/billing/packages";
 import { PRODUCT_SKU, PRODUCT_UPDATED_AT } from "@/lib/product-facts";
+import { PRODUCT_IMAGE } from "@/lib/product-image";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -21,6 +23,7 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/chatgpt-seo-tool");
+const introPrice = BILLING_PACKAGES.find(({ id }) => id === "intro")!;
 const CHATGPT_SEO_TOOL_PUBLISHED_DATE = {
   iso: "2026-07-24",
   label: "July 24, 2026",
@@ -143,19 +146,20 @@ export default function ChatgptSeoToolPage() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "SoftwareApplication",
-        "@id": `${pageUrl}#software`,
+        "@type": "Product",
+        "@id": `${pageUrl}#product`,
         name: "100 Questions ChatGPT SEO Tool",
         url: pageUrl,
+        image: PRODUCT_IMAGE,
+        sku: `${PRODUCT_SKU}-INTRO`,
         datePublished: CHATGPT_SEO_TOOL_PUBLISHED_DATE.iso,
         dateModified: PRODUCT_UPDATED_AT,
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
+        category: "AI visibility analytics",
         description:
           "A prepaid, evidence-linked AI visibility benchmark across OpenAI, Claude, Gemini, and Grok.",
         offers: {
           "@type": "Offer",
-          price: "9",
+          price: (introPrice.priceCents / 100).toFixed(2),
           priceCurrency: "USD",
           availability: "https://schema.org/OnlineOnly",
           sku: `${PRODUCT_SKU}-INTRO`,
@@ -165,15 +169,6 @@ export default function ChatgptSeoToolPage() {
         brand: { "@id": `${absoluteUrl()}#brand` },
         provider: { "@id": `${absoluteUrl()}#organization` },
         featureList: measuredSignals.map(([name]) => name),
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",

@@ -7,6 +7,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-prompts");
@@ -252,7 +253,8 @@ export default function AiVisibilityPromptsPage() {
         mainEntityOfPage: pageUrl,
         datePublished: RESOURCE_DATE.iso,
         dateModified: REVIEW_DATE.iso,
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
         about: [
@@ -277,14 +279,6 @@ export default function AiVisibilityPromptsPage() {
             name: prompt,
           })),
         ),
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",

@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -183,7 +184,8 @@ export default function AiSeoToolsPage() {
         datePublished: SITE_UPDATED_AT,
         dateModified: modifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "best AI visibility tools",
@@ -203,15 +205,6 @@ export default function AiSeoToolsPage() {
           position: index + 1,
           name: tool.name,
           url: tool.source,
-        })),
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
         })),
       },
       {

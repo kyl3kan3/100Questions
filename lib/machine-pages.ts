@@ -287,19 +287,14 @@ export function buildMcpLandingHtml() {
         dateModified: "2026-08-14",
       },
       {
-        "@type": "SoftwareApplication",
+        "@type": "WebAPI",
         name: "100 Questions AI Visibility Readiness MCP",
         url: pageUrl,
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
         description:
           "A public, read-only MCP tool for checking technical AI-search readiness.",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "USD",
-          availability: "https://schema.org/OnlineOnly",
-        },
+        documentation: pageUrl,
+        provider: { "@id": `${absoluteUrl()}#organization` },
+        isAccessibleForFree: true,
       },
     ],
   };

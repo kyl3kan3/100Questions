@@ -2,20 +2,26 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
+import { EvidenceNotes } from "@/components/evidence-notes";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { getArticleImage } from "@/lib/page-images";
 import {
   absoluteUrl,
   SITE_NAME,
   SITE_UPDATED_AT,
-  SOCIAL_IMAGE,
 } from "@/lib/site";
 
-const pageUrl = absoluteUrl("/llm-seo");
+const path = "/llm-seo" as const;
+const pageUrl = absoluteUrl(path);
+const modifiedAt = "2026-08-20";
+const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
   title: "LLM SEO: Get Cited in AI Answers",
@@ -31,15 +37,15 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
-    modifiedTime: SITE_UPDATED_AT,
-    images: [SOCIAL_IMAGE],
+    modifiedTime: modifiedAt,
+    images: [articleImage],
   },
   twitter: {
     card: "summary_large_image",
     title: "LLM SEO: How to Show Up When Language Models Answer",
     description:
       "The two channels that put brands into AI answers, practical LLM SEO work, and honest measurement.",
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
 };
 
@@ -135,9 +141,10 @@ export default function LlmSeoGuidePage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
-        dateModified: SITE_UPDATED_AT,
-        image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        dateModified: modifiedAt,
+        image: articleImage,
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "LLM SEO",
@@ -146,15 +153,6 @@ export default function LlmSeoGuidePage() {
           "AI visibility",
         ],
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -214,6 +212,7 @@ export default function LlmSeoGuidePage() {
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <ArticleHeroImage path={path} />
             <section aria-labelledby="channels-heading">
               <p className="eyebrow">Two channels into an answer</p>
               <h2
@@ -413,8 +412,15 @@ export default function LlmSeoGuidePage() {
                   required web grounding, scores visibility, prominence, share
                   of voice, and citations against eligible answers only, and
                   returns five evidence-linked actions. Run it before your LLM
-                  SEO work for a baseline, and again after to prove movement—
-                  start with the{" "}
+                  SEO work for a baseline, and again after to compare movement.
+                  Review the{" "}
+                  <Link
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                    href="/ai-search-visibility-tool"
+                  >
+                    frozen AI search visibility tool
+                  </Link>{" "}
+                  or start with the{" "}
                   <Link
                     className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/ai-visibility-checker"
@@ -425,6 +431,17 @@ export default function LlmSeoGuidePage() {
                 </p>
               </div>
             </section>
+
+            <EvidenceNotes
+              sourceIds={[
+                "googleAiOptimization",
+                "bingGuidelines",
+                "openAiPublishers",
+                "anthropicWebSearch",
+                "visibilityIndex",
+              ]}
+              context="Crawler and search behavior can change by provider. The linked provider documentation is the controlling source; the benchmark evidence is a dated snapshot, not a permanent ranking."
+            />
 
             <section aria-labelledby="llm-faq-heading">
               <p className="eyebrow">LLM SEO questions</p>
@@ -468,8 +485,8 @@ export default function LlmSeoGuidePage() {
                   size="lg"
                   className="bg-zinc-950 text-white hover:bg-zinc-800"
                 >
-                  <Link href="/auth/sign-up">
-                    Start a benchmark <ArrowRight />
+                  <Link href="/ai-search-visibility-tool">
+                    Inspect the benchmark <ArrowRight />
                   </Link>
                 </Button>
               </div>

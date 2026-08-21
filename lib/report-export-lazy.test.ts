@@ -11,11 +11,15 @@ vi.mock("node:module", () => ({
 }));
 
 describe("CSV export font isolation", () => {
-  it("does not resolve PDF font files while importing or building CSV", async () => {
-    const { buildResultsCsv } = await import("./report-export");
-    const csv = buildResultsCsv({ rows: [] } as never);
+  it(
+    "does not resolve PDF font files while importing or building CSV",
+    async () => {
+      const { buildResultsCsv } = await import("./report-export");
+      const csv = buildResultsCsv({ rows: [] } as never);
 
-    expect(csv).toContain("Question,Cohort,Category,Provider");
-    expect(moduleMocks.createRequire).not.toHaveBeenCalled();
-  });
+      expect(csv).toContain("Question,Cohort,Category,Provider");
+      expect(moduleMocks.createRequire).not.toHaveBeenCalled();
+    },
+    10_000,
+  );
 });

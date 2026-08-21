@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
 
 const path = "/ai-overviews-tracker-vs-cross-model-visibility-testing" as const;
-const date = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const published = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const modified = { iso: "2026-08-20", label: "August 20, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
-  title: "AI Overviews Tracker vs Cross-Model Visibility Testing",
+  title: "AI Overviews Tracker vs Cross-Model Test",
   description:
     "Compare an AI Overviews tracker with cross-model AI visibility testing by surface, questions, evidence, cadence, metrics, and best-fit use case.",
-  publishedTime: date.iso,
-  modifiedTime: date.iso,
+  publishedTime: published.iso,
+  modifiedTime: modified.iso,
 });
 
 const faqs = [
@@ -57,8 +58,8 @@ export default function AiOverviewsTrackerComparisonPage() {
       breadcrumb="AI Overviews tracker vs cross-model testing"
       title="AI Overviews tracker vs cross-model visibility testing"
       description="One follows a specific Google search surface; the other compares the same buyer questions across multiple AI providers. Choose by the decision you need to make."
-      published={date}
-      modified={date}
+      published={published}
+      modified={modified}
       primaryAction={{ href: "/ai-search-visibility-tool", label: "See cross-model visibility testing" }}
       faqs={faqs}
     >

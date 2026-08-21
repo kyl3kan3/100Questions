@@ -3,21 +3,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
+import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
+import { EvidenceNotes } from "@/components/evidence-notes";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { getArticleImage } from "@/lib/page-images";
 import {
   absoluteUrl,
   SITE_NAME,
   SITE_UPDATED_AT,
-  SOCIAL_IMAGE,
 } from "@/lib/site";
 
-const pageUrl = absoluteUrl("/ai-visibility");
-const modifiedAt = "2026-08-13T00:00:00.000Z";
+const path = "/ai-visibility" as const;
+const pageUrl = absoluteUrl(path);
+const modifiedAt = "2026-08-20T00:00:00.000Z";
+const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
   title: "AI Visibility: How to Measure and Improve It",
@@ -34,14 +39,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: modifiedAt,
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
   twitter: {
     card: "summary_large_image",
     title: "AI Visibility: A Practical Measurement Guide",
     description:
       "Measure brand mentions, prominence, citations, competitors, and coverage across AI answers.",
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
 };
 
@@ -129,24 +134,6 @@ const improvementSteps = [
   },
 ] as const;
 
-const visibilityFaqs = [
-  {
-    question: "What an AI visibility result looks like",
-    answer:
-      "An illustrative AI visibility result can show discovery visibility, owned citation rate, competitor share of voice, and answer coverage for one shared question set. In this example, 28 of 80 neutral discovery answers mention the brand, 12 of 80 eligible answers cite its domain, the brand earns 28 of 90 tracked brand mentions, and 94 of 100 planned answers finish with usable output. The 35% visibility figure is a baseline for that question set, provider mix, and date, not a universal grade.",
-  },
-  {
-    question: "How to measure AI visibility without hiding uncertainty",
-    answer:
-      "Use neutral market questions, ask the same questions across providers, require source evidence, report the mention numerator, eligible denominator, and coverage together, and compare time-stamped snapshots after meaningful changes. Failed or unsourced answers should remain coverage gaps rather than being silently counted as positive or negative visibility.",
-  },
-  {
-    question: "How to improve AI visibility",
-    answer:
-      "There is no single AI ranking factor to optimize. Improve the clarity, evidence, accessibility, and independent corroboration that answer systems can retrieve. Use consistent entity language, publish original evidence and clear product facts, earn accurate independent references, keep important pages crawlable and well structured, and rerun the same frozen question set after meaningful changes.",
-  },
-] as const;
-
 export default function AiVisibilityGuidePage() {
   const structuredData = {
     "@context": "https://schema.org",
@@ -161,8 +148,9 @@ export default function AiVisibilityGuidePage() {
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
         dateModified: modifiedAt,
-        image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        image: articleImage,
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "AI visibility",
@@ -188,18 +176,6 @@ export default function AiVisibilityGuidePage() {
             item: pageUrl,
           },
         ],
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: visibilityFaqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: answer,
-          },
-        })),
       },
     ],
   };
@@ -243,6 +219,7 @@ export default function AiVisibilityGuidePage() {
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <ArticleHeroImage path={path} />
             <section className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
               <div>
                 <p className="eyebrow">Plain-language definition</p>
@@ -468,7 +445,18 @@ export default function AiVisibilityGuidePage() {
               </div>
             </section>
 
-            <AiVisibilityLinkCluster currentPath="/ai-visibility" />
+            <EvidenceNotes
+              sourceIds={[
+                "googleAiFeatures",
+                "bingAiPerformance",
+                "openAiPublishers",
+                "methodology",
+                "visibilityIndex",
+              ]}
+              context="Visibility figures are meaningful only for the recorded question set, providers, grounding conditions, locale, and collection date. The worked result is illustrative; linked first-party datasets are labeled separately."
+            />
+
+            <AiVisibilityLinkCluster currentPath={path} />
 
             <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
               <CheckCircle2 className="size-6" aria-hidden="true" />

@@ -52,7 +52,8 @@ describe("machine-readable SEO pages", () => {
 
     expect(html).toContain("<title>Free AI Visibility Readiness MCP");
     expect(html).toContain('"@type":"WebPage"');
-    expect(html).toContain('"@type":"SoftwareApplication"');
+    expect(html).toContain('"@type":"WebAPI"');
+    expect(html).not.toContain('"@type":"SoftwareApplication"');
     expect(html).toContain("https://100questionsai.com/llms.txt");
     expect(html).toContain("https://100questionsai.com/mcp.md");
     expect(html).toContain("check_ai_visibility_readiness");

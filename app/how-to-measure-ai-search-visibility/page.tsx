@@ -1,20 +1,22 @@
 import { ArrowRight, Check, ClipboardCheck, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
+import { EvidenceNotes } from "@/components/evidence-notes";
 import { SeoResourceShell } from "@/components/seo-resource-shell";
 import { Button } from "@/components/ui/button";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
 
 const path = "/how-to-measure-ai-search-visibility" as const;
-const date = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const published = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const modified = { iso: "2026-08-20", label: "August 20, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
   title: "How to Measure AI Search Visibility",
   description:
     "Measure AI search visibility with a frozen buyer-question set, answer-level evidence, clear denominators, provider coverage, and comparable reruns.",
-  publishedTime: date.iso,
-  modifiedTime: date.iso,
+  publishedTime: published.iso,
+  modifiedTime: modified.iso,
 });
 
 const faqs = [
@@ -57,8 +59,8 @@ export default function HowToMeasureAiSearchVisibilityPage() {
       breadcrumb="How to measure AI search visibility"
       title="How to measure AI search visibility"
       description="Build a controlled benchmark around real buyer questions, preserve the answer-level evidence, and keep visibility, citations, competitors, accuracy, and coverage distinct."
-      published={date}
-      modified={date}
+      published={published}
+      modified={modified}
       primaryAction={{ href: "/ai-search-visibility-tool", label: "Use the AI visibility tool" }}
       faqs={faqs}
     >
@@ -188,6 +190,16 @@ export default function HowToMeasureAiSearchVisibilityPage() {
           ))}
         </div>
       </section>
+
+      <EvidenceNotes
+        sourceIds={[
+          "googleAiFeatures",
+          "bingAiPerformance",
+          "methodology",
+          "visibilityIndex",
+        ]}
+        context="The formulas here are transparent product methodology, not an industry standard. Preserve the raw questions, answers, sources, model identifiers, failures, and collection date with every result."
+      />
 
       <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
         <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em]">Run the controlled version</p>

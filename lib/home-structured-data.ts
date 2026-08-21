@@ -1,6 +1,9 @@
 import { BILLING_PACKAGES } from "./billing/packages";
 import {
-  PRODUCT_FAQS,
+  BENCHMARK_PLANNED_ANSWER_COUNT,
+  BENCHMARK_PROVIDER_FACTS,
+  BENCHMARK_QUESTION_COUNT,
+  BENCHMARK_RETENTION_DAYS,
   PRODUCT_FEATURES,
   PRODUCT_NAME,
   PRODUCT_SKU,
@@ -13,22 +16,17 @@ export function buildHomeProductStructuredData() {
   const homeUrl = absoluteUrl();
 
   return {
-    "@type": ["Product", "SoftwareApplication"],
+    "@type": "Product",
     "@id": `${homeUrl}#product`,
     name: PRODUCT_NAME,
     url: homeUrl,
     image: PRODUCT_IMAGE,
     sku: PRODUCT_SKU,
     description:
-      "A prepaid, source-backed AI visibility audit with one 25-question set, four model providers, and a prioritized action plan.",
+      `A prepaid, source-backed AI visibility audit with one ${BENCHMARK_QUESTION_COUNT}-question set, ${BENCHMARK_PROVIDER_FACTS.length} model providers, and a prioritized action plan.`,
     brand: { "@id": `${homeUrl}#brand` },
     provider: { "@id": `${homeUrl}#organization` },
     category: "AI visibility analytics",
-    applicationCategory: "BusinessApplication",
-    applicationSubCategory: "AI visibility analytics",
-    operatingSystem: "Web",
-    browserRequirements: "Requires a modern web browser",
-    softwareVersion: "benchmark-v2",
     inLanguage: "en-US",
     dateModified: PRODUCT_UPDATED_AT,
     isAccessibleForFree: false,
@@ -41,22 +39,22 @@ export function buildHomeProductStructuredData() {
       {
         "@type": "PropertyValue",
         name: "Question set",
-        value: "25 frozen questions",
+        value: `${BENCHMARK_QUESTION_COUNT} frozen questions`,
       },
       {
         "@type": "PropertyValue",
         name: "Model providers",
-        value: "OpenAI, Anthropic, Google, and xAI",
+        value: BENCHMARK_PROVIDER_FACTS.map(({ provider }) => provider).join(", "),
       },
       {
         "@type": "PropertyValue",
         name: "Planned answers",
-        value: 100,
+        value: BENCHMARK_PLANNED_ANSWER_COUNT,
       },
       {
         "@type": "PropertyValue",
         name: "Answer retention",
-        value: "30 days",
+        value: `${BENCHMARK_RETENTION_DAYS} days`,
       },
       {
         "@type": "PropertyValue",
@@ -112,7 +110,7 @@ export function buildHomeStructuredData() {
         url: homeUrl,
         name: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
         description:
-          "Measure brand mentions, prominence, competitor share of voice, citations, and coverage across 100 planned web-grounded AI answers.",
+          `Measure brand mentions, prominence, competitor share of voice, citations, and coverage across ${BENCHMARK_PLANNED_ANSWER_COUNT} planned web-grounded AI answers.`,
         isPartOf: { "@id": `${homeUrl}#website` },
         about: { "@id": `${homeUrl}#product` },
         primaryImageOfPage: { "@id": PRODUCT_IMAGE["@id"] },
@@ -120,18 +118,6 @@ export function buildHomeStructuredData() {
         inLanguage: "en-US",
       },
       buildHomeProductStructuredData(),
-      {
-        "@type": "FAQPage",
-        "@id": `${homeUrl}#faq`,
-        mainEntity: PRODUCT_FAQS.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: answer,
-          },
-        })),
-      },
     ],
   };
 }

@@ -2,12 +2,15 @@ import { ArrowRight, Download } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { MeasurementToolkitLinks } from "@/components/measurement-toolkit-links";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { getArticleImage } from "@/lib/page-images";
 import { absoluteUrl } from "@/lib/site";
 
 type Faq = {
@@ -56,6 +59,9 @@ export function SeoResourceShell({
 }: SeoResourceShellProps) {
   const pageUrl = absoluteUrl(path);
   const faqId = `${breadcrumb.split(" ").join("-")}-faq`;
+  const articleImage = getArticleImage(path);
+  const closingHref = primaryAction?.href ?? "/ai-search-visibility-tool";
+  const closingLabel = primaryAction?.label ?? "Measure a cross-provider baseline";
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -68,17 +74,21 @@ export function SeoResourceShell({
         mainEntityOfPage: pageUrl,
         datePublished: published.iso,
         dateModified: modified.iso,
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
+        ...(articleImage
+          ? {
+              image: {
+                "@type": "ImageObject",
+                url: articleImage.url,
+                width: articleImage.width,
+                height: articleImage.height,
+                caption: articleImage.caption,
+              },
+            }
+          : {}),
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -159,6 +169,8 @@ export function SeoResourceShell({
         </header>
 
         <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+          <ArticleHeroImage path={path} />
+
           {children}
 
           <MeasurementToolkitLinks currentPath={path} />
@@ -190,16 +202,16 @@ export function SeoResourceShell({
 
           <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em]">
-              Evidence before conclusions
+              Apply this resource
             </p>
             <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="max-w-2xl text-balance text-3xl font-semibold tracking-[-0.035em]">
-                  See a complete benchmark before running your own
+                  Put {breadcrumb.toLowerCase()} into a measured workflow
                 </h2>
                 <p className="mt-3 max-w-2xl leading-7 text-zinc-800">
-                  Review the questions, stored answers, citations, competitors,
-                  coverage, and five prioritized actions in the sample report.
+                  Preserve the questions, conditions, answers, citations, and
+                  failures so the next decision rests on inspectable evidence.
                 </p>
               </div>
               <Button
@@ -208,8 +220,8 @@ export function SeoResourceShell({
                 variant="secondary"
                 className="bg-zinc-950 text-white hover:bg-zinc-800"
               >
-                <Link href="/sample-report">
-                  View the sample report <ArrowRight aria-hidden="true" />
+                <Link href={closingHref}>
+                  {closingLabel} <ArrowRight aria-hidden="true" />
                 </Link>
               </Button>
             </div>

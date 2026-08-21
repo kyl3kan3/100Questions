@@ -65,11 +65,10 @@ export default function LlmsTxtCheckerPage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "WebApplication",
+          "@type": "Service",
           name: "llms.txt Checker and Generator",
           url: absoluteUrl(path),
-          applicationCategory: "DeveloperApplication",
-          operatingSystem: "Web",
+          serviceType: "llms.txt generation and public discovery check",
           isAccessibleForFree: true,
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
           featureList: [

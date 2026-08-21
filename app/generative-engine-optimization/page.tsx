@@ -3,21 +3,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AnalyticsEvent } from "@/components/analytics-event";
+import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
+import { EvidenceNotes } from "@/components/evidence-notes";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { getArticleImage } from "@/lib/page-images";
 import {
   absoluteUrl,
   SITE_NAME,
   SITE_UPDATED_AT,
-  SOCIAL_IMAGE,
 } from "@/lib/site";
 
-const pageUrl = absoluteUrl("/generative-engine-optimization");
-const modifiedAt = "2026-08-16";
+const path = "/generative-engine-optimization" as const;
+const pageUrl = absoluteUrl(path);
+const modifiedAt = "2026-08-20";
+const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
   // Keep base title short: layout appends " · 100 Questions" (target ≤60 full).
@@ -35,14 +40,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
     modifiedTime: modifiedAt,
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
   twitter: {
     card: "summary_large_image",
     title: "GEO vs SEO: Generative Engine Optimization Guide",
     description:
       "Clear entities, answer-ready pages, credible sources, technical access, and repeatable AI visibility measurement.",
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
 };
 
@@ -118,8 +123,9 @@ export default function GeoGuidePage() {
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
         dateModified: modifiedAt,
-        image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        image: articleImage,
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "Generative engine optimization",
@@ -128,14 +134,6 @@ export default function GeoGuidePage() {
           "AI citations",
         ],
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -204,6 +202,7 @@ export default function GeoGuidePage() {
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <ArticleHeroImage path={path} />
             <section className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
               <div>
                 <p className="eyebrow">What GEO actually changes</p>
@@ -402,6 +401,17 @@ export default function GeoGuidePage() {
                 </Button>
               </div>
             </section>
+
+            <EvidenceNotes
+              sourceIds={[
+                "googleAiOptimization",
+                "bingGuidelines",
+                "openAiPublishers",
+                "geoPaper",
+                "visibilityIndex",
+              ]}
+              context="The optimization framework combines documented search access guidance with the site's own frozen cross-provider measurement protocol. It does not imply a universal GEO ranking factor."
+            />
 
             <section aria-labelledby="geo-faq-heading">
               <p className="eyebrow">Common comparison questions</p>

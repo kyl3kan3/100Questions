@@ -9,6 +9,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -122,7 +123,8 @@ export default function AeoGuidePage() {
         datePublished: publishedAt,
         dateModified: modifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "Answer engine optimization",
@@ -131,15 +133,6 @@ export default function AeoGuidePage() {
           "AI visibility",
         ],
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",

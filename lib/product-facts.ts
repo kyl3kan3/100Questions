@@ -2,10 +2,66 @@ import { BILLING_PACKAGES, formatPackagePrice } from "./billing/packages";
 
 export const PRODUCT_NAME = "100 Questions AI Visibility Benchmark";
 export const PRODUCT_SKU = "100Q-AI-VISIBILITY-BENCHMARK-V2";
-export const PRODUCT_UPDATED_AT = "2026-08-07T00:00:00.000Z";
+export const PRODUCT_UPDATED_AT = "2026-08-20T00:00:00.000Z";
+
+export const BENCHMARK_QUESTION_COUNT = 25;
+export const BENCHMARK_PROVIDER_COUNT = 4;
+export const BENCHMARK_PLANNED_ANSWER_COUNT =
+  BENCHMARK_QUESTION_COUNT * BENCHMARK_PROVIDER_COUNT;
+export const BENCHMARK_RETENTION_DAYS = 30;
+export const BENCHMARK_HAS_SUBSCRIPTION = false;
+
+export const BENCHMARK_MODEL_DEFAULTS = {
+  openai: "openai/gpt-5.4-mini",
+  anthropic: "anthropic/claude-sonnet-5",
+  google: "google/gemini-3.1-flash-lite",
+  xai: "xai/grok-4.5",
+  analysis: "openai/gpt-5.4-nano",
+} as const;
+
+export const BENCHMARK_PROVIDER_FACTS = [
+  {
+    key: "openai",
+    provider: "OpenAI",
+    model: "GPT-5.4 mini",
+    modelId: BENCHMARK_MODEL_DEFAULTS.openai,
+    grounding: "Web-grounded search",
+  },
+  {
+    key: "anthropic",
+    provider: "Claude",
+    model: "Claude Sonnet 5",
+    modelId: BENCHMARK_MODEL_DEFAULTS.anthropic,
+    grounding: "Web-grounded search",
+  },
+  {
+    key: "google",
+    provider: "Gemini",
+    model: "Gemini 3.1 Flash Lite",
+    modelId: BENCHMARK_MODEL_DEFAULTS.google,
+    grounding: "Web-grounded search",
+  },
+  {
+    key: "xai",
+    provider: "Grok",
+    model: "Grok 4.5",
+    modelId: BENCHMARK_MODEL_DEFAULTS.xai,
+    grounding: "Web-grounded search",
+  },
+] as const;
+
+// Study labels are intentionally separate from current product configuration.
+// They describe the frozen July 30, 2026 protocol and must not drift when the
+// live benchmark changes models later.
+export const AI_VISIBILITY_INDEX_2026_MODEL_FACTS = [
+  { provider: "OpenAI / ChatGPT model family", model: "GPT-5.4 mini via API" },
+  { provider: "Claude", model: "Claude Sonnet 5 via API" },
+  { provider: "Gemini", model: "Gemini 3.1 Flash Lite via API" },
+  { provider: "Grok", model: "Grok 4.5 via API" },
+] as const;
 
 export const PRODUCT_FEATURES = [
-  "25 buyer questions",
+  `${BENCHMARK_QUESTION_COUNT} buyer questions`,
   "Four web-grounded providers",
   "Competitor comparison",
   "Answer and citation evidence",
@@ -22,7 +78,7 @@ export const PRODUCT_BEST_FITS = [
 export const PRODUCT_LIMITATIONS = [
   "It is not continuous monitoring and does not send daily alerts.",
   "It does not currently test Perplexity or reproduce consumer chat interfaces.",
-  "It is a directional 25-question sample, not a statistically representative market ranking.",
+  `It is a directional ${BENCHMARK_QUESTION_COUNT}-question sample, not a statistically representative market ranking.`,
 ] as const;
 
 export const VERIFIED_BRAND_PROFILES = [

@@ -14,6 +14,11 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  EDITORIAL_AUTHOR,
+  EDITORIAL_AUTHOR_ID,
+  EDITORIAL_METHOD,
+} from "@/lib/editorial";
 import { VERIFIED_BRAND_PROFILES } from "@/lib/product-facts";
 import {
   absoluteUrl,
@@ -23,7 +28,7 @@ import {
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/about");
-const aboutUpdatedAt = "2026-08-10T00:00:00.000Z";
+const aboutUpdatedAt = "2026-08-20T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: "About",
@@ -96,6 +101,13 @@ const structuredData = {
         url,
       })),
       inLanguage: "en-US",
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": `${pageUrl}#kyle-profile`,
+      url: EDITORIAL_AUTHOR.profileUrl,
+      mainEntity: { "@id": EDITORIAL_AUTHOR_ID },
+      dateModified: aboutUpdatedAt,
     },
     {
       "@type": "BreadcrumbList",
@@ -209,25 +221,53 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-white/[0.07] bg-white/[0.018]">
+        <section id="kyle" className="scroll-mt-12 border-t border-white/[0.07] bg-white/[0.018]">
           <div className="page-shell grid gap-10 py-16 md:grid-cols-[0.75fr_1.25fr] md:py-20">
             <div>
               <p className="eyebrow">Editorial accountability</p>
               <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
-                Every guide has a visible owner and review date.
+                Meet the person accountable for the product and guides.
               </h2>
             </div>
-            <div className="space-y-5 text-pretty text-base leading-7 text-zinc-400">
-              <p>
-                The 100 Questions editorial team publishes and reviews the
-                guides, templates, comparisons, and research on this site.
-                Comparisons identify their evidence boundary and link to the
-                first-party documentation used for claims about other products.
-              </p>
-              <p>
-                Corrections should be sent through the <Link className="text-emerald-300 hover:text-emerald-200" href="/contact">contact page</Link>.
-                Measurement definitions and known limits remain available in
-                the <Link className="text-emerald-300 hover:text-emerald-200" href="/methodology">public methodology</Link>.
+            <div className="space-y-6 text-pretty text-base leading-7 text-zinc-400">
+              <div>
+                <h3 className="text-xl font-semibold text-white">{EDITORIAL_AUTHOR.name}</h3>
+                <p className="mt-1 text-sm text-emerald-200">{EDITORIAL_AUTHOR.role}</p>
+                <p className="mt-4">{EDITORIAL_AUTHOR.description}</p>
+                <a
+                  className="mt-4 inline-flex min-h-10 items-center text-sm font-semibold text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                  href={EDITORIAL_AUTHOR.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View the public GitHub profile
+                </a>
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Areas of responsibility</h3>
+                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {EDITORIAL_AUTHOR.areas.map((area) => (
+                    <li key={area} className="rounded-xl bg-white/[0.035] px-4 py-3 text-sm text-zinc-300">
+                      {area}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Editorial and testing method</h3>
+                <ol className="mt-3 space-y-3 text-sm leading-6">
+                  {EDITORIAL_METHOD.map((item, index) => (
+                    <li key={item} className="flex gap-3">
+                      <span className="font-mono text-emerald-300">{String(index + 1).padStart(2, "0")}</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <p className="rounded-2xl border border-amber-200/15 bg-amber-200/[0.035] p-4 text-sm leading-6 text-zinc-300">
+                No unverified degrees, certifications, independent-review claims,
+                customer ratings, or professional credentials are published.
+                Corrections can be sent through the <Link className="text-emerald-300 hover:text-emerald-200" href="/contact">contact page</Link>.
               </p>
             </div>
           </div>

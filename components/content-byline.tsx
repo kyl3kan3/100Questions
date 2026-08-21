@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { EDITORIAL_AUTHOR } from "@/lib/editorial";
+
 type ContentBylineProps = {
   publishedAt: string;
   publishedLabel: string;
@@ -19,8 +21,8 @@ export function ContentByline({
     <div className="mt-5 flex max-w-3xl flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-5 text-zinc-400">
       <span>
         By{" "}
-        <Link className="text-zinc-300 hover:text-emerald-200" href="/about">
-          100 Questions editorial team
+        <Link className="text-zinc-300 hover:text-emerald-200" href={EDITORIAL_AUTHOR.profilePath}>
+          {EDITORIAL_AUTHOR.name}, {EDITORIAL_AUTHOR.role.toLowerCase()}
         </Link>
       </span>
       <span aria-hidden="true">·</span>
@@ -31,7 +33,7 @@ export function ContentByline({
         <>
           <span aria-hidden="true">·</span>
           <span>
-            Reviewed <time dateTime={modifiedAt}>{modifiedLabel}</time>
+            Fact-checked <time dateTime={modifiedAt}>{modifiedLabel}</time>
           </span>
         </>
       ) : null}

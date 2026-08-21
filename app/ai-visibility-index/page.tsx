@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import results from "@/public/data/ai-visibility-index-2026-results.json";
 
@@ -252,7 +253,8 @@ export default function AiVisibilityIndexPage() {
         mainEntityOfPage: pageUrl,
         datePublished: INDEX_DATE.iso,
         dateModified: PAGE_UPDATED_AT,
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
         about: [
@@ -354,17 +356,6 @@ export default function AiVisibilityIndexPage() {
             contentUrl: adjudicationsUrl,
           },
         ],
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faq.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: answer,
-          },
-        })),
       },
       {
         "@type": "BreadcrumbList",

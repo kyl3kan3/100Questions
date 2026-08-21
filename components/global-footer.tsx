@@ -1,44 +1,26 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
-import { MEASUREMENT_TOOLKIT_LINKS } from "@/lib/resource-catalog";
 
 const footerGroups = [
   {
-    label: "Explore",
-    links: [
-      ["Resources", "/resources"],
-      ["AI visibility tools", "/ai-visibility-tools"],
-      ["AI visibility guide", "/ai-visibility"],
-      ["AI Visibility Index", "/ai-visibility-index"],
-      ["Methodology", "/methodology"],
-      ["Sample report", "/sample-report"],
-    ],
-  },
-  {
-    label: "Use",
+    label: "Product",
     links: [
       ["AI search visibility tool", "/ai-search-visibility-tool"],
       ["AI visibility audit", "/ai-visibility-audit"],
-      ["AI brand risk checker", "/ai-brand-risk-checker"],
-      ["Free readiness checker", "/ai-visibility-checker"],
-      ["MCP for agents", "/mcp"],
-      ["AEO tools comparison", "/answer-engine-optimization-tools"],
-      ["AEO vs GEO", "/aeo-vs-geo"],
-      ["For agencies", "/for-agencies"],
+      ["Sample report", "/sample-report"],
+      ["Methodology", "/methodology"],
       ["Pricing", "/#pricing"],
-      ["FAQ", "/faq"],
     ],
   },
   {
-    label: "Free resources",
+    label: "Learn",
     links: [
-      ["llms.txt checker", "/llms-txt-checker"],
-      ["llms.txt site index", "/llms.txt"],
-      ["Markdown site index", "/index.md"],
-      ...MEASUREMENT_TOOLKIT_LINKS.map(
-        ({ footerLabel, href }) => [footerLabel, href] as const,
-      ),
+      ["Resource library", "/resources"],
+      ["AI visibility guide", "/ai-visibility"],
+      ["AEO vs GEO", "/aeo-vs-geo"],
+      ["AI Visibility Index", "/ai-visibility-index"],
+      ["AI visibility tools", "/ai-visibility-tools"],
     ],
   },
   {
@@ -46,10 +28,8 @@ const footerGroups = [
     links: [
       ["About", "/about"],
       ["Support", "/support"],
-      ["Contact", "/contact"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
-      ["Sign in", "/auth/sign-in"],
     ],
   },
 ] as const;
@@ -57,7 +37,7 @@ const footerGroups = [
 export function GlobalFooter() {
   return (
     <footer className="border-t border-white/[0.07] bg-[#070908] text-zinc-400">
-      <div className="page-shell grid gap-10 py-10 sm:py-12 lg:grid-cols-[1fr_3fr]">
+      <div className="page-shell grid gap-10 py-10 sm:py-12 lg:grid-cols-[1fr_2fr]">
         <div>
           <BrandMark showName={false} />
           <p className="mt-4 max-w-sm text-sm leading-6">
@@ -71,7 +51,7 @@ export function GlobalFooter() {
         </div>
 
         <nav
-          className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4"
+          className="grid gap-8 sm:grid-cols-3"
           aria-label="Footer navigation"
         >
           {footerGroups.map((group) => (

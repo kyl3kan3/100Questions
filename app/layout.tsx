@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
 import { WebMcpTools } from "@/components/webmcp-tools";
+import { EDITORIAL_AUTHOR } from "@/lib/editorial";
 import { buildSiteStructuredData } from "@/lib/site-structured-data";
 import {
   absoluteUrl,
@@ -38,8 +39,8 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: "100 Questions",
-  authors: [{ name: "100 Questions" }],
-  creator: "100 Questions",
+  authors: [{ name: EDITORIAL_AUTHOR.name, url: EDITORIAL_AUTHOR.profileUrl }],
+  creator: EDITORIAL_AUTHOR.name,
   publisher: "100 Questions",
   category: "technology",
   alternates: { canonical: absoluteUrl() },
@@ -119,7 +120,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <Script id="datafast-queue" strategy="beforeInteractive">
+        <Script id="datafast-queue" strategy="afterInteractive">
           {`
             window.datafast = window.datafast || function() {
               window.datafast.q = window.datafast.q || [];
@@ -132,11 +133,11 @@ export default function RootLayout({
           data-website-id="dfid_WIXXIARdwVFPbyM6Mib8P"
           data-domain="100questionsai.com"
           data-disable-payments="true"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
         <Script id="google-analytics" strategy="afterInteractive">
           {`

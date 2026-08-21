@@ -8,6 +8,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -147,7 +148,8 @@ export default function AiSearchOptimizationPage() {
         datePublished: SITE_UPDATED_AT,
         dateModified: SITE_UPDATED_AT,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "AI search optimization",
@@ -156,15 +158,6 @@ export default function AiSearchOptimizationPage() {
           "AI visibility",
         ],
         inLanguage: "en-US",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -462,8 +455,8 @@ export default function AiSearchOptimizationPage() {
                   size="lg"
                   className="bg-zinc-950 text-white hover:bg-zinc-800"
                 >
-                  <Link href="/auth/sign-up">
-                    Start a benchmark <ArrowRight />
+                  <Link href="/ai-search-visibility-tool">
+                    Measure the current state <ArrowRight />
                   </Link>
                 </Button>
               </div>
@@ -472,7 +465,7 @@ export default function AiSearchOptimizationPage() {
                 <Link className="font-semibold underline" href="/ai-seo-tools">
                   AI SEO tools guide
                 </Link>
-                .
+                , or use the <Link className="font-semibold underline" href="/aeo-vs-geo">AEO vs GEO decision framework</Link> to choose the measured surface.
               </p>
             </section>
           </div>

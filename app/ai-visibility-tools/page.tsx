@@ -20,6 +20,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-tools");
@@ -224,7 +225,8 @@ export default function AiVisibilityToolsPage() {
         datePublished: publishedAt,
         dateModified: reviewedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "AI visibility tools",
@@ -244,15 +246,6 @@ export default function AiVisibilityToolsPage() {
           position: index + 1,
           name: "title" in tool ? tool.title : tool.name,
           url: absoluteUrl(tool.href),
-        })),
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
         })),
       },
       {

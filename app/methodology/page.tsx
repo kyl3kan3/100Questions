@@ -8,6 +8,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -103,7 +104,8 @@ export default function MethodologyPage() {
         datePublished: SITE_UPDATED_AT,
         dateModified: SITE_UPDATED_AT,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@type": "Organization", name: SITE_NAME },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: {
           "@type": "Organization",
           name: SITE_NAME,
@@ -337,13 +339,13 @@ export default function MethodologyPage() {
                   See the questions, sources, coverage, and calculations for your brand.
                 </h2>
                 <Button asChild variant="secondary" size="lg" className="bg-zinc-950 text-white hover:bg-zinc-800">
-                  <Link href="/auth/sign-up">
-                    Start a benchmark <ArrowRight />
+                  <Link href="/ai-search-visibility-tool">
+                    Inspect the visibility tool <ArrowRight />
                   </Link>
                 </Button>
               </div>
               <p className="mt-5 text-sm text-zinc-800">
-                Still evaluating? <Link className="font-semibold underline underline-offset-4" href="/faq">Read common questions</Link>.
+                Still choosing the program? <Link className="font-semibold underline underline-offset-4" href="/aeo-vs-geo">Compare AEO and GEO</Link>.
               </p>
             </section>
           </div>

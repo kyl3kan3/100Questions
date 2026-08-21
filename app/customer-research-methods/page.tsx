@@ -6,15 +6,16 @@ import { SeoResourceShell } from "@/components/seo-resource-shell";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
 
 const path = "/customer-research-methods" as const;
-const date = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const published = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const modified = { iso: "2026-08-20", label: "August 20, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
   title: "Customer Research Methods for the AI Search Era",
   description:
-    "Compare customer research methods and learn where AI visibility testing fits: traditional research measures customers; AI benchmarks measure what answer engines say to them.",
-  publishedTime: date.iso,
-  modifiedTime: date.iso,
+    "Compare customer research methods and learn where AI visibility testing fits: research studies customers; AI benchmarks study answer-engine output.",
+  publishedTime: published.iso,
+  modifiedTime: modified.iso,
 });
 
 const faqs = [
@@ -59,8 +60,8 @@ export default function CustomerResearchMethodsPage() {
       breadcrumb="Customer research methods"
       title="Customer research methods for the AI search era"
       description="Traditional research measures customers. AI visibility testing measures the information environment answer engines create around their decisions."
-      published={date}
-      modified={date}
+      published={published}
+      modified={modified}
       primaryAction={{ href: "/ai-visibility-prompts", label: "Build buyer questions" }}
       faqs={faqs}
     >

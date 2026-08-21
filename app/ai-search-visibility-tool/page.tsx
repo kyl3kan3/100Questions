@@ -37,7 +37,7 @@ const publishedAt = "2026-08-16";
 const introPrice = BILLING_PACKAGES[0].priceCents / 100;
 
 export const metadata: Metadata = {
-  title: "AI Search Visibility Tool — Mentions & Citations",
+  title: "AI Search Visibility: Mentions & Citations",
   description:
     "Measure AI search mentions, citations, competitors, and share of voice across OpenAI, Claude, Gemini, and Grok with a frozen 100-answer benchmark.",
   alternates: { canonical: pageUrl },
@@ -125,7 +125,7 @@ export default function AiSearchVisibilityToolPage() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": ["Product", "SoftwareApplication"],
+        "@type": "Product",
         "@id": `${pageUrl}#product`,
         name: PRODUCT_NAME,
         alternateName: "100 Questions AI Search Visibility Tool",
@@ -137,10 +137,6 @@ export default function AiSearchVisibilityToolPage() {
         brand: { "@id": `${absoluteUrl()}#brand` },
         provider: { "@id": `${absoluteUrl()}#organization` },
         category: "AI visibility analytics",
-        applicationCategory: "BusinessApplication",
-        applicationSubCategory: "AI search visibility measurement",
-        operatingSystem: "Web",
-        browserRequirements: "Requires a modern web browser",
         dateModified: PRODUCT_UPDATED_AT,
         inLanguage: "en-US",
         isAccessibleForFree: false,
@@ -159,15 +155,6 @@ export default function AiSearchVisibilityToolPage() {
           description: "Introductory first-purchase price for one benchmark",
           seller: { "@id": `${absoluteUrl()}#organization` },
         },
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",

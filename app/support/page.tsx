@@ -141,15 +141,6 @@ const structuredData = {
       inLanguage: "en-US",
     },
     {
-      "@type": "FAQPage",
-      "@id": `${pageUrl}#faq`,
-      mainEntity: supportFaqs.map(({ question, answer }) => ({
-        "@type": "Question",
-        name: question,
-        acceptedAnswer: { "@type": "Answer", text: answer },
-      })),
-    },
-    {
       "@type": "BreadcrumbList",
       "@id": `${pageUrl}#breadcrumb`,
       itemListElement: [

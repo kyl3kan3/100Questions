@@ -53,68 +53,20 @@ describe("public SEO metadata", () => {
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
   });
 
-  it("publishes accurate modification dates for changed product pages", () => {
-    const pages = new Map(
-      buildSitemap().map(({ url, lastModified }) => [
-        new URL(url).pathname,
-        lastModified,
-      ]),
-    );
-
-    expect(pages.get("/")).toEqual(new Date("2026-08-14T00:00:00.000Z"));
-    expect(pages.get("/ai-visibility-audit")).toEqual(
-      new Date("2026-08-11T00:00:00.000Z"),
-    );
-    expect(pages.get("/faq")).toEqual(new Date("2026-08-07T00:00:00.000Z"));
-    expect(pages.get("/support")).toEqual(
-      new Date("2026-08-15T00:00:00.000Z"),
-    );
-    expect(pages.get("/ai-visibility-index")).toEqual(
-      new Date("2026-08-15T00:00:00.000Z"),
-    );
-
-    for (const path of [
-      "/about",
-      "/contact",
-      "/privacy",
-      "/terms",
-    ]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-10T00:00:00.000Z"));
+  it("omits unsupported sitemap freshness and priority hints", () => {
+    for (const page of buildSitemap()) {
+      expect(page).not.toHaveProperty("lastModified");
+      expect(page).not.toHaveProperty("changeFrequency");
+      expect(page).not.toHaveProperty("priority");
     }
 
-    for (const path of ["/resources"]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-11T00:00:00.000Z"));
-    }
-
-    for (const path of [
-      "/ai-visibility",
-      "/ai-visibility-tools",
-      "/ai-visibility-checker",
-      "/ai-seo-tools",
-      "/answer-engine-optimization-tools",
-      "/how-to-get-chatgpt-to-recommend-your-business",
-    ]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-13T00:00:00.000Z"));
-    }
-
-    expect(pages.get("/mcp")).toEqual(
-      new Date("2026-08-14T00:00:00.000Z"),
-    );
-
-    for (const path of [
-      "/ai-visibility-report-template",
-      "/ai-visibility-score-calculator",
-      "/ai-search-prompt-tracking-spreadsheet",
-      "/chatgpt-brand-visibility-test",
-      "/geo-client-reporting-template",
-      "/llm-citation-audit-template",
-    ]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-14T00:00:00.000Z"));
-    }
-
-    for (const path of ["/chatgpt-seo-tool"]) {
-      expect(pages.get(path)).toEqual(new Date("2026-08-07T00:00:00.000Z"));
-    }
+    expect(
+      buildSitemap().find(
+        ({ url }) => url === "https://100questionsai.com/",
+      ),
+    ).toMatchObject({
+      images: ["https://100questionsai.com/sample-report-preview.png"],
+    });
   });
 
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {

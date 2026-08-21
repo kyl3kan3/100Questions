@@ -10,15 +10,16 @@ import { buildResourceMetadata } from "@/lib/resource-metadata";
 import { absoluteUrl } from "@/lib/site";
 
 const path = "/ai-brand-risk-checker" as const;
-const date = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const published = { iso: "2026-08-16", label: "August 16, 2026" } as const;
+const modified = { iso: "2026-08-20", label: "August 20, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
   title: "AI Brand Risk Checker: Find Visibility Gaps",
   description:
-    "Build a structured AI brand risk checklist for incorrect claims, missing citations, competitor substitution, inconsistent descriptions, and unanswered buyer questions.",
-  publishedTime: date.iso,
-  modifiedTime: date.iso,
+    "Build an AI brand risk review for incorrect claims, missing citations, competitor substitution, inconsistent descriptions, and unanswered questions.",
+  publishedTime: published.iso,
+  modifiedTime: modified.iso,
 });
 
 const faqs = [
@@ -62,8 +63,8 @@ export default function AiBrandRiskCheckerPage() {
       breadcrumb="AI brand risk checker"
       title="AI brand risk checker"
       description="Turn a domain and industry into a structured review for hallucinations, missing citations, competitor displacement, inconsistent positioning, and unanswered buyer questions."
-      published={date}
-      modified={date}
+      published={published}
+      modified={modified}
       primaryAction={{ href: "#checker", label: "Build the checklist" }}
       faqs={faqs}
     >
@@ -75,13 +76,12 @@ export default function AiBrandRiskCheckerPage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "WebApplication",
+          "@type": "Service",
           name: "AI Brand Risk Checker",
           description:
             "A free interactive checklist for reviewing five categories of AI brand risk.",
           url: pageUrl,
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Web",
+          serviceType: "AI brand risk planning checklist",
           isAccessibleForFree: true,
           offers: {
             "@type": "Offer",

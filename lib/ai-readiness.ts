@@ -156,7 +156,7 @@ export function analyzeAiReadiness(
         : "No valid JSON-LD schema types were detected.",
       action: relevantSchema
         ? null
-        : "Add accurate Organization plus page-specific Article, Product, Service, SoftwareApplication, or FAQ markup.",
+        : "Add accurate Organization plus page-specific Article, Product, Service, or BreadcrumbList markup that matches visible content.",
     },
     {
       id: "question-content",

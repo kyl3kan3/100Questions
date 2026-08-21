@@ -2,6 +2,12 @@ import "server-only";
 
 import { z } from "zod";
 
+import {
+  BENCHMARK_MODEL_DEFAULTS,
+  BENCHMARK_QUESTION_COUNT,
+  BENCHMARK_RETENTION_DAYS,
+} from "./product-facts";
+
 const positiveInteger = z.coerce.number().int().positive();
 const nonnegativeInteger = z.coerce.number().int().nonnegative();
 
@@ -41,16 +47,16 @@ export function getBenchmarkConfig() {
   return {
     models: {
       openai:
-        process.env.AI_GATEWAY_OPENAI_MODEL ?? "openai/gpt-5.4-mini",
+        process.env.AI_GATEWAY_OPENAI_MODEL ?? BENCHMARK_MODEL_DEFAULTS.openai,
       anthropic:
         process.env.AI_GATEWAY_ANTHROPIC_MODEL ??
-        "anthropic/claude-sonnet-5",
+        BENCHMARK_MODEL_DEFAULTS.anthropic,
       google:
         process.env.AI_GATEWAY_GOOGLE_MODEL ??
-        "google/gemini-3.1-flash-lite",
-      xai: process.env.AI_GATEWAY_XAI_MODEL ?? "xai/grok-4.5",
+        BENCHMARK_MODEL_DEFAULTS.google,
+      xai: process.env.AI_GATEWAY_XAI_MODEL ?? BENCHMARK_MODEL_DEFAULTS.xai,
       analysis:
-        process.env.AI_GATEWAY_ANALYSIS_MODEL ?? "openai/gpt-5.4-nano",
+        process.env.AI_GATEWAY_ANALYSIS_MODEL ?? BENCHMARK_MODEL_DEFAULTS.analysis,
     },
     workflow: {
       // Run one shared question across the four providers concurrently. The
@@ -78,11 +84,11 @@ export function getBenchmarkConfig() {
       benchmarkVersion: "benchmark-v2",
     },
     benchmark: {
-      defaultQuestionCount: 25,
-      maximumQuestionCount: 25,
+      defaultQuestionCount: BENCHMARK_QUESTION_COUNT,
+      maximumQuestionCount: BENCHMARK_QUESTION_COUNT,
       discoveryRatio: 0.8,
       coverageThreshold: 0.9,
-      retentionDays: envInteger("RUN_RETENTION_DAYS", 30),
+      retentionDays: envInteger("RUN_RETENTION_DAYS", BENCHMARK_RETENTION_DAYS),
     },
     budget: {
       // One grounded answer request plus, when an entity is mentioned, one

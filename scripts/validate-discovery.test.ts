@@ -76,6 +76,27 @@ describe("raw HTML discovery validation", () => {
     ).toThrow("not visible in raw HTML");
   });
 
+  it("rejects Google-targeted software app schema without a genuine review signal", () => {
+    const html = page(
+      [
+        {
+          "@type": "SoftwareApplication",
+          name: "Unreviewed app",
+          offers: { "@type": "Offer", price: "9", priceCurrency: "USD" },
+        },
+      ],
+      "<h1>Unreviewed app</h1><p>$9</p>",
+    );
+
+    expect(() =>
+      validateDiscoveryPage({
+        html,
+        path: "/software",
+        requiredTypes: ["SoftwareApplication"],
+      }),
+    ).toThrow("needs a genuine aggregateRating or review");
+  });
+
   it("checks fetched pages through the production entry point", async () => {
     const html = page(
       [

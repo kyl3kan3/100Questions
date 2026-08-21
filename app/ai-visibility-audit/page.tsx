@@ -169,15 +169,6 @@ export default function AiVisibilityAuditPage() {
         },
       },
       {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
-      {
         "@type": "BreadcrumbList",
         itemListElement: [
           {

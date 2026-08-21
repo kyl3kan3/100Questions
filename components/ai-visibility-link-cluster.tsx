@@ -2,14 +2,24 @@ import Link from "next/link";
 
 const paths = [
   {
+    href: "/ai-search-visibility-tool",
+    title: "Measure cross-model visibility",
+    description: "Run 25 buyer questions across four providers with answer and citation evidence.",
+  },
+  {
+    href: "/aeo-vs-geo",
+    title: "Decide between AEO, GEO, and SEO",
+    description: "Compare the surfaces, inputs, metrics, and reporting jobs before naming the program.",
+  },
+  {
     href: "/ai-visibility-checker",
     title: "Free AI visibility checker",
     description: "Test crawl access, page signals, schema, and sitemap discovery.",
   },
   {
-    href: "/ai-seo-tools",
-    title: "Best AI visibility tools",
-    description: "Compare monitoring platforms, research suites, and fixed audits.",
+    href: "/ai-visibility-tools",
+    title: "Choose an AI visibility tool category",
+    description: "Route from readiness checks and templates to benchmarks, trackers, and enterprise suites.",
   },
   {
     href: "/answer-engine-optimization-tools",
@@ -29,7 +39,7 @@ const paths = [
 ] as const;
 
 type AiVisibilityLinkClusterProps = {
-  currentPath: (typeof paths)[number]["href"];
+  currentPath: string;
 };
 
 export function AiVisibilityLinkCluster({
@@ -47,6 +57,7 @@ export function AiVisibilityLinkCluster({
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {paths
           .filter(({ href }) => href !== currentPath)
+          .slice(0, 4)
           .map(({ href, title, description }) => (
             <Link
               key={href}
@@ -64,10 +75,10 @@ export function AiVisibilityLinkCluster({
         When you are ready to compare actual answers across four AI providers,
         review the{" "}
         <Link
-          href="/#pricing"
+          href="/ai-search-visibility-tool"
           className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
         >
-          $9 AI visibility audit on the homepage
+          frozen 100-answer benchmark
         </Link>
         .
       </p>

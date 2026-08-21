@@ -4,17 +4,24 @@ import Link from "next/link";
 
 import { AeoGeoScorecard } from "@/components/aeo-geo-scorecard";
 import { AnalyticsEvent } from "@/components/analytics-event";
+import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
+import { EvidenceNotes } from "@/components/evidence-notes";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { AI_VISIBILITY_INDEX_2026_MODEL_FACTS } from "@/lib/product-facts";
+import { getArticleImage } from "@/lib/page-images";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
 
 const path = "/aeo-vs-geo" as const;
 const pageUrl = absoluteUrl(path);
 const publishedAt = "2026-08-16";
+const modifiedAt = "2026-08-20";
+const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
   title: "AEO vs GEO: Differences, Overlap & Metrics",
@@ -30,15 +37,15 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: publishedAt,
-    modifiedTime: publishedAt,
-    images: [SOCIAL_IMAGE],
+    modifiedTime: modifiedAt,
+    images: [articleImage],
   },
   twitter: {
     card: "summary_large_image",
     title: "AEO vs GEO: Differences, Overlap & Metrics",
     description:
       "Choose the right optimization program and measurement model for search results, composed answers, and generative engines.",
-    images: [SOCIAL_IMAGE],
+    images: [articleImage],
   },
 };
 
@@ -72,28 +79,28 @@ const comparisonRows = [
 const examples = [
   {
     provider: "OpenAI / ChatGPT model family",
-    model: "GPT-5.4 mini via API",
+    model: AI_VISIBILITY_INDEX_2026_MODEL_FACTS[0].model,
     question: "What are the best AI visibility tools for a small marketing team?",
     mentions: "Otterly.AI led; Peec AI and Profound made the shortlist.",
     sources: "The grounded answer returned five source domains, including optiseo.ai and layzr.ai.",
   },
   {
     provider: "Claude",
-    model: "Claude Sonnet 5 via API",
+    model: AI_VISIBILITY_INDEX_2026_MODEL_FACTS[1].model,
     question: "What software shows which sources AI assistants cite about a brand?",
     mentions: "Analyze AI was the lead mention.",
     sources: "The answer returned five source domains, including demandsphere.com and tryanalyze.ai.",
   },
   {
     provider: "Gemini",
-    model: "Gemini 3.1 Flash Lite via API",
+    model: AI_VISIBILITY_INDEX_2026_MODEL_FACTS[2].model,
     question: "What are the best AI visibility tools for a small marketing team?",
     mentions: "Otterly.AI was the lead mention.",
     sources: "The grounded answer returned five source domains, including visiblee.ai and indexor.ai.",
   },
   {
     provider: "Grok",
-    model: "Grok 4.5 via API",
+    model: AI_VISIBILITY_INDEX_2026_MODEL_FACTS[3].model,
     question: "What software shows which sources AI assistants cite about a brand?",
     mentions: "Analyze AI was the lead mention.",
     sources: "The answer returned five source domains, including sophyx.io and rankr.so.",
@@ -141,8 +148,10 @@ export default function AeoVsGeoPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: publishedAt,
-        dateModified: publishedAt,
-        author: { "@id": `${absoluteUrl()}#organization` },
+        dateModified: modifiedAt,
+        image: articleImage,
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         inLanguage: "en-US",
         about: [
@@ -151,15 +160,6 @@ export default function AeoVsGeoPage() {
           "Search engine optimization",
           "AI visibility measurement",
         ],
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -223,6 +223,7 @@ export default function AeoVsGeoPage() {
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <ArticleHeroImage path={path} />
             <section aria-labelledby="short-answer-heading" className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">
               <div>
                 <p className="eyebrow">The short answer</p>
@@ -379,6 +380,17 @@ export default function AeoVsGeoPage() {
               </h2>
               <div className="mt-8"><AeoGeoScorecard /></div>
             </section>
+
+            <EvidenceNotes
+              sourceIds={[
+                "googleAiFeatures",
+                "bingGuidelines",
+                "openAiPublishers",
+                "geoPaper",
+                "visibilityIndex",
+              ]}
+              context="Definitions on this page are operational distinctions used for planning and measurement; industry terminology is not standardized. Cross-model examples are frozen observations from the linked July 30, 2026 dataset."
+            />
 
             <section id="faq" aria-labelledby="faq-heading">
               <p className="eyebrow">Related terminology</p>

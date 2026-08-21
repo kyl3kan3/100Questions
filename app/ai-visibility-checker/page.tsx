@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { PRODUCT_UPDATED_AT } from "@/lib/product-facts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,14 +24,13 @@ const checkerModifiedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Free AI Visibility Checker - Test Your Site in Seconds | 100 Questions",
+    absolute: "Free AI Visibility Checker | 100 Questions",
   },
   description:
     "Run a free AI visibility readiness check for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt. No account required.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Free AI Visibility Checker - Test Your Site in Seconds",
+    title: "Free AI Visibility Checker for Technical Readiness",
     description:
       "Check whether a public website is technically ready for AI search discovery, then learn how to measure actual brand visibility.",
     url: pageUrl,
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free AI Visibility Checker - Test Your Site in Seconds",
+    title: "Free AI Visibility Checker for Technical Readiness",
     description:
       "Check indexability, AI crawler access, schema, page signals, sitemaps, and llms.txt without creating an account.",
     images: [SOCIAL_IMAGE],
@@ -175,7 +175,8 @@ export default function AiVisibilityCheckerPage() {
         datePublished: SITE_UPDATED_AT,
         dateModified: checkerModifiedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
-        author: { "@id": `${absoluteUrl()}#organization` },
+        author: { "@id": EDITORIAL_AUTHOR_ID },
+        reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
         about: [
           "AI visibility checker",
@@ -186,12 +187,11 @@ export default function AiVisibilityCheckerPage() {
         inLanguage: "en-US",
       },
       {
-        "@type": "WebApplication",
+        "@type": "Service",
         "@id": `${pageUrl}#checker`,
         name: "100 Questions AI Visibility Readiness Checker",
         url: pageUrl,
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
+        serviceType: "AI visibility technical readiness check",
         browserRequirements: "Requires a modern web browser",
         dateModified: PRODUCT_UPDATED_AT,
         description:
@@ -215,15 +215,6 @@ export default function AiVisibilityCheckerPage() {
           "XML sitemap discovery",
           "llms.txt discovery",
         ],
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
       },
       {
         "@type": "BreadcrumbList",

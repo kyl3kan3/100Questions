@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { BILLING_PACKAGES, formatPackagePrice } from "./billing/packages";
 import {
+  AI_VISIBILITY_INDEX_2026_MODEL_FACTS,
+  BENCHMARK_MODEL_DEFAULTS,
+  BENCHMARK_PLANNED_ANSWER_COUNT,
+  BENCHMARK_PROVIDER_FACTS,
+  BENCHMARK_QUESTION_COUNT,
   PRODUCT_FAQS,
   PRODUCT_FEATURES,
   PRODUCT_LIMITATIONS,
@@ -32,5 +37,24 @@ describe("public product facts", () => {
       expect(new URL(profile.url).protocol).toBe("https:");
       expect(profile.description.length).toBeGreaterThan(10);
     }
+  });
+
+  it("keeps current public model labels aligned with runtime defaults", () => {
+    expect(BENCHMARK_PROVIDER_FACTS).toHaveLength(4);
+    expect(BENCHMARK_PLANNED_ANSWER_COUNT).toBe(
+      BENCHMARK_QUESTION_COUNT * BENCHMARK_PROVIDER_FACTS.length,
+    );
+
+    for (const provider of BENCHMARK_PROVIDER_FACTS) {
+      expect(provider.modelId).toBe(
+        BENCHMARK_MODEL_DEFAULTS[
+          provider.key as keyof typeof BENCHMARK_MODEL_DEFAULTS
+        ],
+      );
+    }
+
+    expect(AI_VISIBILITY_INDEX_2026_MODEL_FACTS).not.toBe(
+      BENCHMARK_PROVIDER_FACTS,
+    );
   });
 });

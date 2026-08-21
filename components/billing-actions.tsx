@@ -37,6 +37,26 @@ async function readError(response: Response): Promise<string> {
   }
 }
 
+async function createCheckout(
+  packageId: BillingPackageId,
+  signal?: AbortSignal,
+): Promise<string> {
+  trackEvent("checkout_started", { package_id: packageId });
+  const response = await fetch("/api/billing/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Idempotency-Key": crypto.randomUUID(),
+    },
+    body: JSON.stringify({ packageId }),
+    signal,
+  });
+  if (!response.ok) throw new Error(await readError(response));
+  const body = (await response.json()) as { url?: string };
+  if (!body.url) throw new Error("Stripe Checkout was unavailable.");
+  return body.url;
+}
+
 export function BillingActions({
   billingConfigured,
   hasCustomer,
@@ -51,23 +71,11 @@ export function BillingActions({
   const autoStarted = useRef(false);
 
   async function openCheckout(packageId: BillingPackageId) {
-    trackEvent("checkout_started", { package_id: packageId });
     setPending(packageId);
     setError(null);
 
     try {
-      const response = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": crypto.randomUUID(),
-        },
-        body: JSON.stringify({ packageId }),
-      });
-      if (!response.ok) throw new Error(await readError(response));
-      const body = (await response.json()) as { url?: string };
-      if (!body.url) throw new Error("Stripe Checkout was unavailable.");
-      window.location.assign(body.url);
+      window.location.assign(await createCheckout(packageId));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The billing request failed.");
       setPending(null);
@@ -79,7 +87,18 @@ export function BillingActions({
     if (!billingConfigured || !preferredPackageId) return;
     if (!packages.some((pkg) => pkg.id === preferredPackageId)) return;
     autoStarted.current = true;
-    void openCheckout(preferredPackageId);
+    const controller = new AbortController();
+    void createCheckout(preferredPackageId, controller.signal)
+      .then((url) => window.location.assign(url))
+      .catch((caught) => {
+        if (controller.signal.aborted) return;
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "The billing request failed.",
+        );
+      });
+    return () => controller.abort();
   }, [billingConfigured, preferredPackageId, packages]);
 
   async function openPortal() {

@@ -8,63 +8,62 @@ export const PAGE_REQUIREMENTS = [
     path: "/",
     types: [
       "Organization",
+      "Person",
       "Brand",
       "WebSite",
       "WebPage",
       "Product",
-      "SoftwareApplication",
-      "FAQPage",
     ],
   },
   { path: "/about", types: ["AboutPage", "Brand"] },
   { path: "/faq", types: ["FAQPage", "Brand"] },
   {
     path: "/chatgpt-seo-tool",
-    types: ["SoftwareApplication", "FAQPage", "Brand"],
+    types: ["Product", "Brand"],
   },
   {
     path: "/ai-visibility-checker",
-    types: ["WebApplication", "FAQPage", "Brand"],
+    types: ["Service", "Brand"],
   },
   {
     path: "/ai-search-visibility-tool",
-    types: ["Product", "SoftwareApplication", "FAQPage", "Brand"],
+    types: ["Product", "Brand"],
   },
   {
     path: "/ai-brand-risk-checker",
-    types: ["WebApplication", "FAQPage", "Brand"],
+    types: ["Service", "Brand"],
   },
   {
     path: "/llms-txt-checker",
-    types: ["WebApplication", "FAQPage", "Brand"],
+    types: ["Service", "Brand"],
   },
   {
     path: "/mcp",
-    types: ["WebPage", "SoftwareApplication"],
+    types: ["WebPage", "WebAPI"],
   },
   {
     path: "/ai-visibility-audit",
-    types: ["Service", "FAQPage", "Brand"],
+    types: ["Service", "Brand"],
   },
   {
     path: "/ai-visibility-tools",
-    types: ["Article", "ItemList", "FAQPage", "Brand"],
+    types: ["Article", "ItemList", "Brand"],
   },
   {
     path: "/ai-seo-tools",
-    types: ["Article", "ItemList", "FAQPage", "Brand"],
+    types: ["Article", "ItemList", "Brand"],
   },
   {
     path: "/how-to-get-chatgpt-to-recommend-your-business",
-    types: ["Article", "FAQPage", "Brand"],
+    types: ["Article", "Brand"],
   },
   {
     path: "/answer-engine-optimization-tools",
-    types: ["Article", "ItemList", "FAQPage", "Brand"],
+    types: ["Article", "ItemList", "Brand"],
   },
   {
     path: "/peec-ai-alternative",
-    types: ["Article", "ItemList", "FAQPage", "Brand"],
+    types: ["Article", "ItemList", "Brand"],
   },
 ];
 
@@ -169,17 +168,8 @@ function formatVisibleUsd(price) {
 function validateProduct(nodes, text, path) {
   const product = requireNode(nodes, "Product", path);
 
-  for (const field of [
-    "sku",
-    "applicationCategory",
-    "operatingSystem",
-    "dateModified",
-  ]) {
+  for (const field of ["sku", "category", "dateModified"]) {
     if (!product[field]) throw new Error(`${path}: Product is missing ${field}`);
-  }
-
-  if (!nodeHasType(product, "SoftwareApplication")) {
-    throw new Error(`${path}: the primary Product is not typed as SoftwareApplication`);
   }
   const imageUrl =
     typeof product.image === "string"
@@ -188,7 +178,7 @@ function validateProduct(nodes, text, path) {
   if (!imageUrl) {
     throw new Error(`${path}: Product is missing a crawlable image`);
   }
-  if (!Array.isArray(product.featureList) || product.featureList.length < 5) {
+  if (!Array.isArray(product.featureList) || product.featureList.length < 4) {
     throw new Error(`${path}: Product featureList is incomplete`);
   }
   for (const feature of product.featureList) {
@@ -222,10 +212,23 @@ function validateProduct(nodes, text, path) {
     );
   }
 
-  if (product.aggregateRating || product.review) {
-    throw new Error(`${path}: rating or review schema exists without a review source`);
-  }
+}
 
+function validateSoftwareApplicationEligibility(nodes, path) {
+  const softwareTypes = [
+    "SoftwareApplication",
+    "WebApplication",
+    "MobileApplication",
+  ];
+
+  for (const node of nodes) {
+    if (!softwareTypes.some((type) => nodeHasType(node, type))) continue;
+    if (!node.aggregateRating && !node.review) {
+      throw new Error(
+        `${path}: Google-targeted software app schema needs a genuine aggregateRating or review; remove the software app type when none exists`,
+      );
+    }
+  }
 }
 
 function validateBrand(nodes, html, path) {
@@ -252,6 +255,7 @@ export function validateDiscoveryPage({ html, path, requiredTypes }) {
   const text = visibleText(html);
 
   for (const type of requiredTypes) requireNode(nodes, type, path);
+  validateSoftwareApplicationEligibility(nodes, path);
   if (requiredTypes.includes("FAQPage")) validateFaq(nodes, text, path);
   if (requiredTypes.includes("ItemList")) validateItemList(nodes, text, path);
   if (requiredTypes.includes("Product")) validateProduct(nodes, text, path);

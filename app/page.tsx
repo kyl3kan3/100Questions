@@ -29,6 +29,8 @@ import {
 } from "@/lib/billing/packages";
 import { buildHomeStructuredData } from "@/lib/home-structured-data";
 import {
+  BENCHMARK_PROVIDER_FACTS,
+  BENCHMARK_RETENTION_DAYS,
   PRODUCT_BEST_FITS,
   PRODUCT_FAQS,
   PRODUCT_FEATURES,
@@ -68,12 +70,9 @@ export const metadata: Metadata = {
   },
 };
 
-const providerRows = [
-  ["OpenAI", "GPT-5.4 mini", "Native web search"],
-  ["Claude", "Claude Sonnet 4.6", "Native web search"],
-  ["Gemini", "Gemini 3.1 Flash Lite", "Google Search"],
-  ["Grok", "Grok 4.5", "Native web search"],
-] as const;
+const providerRows = BENCHMARK_PROVIDER_FACTS.map(
+  ({ provider, model, grounding }) => [provider, model, grounding] as const,
+);
 
 const scoreCards = [
   ["Visibility", "How often your brand appears in neutral discovery answers."],
@@ -110,7 +109,7 @@ export default function Home() {
             </Button>
           </div>
           <p className="mt-5 flex items-center gap-2 text-xs text-zinc-400">
-            <LockKeyhole className="size-3.5" /> Private by default · 30-day answer retention
+            <LockKeyhole className="size-3.5" /> Private by default · {BENCHMARK_RETENTION_DAYS}-day answer retention
           </p>
           <p className="mt-3 text-sm text-zinc-400">
             <Link
@@ -129,7 +128,6 @@ export default function Home() {
               alt="Sample report showing visibility, missed questions, competitors, sources, and recommended actions"
               fill
               priority
-              unoptimized
               sizes="(min-width: 768px) 42vw, 100vw"
               className="object-cover"
             />

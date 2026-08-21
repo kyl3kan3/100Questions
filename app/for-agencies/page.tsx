@@ -112,15 +112,6 @@ export default function ForAgenciesPage() {
         inLanguage: "en-US",
       },
       {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqs.map(({ question, answer }) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
-      {
         "@type": "BreadcrumbList",
         itemListElement: [
           {

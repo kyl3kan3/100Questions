@@ -6,6 +6,15 @@ import { ALL_PUBLIC_MARKDOWN_PAGES } from "./lib/public-markdown";
 import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "tools.launchllama.co",
+        pathname: "/featured-badge.png",
+      },
+    ],
+  },
   async headers() {
     return [
       {

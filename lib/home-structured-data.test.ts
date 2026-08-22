@@ -80,6 +80,7 @@ describe("homepage structured data", () => {
     expect(product).not.toHaveProperty("aggregateRating");
     expect(product).not.toHaveProperty("review");
     expect(product).not.toHaveProperty("gtin");
+    expect(product).not.toHaveProperty("audience");
   });
 
   it("does not publish low-value FAQ rich-result markup", () => {

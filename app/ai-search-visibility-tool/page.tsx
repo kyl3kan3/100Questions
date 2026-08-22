@@ -141,10 +141,6 @@ export default function AiSearchVisibilityToolPage() {
         inLanguage: "en-US",
         isAccessibleForFree: false,
         featureList: [...PRODUCT_FEATURES],
-        audience: {
-          "@type": "Audience",
-          audienceType: "Consultants, agencies, and in-house marketing teams",
-        },
         offers: {
           "@type": "Offer",
           price: String(introPrice),

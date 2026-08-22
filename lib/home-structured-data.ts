@@ -31,10 +31,6 @@ export function buildHomeProductStructuredData() {
     dateModified: PRODUCT_UPDATED_AT,
     isAccessibleForFree: false,
     featureList: [...PRODUCT_FEATURES],
-    audience: {
-      "@type": "Audience",
-      audienceType: "Consultants, agencies, and in-house marketing teams",
-    },
     additionalProperty: [
       {
         "@type": "PropertyValue",

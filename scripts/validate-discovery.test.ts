@@ -97,6 +97,41 @@ describe("raw HTML discovery validation", () => {
     ).toThrow("needs a genuine aggregateRating or review");
   });
 
+  it("rejects Product audience markup that Google reports as an invalid type", () => {
+    const product = {
+      "@type": "Product",
+      name: "100 Questions benchmark",
+      sku: "100Q-BENCHMARK",
+      category: "AI visibility analytics",
+      dateModified: "2026-08-22",
+      image: "https://example.com/report.png",
+      featureList: ["Evidence", "Mentions", "Citations", "Competitors"],
+      audience: {
+        "@type": "Audience",
+        audienceType: "Marketing teams",
+      },
+      offers: {
+        "@type": "Offer",
+        price: "9",
+        priceCurrency: "USD",
+        availability: "https://schema.org/OnlineOnly",
+        sku: "100Q-BENCHMARK-INTRO",
+      },
+    };
+    const html = page(
+      [product],
+      "<h1>100 Questions benchmark</h1><p>Evidence Mentions Citations Competitors</p><p>$9</p>",
+    );
+
+    expect(() =>
+      validateDiscoveryPage({
+        html,
+        path: "/product",
+        requiredTypes: ["Product"],
+      }),
+    ).toThrow("Product audience is not supported");
+  });
+
   it("checks fetched pages through the production entry point", async () => {
     const html = page(
       [

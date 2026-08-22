@@ -44,7 +44,7 @@ export function GlobalFooter() {
             A directional, API-grounded AI visibility benchmark with inspectable
             evidence, explicit limits, and no subscription.
           </p>
-          <p className="mt-3 text-xs leading-5 text-zinc-500">
+          <p className="mt-3 text-xs leading-5 text-zinc-400">
             Results may differ from consumer chat products and do not guarantee
             future mentions or citations.
           </p>
@@ -56,7 +56,7 @@ export function GlobalFooter() {
         >
           {footerGroups.map((group) => (
             <div key={group.label}>
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-zinc-500">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.13em] text-zinc-400">
                 {group.label}
               </p>
               <ul className="mt-4 space-y-3 text-sm">

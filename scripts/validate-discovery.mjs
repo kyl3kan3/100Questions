@@ -168,6 +168,12 @@ function formatVisibleUsd(price) {
 function validateProduct(nodes, text, path) {
   const product = requireNode(nodes, "Product", path);
 
+  if (product.audience) {
+    throw new Error(
+      `${path}: Product audience is not supported by Google's Product rich-result parser; keep audience guidance in visible copy instead`,
+    );
+  }
+
   for (const field of ["sku", "category", "dateModified"]) {
     if (!product[field]) throw new Error(`${path}: Product is missing ${field}`);
   }

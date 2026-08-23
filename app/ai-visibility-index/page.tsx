@@ -462,7 +462,7 @@ export default function AiVisibilityIndexPage() {
                   {value}
                 </p>
                 <p className="mt-2 font-medium text-zinc-100">{label}</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-500">{detail}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{detail}</p>
               </div>
             ))}
           </div>
@@ -496,7 +496,7 @@ export default function AiVisibilityIndexPage() {
             </div>
 
             <div className="mt-9 overflow-hidden rounded-[24px] bg-[#0b0e0c] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
-              <div className="grid grid-cols-[3rem_minmax(9rem,1fr)_5rem_5rem] gap-3 border-b border-white/[0.08] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-zinc-500 sm:grid-cols-[3rem_minmax(12rem,1fr)_7rem_7rem]">
+              <div className="grid grid-cols-[3rem_minmax(9rem,1fr)_5rem_5rem] gap-3 border-b border-white/[0.08] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-zinc-400 sm:grid-cols-[3rem_minmax(12rem,1fr)_7rem_7rem]">
                 <span>Rank</span>
                 <span>Brand</span>
                 <span className="text-right">Visibility</span>
@@ -532,7 +532,7 @@ export default function AiVisibilityIndexPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-xs leading-5 text-zinc-500">
+            <p className="mt-4 text-xs leading-5 text-zinc-400">
               The complete CSV includes all 25 cohort products, prominence,
               claimed-domain citations, and zero-mention rows.
             </p>
@@ -566,7 +566,7 @@ export default function AiVisibilityIndexPage() {
                   <h3 className="mt-4 font-semibold text-white">
                     {brands.join(" + ")}
                   </h3>
-                  <p className="mt-2 text-sm text-zinc-500">
+                  <p className="mt-2 text-sm text-zinc-400">
                     {mentions} mention{mentions === 1 ? "" : "s"} in 20 answers
                   </p>
                 </article>
@@ -600,7 +600,7 @@ export default function AiVisibilityIndexPage() {
                       {String(source.rank).padStart(2, "0")}
                     </span>
                     <span className="text-zinc-300">{source.domain}</span>
-                    <span className="font-mono text-zinc-500">
+                    <span className="font-mono text-zinc-400">
                       {source.cited_answer_count} answers
                     </span>
                   </li>
@@ -804,7 +804,7 @@ export default function AiVisibilityIndexPage() {
                       {file.format}
                     </Badge>
                   </div>
-                  <p className="mt-3 break-all font-mono text-xs leading-5 text-zinc-500">
+                  <p className="mt-3 break-all font-mono text-xs leading-5 text-zinc-400">
                     {file.filename}
                   </p>
                   <p className="mt-4 flex-1 text-sm leading-6 text-zinc-400">

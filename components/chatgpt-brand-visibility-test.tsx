@@ -46,7 +46,7 @@ export function ChatgptBrandVisibilityTest() {
           ].map(([label, value]) => (
             <div key={label} className="rounded-xl bg-white/[0.04] px-3 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
               <p className="font-mono text-lg text-emerald-300">{value}</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-zinc-500">{label}</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-zinc-400">{label}</p>
             </div>
           ))}
         </div>
@@ -56,7 +56,7 @@ export function ChatgptBrandVisibilityTest() {
         {CHATGPT_BRAND_VISIBILITY_PROMPTS.map((prompt, index) => (
           <li key={prompt} className="grid gap-3 rounded-2xl bg-white/[0.025] p-4 md:grid-cols-[1fr_11rem] md:items-center">
             <div className="flex gap-3 text-sm leading-6 text-zinc-300">
-              <span className="font-mono text-[11px] text-zinc-500">{String(index + 1).padStart(2, "0")}</span>
+              <span className="font-mono text-[11px] text-zinc-400">{String(index + 1).padStart(2, "0")}</span>
               <span>{prompt}</span>
             </div>
             <select

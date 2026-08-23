@@ -231,7 +231,7 @@ export default function AiVisibilityAuditPage() {
                   </Link>
                 </Button>
               </div>
-              <p className="mt-4 max-w-2xl text-xs leading-5 text-zinc-500">
+              <p className="mt-4 max-w-2xl text-xs leading-5 text-zinc-400">
                 First-purchase price. No subscription. Normal single-run price
                 is $15. Results are directional and do not guarantee placement.
               </p>

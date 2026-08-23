@@ -44,7 +44,7 @@ export function AiVisibilityScoreCalculator() {
                   }));
                 }}
               />
-              <p className="mt-2 text-xs leading-5 text-zinc-500">{help}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-400">{help}</p>
             </div>
           ))}
         </div>
@@ -75,7 +75,7 @@ export function AiVisibilityScoreCalculator() {
                 <dt className="font-medium text-zinc-200">{label}</dt>
                 <dd className="font-mono text-lg text-emerald-300">{value}%</dd>
               </div>
-              <p className="mt-1 text-xs text-zinc-500">{formula}</p>
+              <p className="mt-1 text-xs text-zinc-400">{formula}</p>
             </div>
           ))}
         </dl>

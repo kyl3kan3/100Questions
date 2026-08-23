@@ -211,7 +211,7 @@ export default function AiSearchVisibilityToolPage() {
                     <Link href="/sample-report">View sample report <ArrowRight aria-hidden="true" /></Link>
                   </Button>
                 </div>
-                <p className="mt-4 max-w-2xl text-xs leading-5 text-zinc-500">
+                <p className="mt-4 max-w-2xl text-xs leading-5 text-zinc-400">
                   First-purchase price. No subscription. Results are directional
                   and do not guarantee future placement.
                 </p>
@@ -271,7 +271,7 @@ export default function AiSearchVisibilityToolPage() {
                     <Icon className="size-5 text-emerald-300" aria-hidden="true" />
                     <p className="mt-5 text-sm text-zinc-400">{label}</p>
                     <p className="mt-1 font-mono text-3xl font-semibold tracking-[-0.04em] text-white">{value}</p>
-                    <p className="mt-3 text-xs leading-5 text-zinc-500">{detail}</p>
+                    <p className="mt-3 text-xs leading-5 text-zinc-400">{detail}</p>
                   </article>
                 ))}
               </div>

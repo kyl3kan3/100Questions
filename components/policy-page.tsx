@@ -81,7 +81,7 @@ export function PolicyPage({
             <p className="mt-5 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
               {description}
             </p>
-            <p className="mt-4 text-xs text-zinc-500">
+            <p className="mt-4 text-xs text-zinc-400">
               Effective <time dateTime="2026-08-10">August 10, 2026</time>
             </p>
           </div>

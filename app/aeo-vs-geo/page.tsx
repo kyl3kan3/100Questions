@@ -324,7 +324,7 @@ export default function AeoVsGeoPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h3 className="font-semibold text-white">{example.provider}</h3>
-                        <p className="mt-1 font-mono text-xs text-zinc-500">{example.model}</p>
+                        <p className="mt-1 font-mono text-xs text-zinc-400">{example.model}</p>
                       </div>
                       <Database className="size-5 shrink-0 text-emerald-300" aria-hidden="true" />
                     </div>

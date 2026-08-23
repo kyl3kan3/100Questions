@@ -360,7 +360,7 @@ export default function AiVisibilityToolsPage() {
                   >
                     <div className="flex items-center justify-between gap-4">
                       <Icon className="size-5 text-emerald-300" aria-hidden="true" />
-                      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-zinc-400">
                         {cost}
                       </span>
                     </div>
@@ -398,7 +398,7 @@ export default function AiVisibilityToolsPage() {
                       <p className="eyebrow">{category}</p>
                       <h3 className="mt-4 text-xl font-semibold text-white">{name}</h3>
                       <p className="mt-3 text-sm leading-6 text-zinc-300">{scope}</p>
-                      <p className="mt-3 text-sm leading-6 text-zinc-500">
+                      <p className="mt-3 text-sm leading-6 text-zinc-400">
                         <strong className="font-medium text-zinc-400">Limit:</strong>{" "}
                         {limitation}
                       </p>

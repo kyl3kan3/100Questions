@@ -461,7 +461,7 @@ export default function AiVisibilityPromptsPage() {
                   <ol className="mt-6 grid gap-x-10 gap-y-3 md:grid-cols-2">
                     {group.prompts.map((prompt, promptIndex) => (
                       <li key={prompt} className="flex gap-3 text-sm leading-6 text-zinc-300">
-                        <span className="font-mono text-[11px] tabular-nums text-zinc-500">
+                        <span className="font-mono text-[11px] tabular-nums text-zinc-400">
                           {String(groupIndex * 20 + promptIndex + 1).padStart(3, "0")}
                         </span>
                         <span>{prompt}</span>

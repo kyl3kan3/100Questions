@@ -143,7 +143,7 @@ export default function ChatGptCitationsVsBrandMentionsPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-xs leading-5 text-zinc-500">
+        <p className="mt-5 text-xs leading-5 text-zinc-400">
           Illustrative answer only. Real tests must preserve the provider,
           model, timestamp, question, full response, and returned source URLs.
         </p>

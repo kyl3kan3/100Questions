@@ -126,7 +126,7 @@ export function LlmsTxtBuilder() {
                 placeholder={"Product | https://example.com/product | Capabilities and fit\nMethodology | https://example.com/methodology | How results are calculated"}
                 className="min-h-32 font-mono text-xs"
               />
-              <p className="text-xs leading-5 text-zinc-500">
+              <p className="text-xs leading-5 text-zinc-400">
                 One per line: Label | absolute URL | optional description
               </p>
             </div>

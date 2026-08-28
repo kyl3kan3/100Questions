@@ -3,7 +3,7 @@
 Canonical site: https://100questionsai.com/
 Concise URL and Markdown catalog: https://100questionsai.com/llms.txt
 Homepage in Markdown: https://100questionsai.com/index.md
-Markdown convention: append .md to each public canonical HTML path, or request the HTML URL with Accept: text/markdown.
+Substantive Markdown editions are listed in llms.txt. Canonical HTML remains the authoritative edition for other public pages.
 MCP documentation and public endpoint: https://100questionsai.com/mcp
 MCP documentation in Markdown: https://100questionsai.com/mcp.md
 AI visibility checker in Markdown: https://100questionsai.com/ai-visibility-checker.md
@@ -11,8 +11,11 @@ AI visibility guide in Markdown: https://100questionsai.com/ai-visibility.md
 Best AI visibility tools in Markdown: https://100questionsai.com/ai-seo-tools.md
 AEO tools comparison in Markdown: https://100questionsai.com/answer-engine-optimization-tools.md
 ChatGPT recommendation guide in Markdown: https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md
+Pricing in Markdown: https://100questionsai.com/pricing.md
+OAI-SearchBot blocking guide in Markdown: https://100questionsai.com/how-to-check-if-oai-searchbot-is-blocked.md
 About: https://100questionsai.com/about
 Resources: https://100questionsai.com/resources
+Pricing: https://100questionsai.com/pricing
 Contact: https://100questionsai.com/contact
 Support center: https://100questionsai.com/support
 Privacy: https://100questionsai.com/privacy
@@ -37,6 +40,7 @@ How to measure AI search visibility: https://100questionsai.com/how-to-measure-a
 Customer research methods: https://100questionsai.com/customer-research-methods
 AI search optimization guide: https://100questionsai.com/ai-search-optimization
 How to get ChatGPT to recommend your business: https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business
+How to check if OAI-SearchBot is blocked: https://100questionsai.com/how-to-check-if-oai-searchbot-is-blocked
 Best AI visibility tools comparison: https://100questionsai.com/ai-seo-tools
 AI visibility audit checklist: https://100questionsai.com/ai-visibility-audit-checklist
 100 AI visibility prompts: https://100questionsai.com/ai-visibility-prompts
@@ -44,23 +48,20 @@ AI visibility report template: https://100questionsai.com/ai-visibility-report-t
 AI visibility score calculator: https://100questionsai.com/ai-visibility-score-calculator
 AI search prompt tracking spreadsheet: https://100questionsai.com/ai-search-prompt-tracking-spreadsheet
 ChatGPT brand visibility test: https://100questionsai.com/chatgpt-brand-visibility-test
+ChatGPT citations vs brand mentions: https://100questionsai.com/chatgpt-citations-vs-brand-mentions
 Google Alerts vs ChatGPT mention tracking: https://100questionsai.com/can-google-alerts-track-chatgpt-mentions
 LLM citation audit template: https://100questionsai.com/llm-citation-audit-template
 GEO client reporting template: https://100questionsai.com/geo-client-reporting-template
 Answer engine optimization guide: https://100questionsai.com/answer-engine-optimization
+AEO vs GEO: https://100questionsai.com/aeo-vs-geo
 Answer engine optimization tools: https://100questionsai.com/answer-engine-optimization-tools
 ChatGPT SEO tool: https://100questionsai.com/chatgpt-seo-tool
 Generative engine optimization guide: https://100questionsai.com/generative-engine-optimization
+AI Overviews tracker vs cross-model testing: https://100questionsai.com/ai-overviews-tracker-vs-cross-model-visibility-testing
 LLM SEO guide: https://100questionsai.com/llm-seo
 Best Peec AI alternatives comparison: https://100questionsai.com/peec-ai-alternative
 For agencies: https://100questionsai.com/for-agencies
-
-Independent entity references:
-- VerifiedDR: https://verifieddr.com/website/100questionsai-com
-- Findly.tools: https://findly.tools/100-questions
-- neeed.directory: https://neeed.directory/products/100-questions
-- Peerlist: https://peerlist.io/kyl3kan3/project/100-questions
-- SEOReceipts: https://seoreceipts.com/site/100questionsai/
+Sample report: https://100questionsai.com/sample-report
 
 ## What the product does
 

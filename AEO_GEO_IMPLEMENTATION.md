@@ -4,15 +4,15 @@ This repository adapts Microsoft's retail-oriented [AEO/GEO guidance](https://ab
 
 ## Implemented
 
-- The homepage publishes one JSON-LD entity typed as both `Product` and `SoftwareApplication`, with `Offer`, `Brand`, `ImageObject`, language, currency, SKU, online availability, features, audience, and `dateModified` data.
+- The homepage publishes one `Product` JSON-LD entity with `Offer`, `Brand`, `ImageObject`, language, currency, SKU, online availability, features, audience, and `dateModified` data. It does not claim the benchmark is downloadable software.
 - Prices and offer descriptions come from the same billing package constants used by the visible pricing cards and checkout logic.
 - Product features, best-fit use cases, limitations, and FAQs come from one shared facts module used by visible HTML and structured data.
 - The FAQ page exposes every marked-up question and answer in server-rendered HTML.
 - Comparison and alternatives pages use `ItemList`, show the compared products, cite their sources, and describe real tradeoffs.
-- The global `Organization` and `Brand` entities identify public third-party profiles. Those links appear visibly on the About page, which labels them accurately as independent references rather than endorsements or reviews.
+- The global `Organization` and `Brand` entities use stable first-party IDs. Third-party directory listings remain visible and accurately labeled where useful, but are not asserted as identity-equivalent `sameAs` profiles.
 - Product images use descriptive alt text and `ImageObject` markup. There are no product videos requiring transcripts.
 - The resource hub, descriptive internal navigation, and lightweight footer establish clear research, guide, tool, comparison, and trust-page paths without loading third-party badge images on every page.
-- The sitemap and `llms.txt` files expose the updated product facts, limitations, resource hierarchy, policies, and canonical public pages.
+- The sitemap publishes reviewed per-route modification dates where they are known. The concise `llms.txt` points to authoritative routes and substantive Markdown editions; `llms-full.txt` carries the exhaustive product and methodology reference.
 - The post-deployment workflow validates the live raw HTML before sending the sitemap to IndexNow.
 
 ## Intentionally omitted

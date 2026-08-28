@@ -1,8 +1,8 @@
 export const SITE_NAME = "100 Questions";
 export const SITE_URL = "https://100questionsai.com";
-export const SITE_TITLE = "100 Questions — AI Visibility Audit & Benchmark Tool";
+export const SITE_TITLE = "100 Questions — AI Visibility Benchmark Tool";
 export const SITE_DESCRIPTION =
-  "Run a $9 AI visibility audit across OpenAI, Claude, Gemini, and Grok. See where AI overlooks your brand, who appears instead, and what to fix next.";
+  "Run a $9 source-backed AI visibility benchmark across OpenAI, Claude, Gemini, and Grok. See where AI overlooks your brand and what to fix next.";
 export const SITE_UPDATED_AT = "2026-07-24T00:00:00.000Z";
 // X's card crawler is unreliable with query-stringed image URLs and RGBA
 // PNGs, so the card is a flattened RGB PNG versioned via the filename only.

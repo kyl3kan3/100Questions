@@ -23,7 +23,10 @@ const INDEX_DATE = {
   iso: "2026-07-30",
   label: "July 30, 2026",
 } as const;
-const PAGE_UPDATED_AT = "2026-08-15";
+const PAGE_UPDATED_AT = "2026-08-28";
+const INDEX_VERSION = "2026.1";
+const INDEX_CITATION =
+  "Kyle. (2026). 2026 AI Visibility Index: AI SEO Software Results (Version 2026.1). 100 Questions. https://100questionsai.com/ai-visibility-index";
 
 const questionSetUrl = absoluteUrl(
   "/data/ai-visibility-index-2026-question-set.csv",
@@ -253,6 +256,8 @@ export default function AiVisibilityIndexPage() {
         mainEntityOfPage: pageUrl,
         datePublished: INDEX_DATE.iso,
         dateModified: PAGE_UPDATED_AT,
+        version: INDEX_VERSION,
+        citation: INDEX_CITATION,
         author: { "@id": EDITORIAL_AUTHOR_ID },
         reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
         publisher: { "@id": `${absoluteUrl()}#organization` },
@@ -273,6 +278,9 @@ export default function AiVisibilityIndexPage() {
         url: pageUrl,
         datePublished: INDEX_DATE.iso,
         dateModified: results.publishedAt,
+        version: INDEX_VERSION,
+        citation: INDEX_CITATION,
+        creditText: "100 Questions 2026 AI Visibility Index",
         creator: { "@id": `${absoluteUrl()}#organization` },
         isAccessibleForFree: true,
         inLanguage: "en-US",
@@ -819,6 +827,31 @@ export default function AiVisibilityIndexPage() {
                   </a>
                 </article>
               ))}
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="citation-heading"
+            className="rounded-[28px] bg-[#0b0e0c] p-7 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-9"
+          >
+            <p className="eyebrow">Citation and reuse</p>
+            <h2
+              id="citation-heading"
+              className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+            >
+              Cite the frozen release, not a changing summary
+            </h2>
+            <p className="mt-5 max-w-3xl text-pretty leading-7 text-zinc-400">
+              Reference release {INDEX_VERSION} when quoting rankings or study
+              findings. The public files make the results auditable, but this
+              page does not grant a new reuse license for provider-generated
+              answer text. Contact 100 Questions before republishing that text
+              at scale.
+            </p>
+            <div className="mt-6 overflow-x-auto rounded-2xl bg-black/25 p-5">
+              <code className="whitespace-pre-wrap font-mono text-sm leading-6 text-emerald-200">
+                {INDEX_CITATION}
+              </code>
             </div>
           </section>
 

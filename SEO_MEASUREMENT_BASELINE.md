@@ -1,6 +1,7 @@
 # Search Console baseline and indexing checklist
 
 Prepared: August 20, 2026
+Updated: August 28, 2026
 Property: `https://100questionsai.com/`
 
 ## Current access state
@@ -82,3 +83,17 @@ For each organic landing page, pair Search Console data with analytics and check
 - sample-report views and assisted purchases
 
 Traffic alone is not the success criterion. The primary commercial rate is completed audits divided by organic landing-page sessions for the mapped page.
+
+## AI referral and machine-discovery measurement
+
+The site records an `ai_referral_landing` event when the browser referrer or
+`utm_source` identifies ChatGPT, Perplexity, Claude, Copilot, Gemini, or You.com.
+Report sessions, checkout starts, and purchases by the event's `source` and
+`landing_path` properties. Direct visits with stripped referrers remain
+unattributed; do not relabel them as AI traffic without campaign parameters.
+
+The free technical checker records `readiness_check_completed` with the score
+and pass count. Server-side machine-resource requests are logged separately as
+`machine_discovery_request`, including the requested path, representation, and
+recognized crawler client. Treat crawler access as discovery telemetry, not as
+evidence that a page was indexed, cited, or recommended.

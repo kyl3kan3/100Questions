@@ -92,13 +92,13 @@ export default function Home() {
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
           <Badge variant="outline" className="mb-7 border-emerald-300/25 text-emerald-200">
-            AI visibility audit · Four web-grounded models
+            AI visibility benchmark · Four web-grounded models
           </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
             Find where AI models overlook your brand—and what to fix next.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            A $9 AI visibility audit across OpenAI, Claude, Gemini, and Grok:
+            A $9 AI visibility benchmark across OpenAI, Claude, Gemini, and Grok:
             missed buyer questions, competitors shown instead, sources models
             trust, and five evidence-backed actions—no subscription.
           </p>
@@ -116,7 +116,7 @@ export default function Home() {
               className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
               href="/ai-visibility-audit"
             >
-              See how the AI visibility audit works
+              See how the evidence-linked audit works
             </Link>
           </p>
         </div>
@@ -192,6 +192,25 @@ export default function Home() {
       </section>
 
       <FeaturedOnSection />
+
+      <section className="border-b border-white/[0.07] bg-white/[0.012]">
+        <div className="page-shell grid gap-8 py-14 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p className="eyebrow">Original research</p>
+            <h2 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+              25 products, 80 grounded answers, and 210 cited domains
+            </h2>
+            <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
+              The 2026 AI Visibility Index publishes its frozen questions,
+              provider splits, source frequency, answer-level evidence,
+              protocol, adjudications, and file hashes for independent review.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/ai-visibility-index">Explore the open study</Link>
+          </Button>
+        </div>
+      </section>
 
       <section className="page-shell py-20 md:py-24">
         <div className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/[0.025] p-7 sm:p-9">
@@ -481,6 +500,11 @@ export default function Home() {
           </div>
           <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-zinc-400">
             Introductory price is limited to the first purchase. Credits are valid for 12 months. Normal single-benchmark price after the introductory purchase is $15. Taxes may apply.
+          </p>
+          <p className="mt-5 text-center text-sm">
+            <Link className="font-semibold text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200" href="/pricing">
+              Compare every package and use case
+            </Link>
           </p>
         </div>
       </section>

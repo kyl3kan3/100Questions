@@ -16,8 +16,9 @@ describe("public SEO metadata", () => {
     const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
     expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(43);
+    expect(urls).toHaveLength(45);
     expect(urls).toContain("/resources");
+    expect(urls).toContain("/pricing");
     expect(urls).toContain("/contact");
     expect(urls).toContain("/support");
     expect(urls).toContain("/privacy");
@@ -32,6 +33,7 @@ describe("public SEO metadata", () => {
     expect(urls).toContain(
       "/how-to-get-chatgpt-to-recommend-your-business",
     );
+    expect(urls).toContain("/how-to-check-if-oai-searchbot-is-blocked");
     expect(urls).toContain("/ai-visibility-index");
     expect(urls).toContain("/ai-visibility-audit-checklist");
     expect(urls).toContain("/ai-visibility-prompts");
@@ -53,9 +55,8 @@ describe("public SEO metadata", () => {
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
   });
 
-  it("omits unsupported sitemap freshness and priority hints", () => {
+  it("uses reviewed route dates without unsupported priority hints", () => {
     for (const page of buildSitemap()) {
-      expect(page).not.toHaveProperty("lastModified");
       expect(page).not.toHaveProperty("changeFrequency");
       expect(page).not.toHaveProperty("priority");
     }
@@ -65,8 +66,14 @@ describe("public SEO metadata", () => {
         ({ url }) => url === "https://100questionsai.com/",
       ),
     ).toMatchObject({
+      lastModified: new Date("2026-08-28T00:00:00.000Z"),
       images: ["https://100questionsai.com/sample-report-preview.png"],
     });
+    expect(
+      buildSitemap().find(
+        ({ url }) => url === "https://100questionsai.com/about",
+      ),
+    ).not.toHaveProperty("lastModified");
   });
 
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {

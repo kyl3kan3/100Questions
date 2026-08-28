@@ -31,6 +31,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "The central library for open research, practical guides, free tools, templates, and software comparisons.",
   },
+  "/pricing": {
+    title: "AI Visibility Benchmark Pricing",
+    summary:
+      "Prepaid pricing for one, three, or ten source-backed AI visibility benchmarks, with no subscription or seat fees.",
+    lastReviewed: "2026-08-28",
+  },
   "/contact": {
     title: "Contact 100 Questions",
     summary:
@@ -116,6 +122,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     title: "How to Get ChatGPT to Recommend Your Business",
     summary:
       "Five controllable inputs—crawlability, entity consistency, structured data, authentic reviews, and relevant citations—plus an evidence-conscious measurement loop.",
+  },
+  "/how-to-check-if-oai-searchbot-is-blocked": {
+    title: "How to Check If OAI-SearchBot Is Blocked",
+    summary:
+      "A step-by-step check for robots.txt rules, path restrictions, CDN or firewall blocks, rendering problems, and the difference between OAI-SearchBot and GPTBot.",
+    lastReviewed: "2026-08-28",
   },
   "/ai-seo-tools": {
     title: "Best AI Visibility Tools for 2026",
@@ -263,7 +275,7 @@ function markdownForSummary(
     `Canonical HTML: ${absoluteUrl(htmlPath)}`,
     `Markdown alternate: ${absoluteUrl(markdownPath)}`,
     `Publisher: ${SITE_NAME}`,
-    `Last reviewed: ${lastReviewed ?? "2026-08-14"}`,
+    ...(lastReviewed ? [`Last reviewed: ${lastReviewed}`] : []),
     "",
     "## Canonical resources",
     "",
@@ -299,8 +311,22 @@ export const ALL_PUBLIC_MARKDOWN_PAGES: readonly MachineMarkdownPage[] =
     };
   });
 
+// Only advertise Markdown alternates that contain a substantive, page-specific
+// edition. Explicit summary URLs remain available for compatibility, but they
+// are not presented as equivalent representations of the full HTML page.
+export const ADVERTISED_PUBLIC_MARKDOWN_PAGES =
+  ALL_PUBLIC_MARKDOWN_PAGES.filter(
+    ({ htmlPath }) => htmlPath === "/" || Boolean(machineMarkdownForHtmlPath(htmlPath)),
+  );
+
 export function publicMarkdownForHtmlPath(pathname: string) {
   return ALL_PUBLIC_MARKDOWN_PAGES.find(
+    (page) => page.htmlPath === pathname,
+  );
+}
+
+export function advertisedPublicMarkdownForHtmlPath(pathname: string) {
+  return ADVERTISED_PUBLIC_MARKDOWN_PAGES.find(
     (page) => page.htmlPath === pathname,
   );
 }

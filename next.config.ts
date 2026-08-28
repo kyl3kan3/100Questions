@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withWorkflow } from "workflow/next";
 
 import { AGENT_DISCOVERY_LINK_HEADER } from "./lib/agent-discovery";
-import { ALL_PUBLIC_MARKDOWN_PAGES } from "./lib/public-markdown";
+import { ADVERTISED_PUBLIC_MARKDOWN_PAGES } from "./lib/public-markdown";
 import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
 
 const nextConfig: NextConfig = {
@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
           { key: "Vary", value: "Accept" },
         ],
       },
-      ...ALL_PUBLIC_MARKDOWN_PAGES.filter((page) => page.htmlPath !== "/").map((page) => ({
+      ...ADVERTISED_PUBLIC_MARKDOWN_PAGES.filter((page) => page.htmlPath !== "/").map((page) => ({
         source: page.htmlPath,
         headers: [
           {

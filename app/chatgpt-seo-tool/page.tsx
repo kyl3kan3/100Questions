@@ -163,7 +163,7 @@ export default function ChatgptSeoToolPage() {
           priceCurrency: "USD",
           availability: "https://schema.org/OnlineOnly",
           sku: `${PRODUCT_SKU}-INTRO`,
-          url: absoluteUrl("/#pricing"),
+          url: absoluteUrl("/pricing"),
           description: "Introductory first benchmark price",
         },
         brand: { "@id": `${absoluteUrl()}#brand` },

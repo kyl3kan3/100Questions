@@ -60,7 +60,7 @@ export function buildHomeProductStructuredData() {
     ],
     offers: {
       "@type": "AggregateOffer",
-      url: absoluteUrl("/#pricing"),
+      url: absoluteUrl("/pricing"),
       priceCurrency: "USD",
       lowPrice: String(
         Math.min(...BILLING_PACKAGES.map(({ priceCents }) => priceCents)) / 100,
@@ -76,7 +76,7 @@ export function buildHomeProductStructuredData() {
         sku: `${PRODUCT_SKU}-${billingPackage.id.toUpperCase()}`,
         name: billingPackage.name,
         description: billingPackage.description,
-        url: absoluteUrl("/#pricing"),
+        url: absoluteUrl("/pricing"),
         price: (billingPackage.priceCents / 100).toFixed(2),
         priceCurrency: "USD",
         availability: "https://schema.org/OnlineOnly",

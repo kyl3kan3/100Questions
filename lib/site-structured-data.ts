@@ -1,11 +1,8 @@
-import { VERIFIED_BRAND_PROFILES } from "./product-facts";
 import { buildEditorialPersonStructuredData, EDITORIAL_AUTHOR_ID } from "./editorial";
 import { absoluteUrl, SITE_NAME } from "./site";
 
 export function buildSiteStructuredData() {
   const homeUrl = absoluteUrl();
-  const sameAs = VERIFIED_BRAND_PROFILES.map(({ url }) => url);
-
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -22,7 +19,6 @@ export function buildSiteStructuredData() {
         },
         brand: { "@id": `${homeUrl}#brand` },
         member: { "@id": EDITORIAL_AUTHOR_ID },
-        sameAs,
       },
       buildEditorialPersonStructuredData(),
       {
@@ -36,7 +32,6 @@ export function buildSiteStructuredData() {
           "@type": "ImageObject",
           url: absoluteUrl("/logo-mark.svg"),
         },
-        sameAs,
       },
       {
         "@type": "WebSite",

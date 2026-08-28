@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 
+import { PUBLIC_PAGE_LAST_MODIFIED } from "./content-dates";
 import { absoluteUrl, SITE_URL } from "./site";
 
 export const PUBLIC_MARKETING_PATHS = [
   "/",
   "/about",
   "/resources",
+  "/pricing",
   "/contact",
   "/support",
   "/privacy",
@@ -22,6 +24,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/customer-research-methods",
   "/ai-search-optimization",
   "/how-to-get-chatgpt-to-recommend-your-business",
+  "/how-to-check-if-oai-searchbot-is-blocked",
   "/ai-seo-tools",
   "/ai-visibility-index",
   "/ai-visibility-audit-checklist",
@@ -64,6 +67,13 @@ export const PUBLIC_ROUTE_REDIRECTS = [
 export function buildSitemap(): MetadataRoute.Sitemap {
   return PUBLIC_MARKETING_PATHS.map((path) => ({
     url: absoluteUrl(path),
+    ...(PUBLIC_PAGE_LAST_MODIFIED[path]
+      ? {
+          lastModified: new Date(
+            `${PUBLIC_PAGE_LAST_MODIFIED[path]}T00:00:00.000Z`,
+          ),
+        }
+      : {}),
     ...(["/", "/ai-search-visibility-tool"].includes(path)
       ? { images: [absoluteUrl("/sample-report-preview.png")] }
       : {}),

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 
+import { AiReferralAttribution } from "@/components/ai-referral-attribution";
 import { GlobalFooter } from "@/components/global-footer";
 import { JsonLd } from "@/components/json-ld";
 import { WebMcpTools } from "@/components/webmcp-tools";
@@ -153,6 +154,7 @@ export default function RootLayout({
         <GlobalFooter />
         <JsonLd data={structuredData} />
         <WebMcpTools />
+        <AiReferralAttribution />
         <Analytics />
       </body>
     </html>

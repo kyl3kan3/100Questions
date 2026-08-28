@@ -10,7 +10,7 @@ import {
   acceptsMarkdown,
 } from "@/lib/agent-discovery";
 import {
-  publicMarkdownForHtmlPath,
+  advertisedPublicMarkdownForHtmlPath,
   publicMarkdownResponse,
 } from "@/lib/public-markdown";
 
@@ -73,7 +73,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   const isRepresentationRequest =
     request.method === "GET" || request.method === "HEAD";
   const publicMarkdownPage = isRepresentationRequest
-    ? publicMarkdownForHtmlPath(request.nextUrl.pathname)
+    ? advertisedPublicMarkdownForHtmlPath(request.nextUrl.pathname)
     : undefined;
 
   if (

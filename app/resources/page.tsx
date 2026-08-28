@@ -169,7 +169,7 @@ export default function ResourcesPage() {
                       className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
                       href={resource.href}
                     >
-                      Open resource <ArrowRight className="size-4" aria-hidden="true" />
+                      Open {resource.title} <ArrowRight className="size-4" aria-hidden="true" />
                     </Link>
                   </article>
                 ))}

@@ -74,6 +74,12 @@ export const RESOURCE_GROUPS = [
           "A five-input guide to crawlability, entity facts, schema, reviews, citations, and honest measurement.",
       },
       {
+        href: "/how-to-check-if-oai-searchbot-is-blocked",
+        title: "How to check if OAI-SearchBot is blocked",
+        description:
+          "Test robots rules, exact page access, CDN controls, and rendering without confusing search discovery with training access.",
+      },
+      {
         href: "/ai-search-optimization",
         title: "AI search optimization workflow",
         description:

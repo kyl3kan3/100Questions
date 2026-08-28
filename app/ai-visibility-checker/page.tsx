@@ -294,7 +294,13 @@ export default function AiVisibilityCheckerPage() {
                 </h2>
                 <ol className="mt-5 list-decimal space-y-2 pl-5 text-sm leading-6 text-zinc-300">
                   <li>Confirm the public homepage returns HTTP 200 and has one canonical URL.</li>
-                  <li>Open robots.txt and confirm relevant search crawlers can reach public content.</li>
+                  <li>
+                    Open robots.txt and confirm relevant search crawlers can reach public content. Use the{" "}
+                    <Link className="text-emerald-300 underline underline-offset-4" href="/how-to-check-if-oai-searchbot-is-blocked">
+                      OAI-SearchBot access guide
+                    </Link>{" "}
+                    when ChatGPT search discovery is the concern.
+                  </li>
                   <li>Check the title, description, primary heading, and visible entity facts.</li>
                   <li>Inspect JSON-LD for organization, product, article, or FAQ data that matches the page.</li>
                   <li>Confirm sitemap.xml and llms.txt are public and point to canonical URLs.</li>

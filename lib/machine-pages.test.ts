@@ -12,10 +12,10 @@ import {
 
 describe("machine-readable SEO pages", () => {
   it("publishes unique Markdown editions for the priority HTML pages", () => {
-    expect(ALL_MACHINE_MARKDOWN_PAGES).toHaveLength(6);
+    expect(ALL_MACHINE_MARKDOWN_PAGES).toHaveLength(8);
     expect(
       new Set(ALL_MACHINE_MARKDOWN_PAGES.map((page) => page.markdownPath)).size,
-    ).toBe(6);
+    ).toBe(8);
 
     for (const page of ALL_MACHINE_MARKDOWN_PAGES) {
       expect(page.markdownPath).toBe("/" + page.slug + ".md");

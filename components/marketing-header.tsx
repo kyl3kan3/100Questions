@@ -29,7 +29,7 @@ export function MarketingHeader() {
               <Link href="/for-agencies">For agencies</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/#pricing">Pricing</Link>
+              <Link href="/pricing">Pricing</Link>
             </Button>
           </div>
           <Button asChild variant="ghost" size="sm">

@@ -10,7 +10,7 @@ const footerGroups = [
       ["AI visibility audit", "/ai-visibility-audit"],
       ["Sample report", "/sample-report"],
       ["Methodology", "/methodology"],
-      ["Pricing", "/#pricing"],
+      ["Pricing", "/pricing"],
     ],
   },
   {

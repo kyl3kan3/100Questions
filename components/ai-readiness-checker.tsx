@@ -23,6 +23,7 @@ import {
   buildReadinessAgentPrompt,
   buildReadinessSuggestionCopy,
 } from "@/lib/ai-readiness-copy";
+import { trackEvent } from "@/lib/analytics";
 import type {
   AiReadinessResult,
   ReadinessCheck,
@@ -63,6 +64,12 @@ export function AiReadinessChecker() {
       }
 
       setResult(payload);
+      trackEvent("readiness_check_completed", {
+        score: payload.score,
+        passed_checks: payload.checks.filter((check) => check.status === "pass")
+          .length,
+        total_checks: payload.checks.length,
+      });
     } catch (caught) {
       setError(
         caught instanceof Error

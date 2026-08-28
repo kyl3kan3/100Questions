@@ -2,7 +2,7 @@ import { BILLING_PACKAGES, formatPackagePrice } from "./billing/packages";
 
 export const PRODUCT_NAME = "100 Questions AI Visibility Benchmark";
 export const PRODUCT_SKU = "100Q-AI-VISIBILITY-BENCHMARK-V2";
-export const PRODUCT_UPDATED_AT = "2026-08-20T00:00:00.000Z";
+export const PRODUCT_UPDATED_AT = "2026-08-28T00:00:00.000Z";
 
 export const BENCHMARK_QUESTION_COUNT = 25;
 export const BENCHMARK_PROVIDER_COUNT = 4;

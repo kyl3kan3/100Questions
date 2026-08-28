@@ -433,6 +433,12 @@ export default function ChatGptRecommendationGuidePage() {
                   client-only render can block retrieval even when robots.txt
                   allows it.
                 </p>
+                <Link
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 underline underline-offset-4"
+                  href="/how-to-check-if-oai-searchbot-is-blocked"
+                >
+                  Check OAI-SearchBot access step by step <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
                 <pre className="overflow-x-auto rounded-[20px] bg-black/30 p-5 text-sm leading-6 text-zinc-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
                   <code>{"User-agent: OAI-SearchBot\nAllow: /"}</code>
                 </pre>

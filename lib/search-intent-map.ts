@@ -4,9 +4,9 @@ export const SEARCH_INTENT_CLUSTERS = [
     pages: [
       {
         path: "/",
-        primaryQuery: "AI visibility audit",
-        intent: "Commercial category entry",
-        uniqueJob: "Understand the outcome, price, and fixed-benchmark promise before buying.",
+        primaryQuery: "AI visibility benchmark",
+        intent: "Branded commercial category entry",
+        uniqueJob: "Understand the outcome and fixed-benchmark promise before choosing a product path.",
         cta: "Buy the $9 introductory benchmark",
       },
       {
@@ -15,6 +15,13 @@ export const SEARCH_INTENT_CLUSTERS = [
         intent: "Deliverable and process evaluation",
         uniqueJob: "Inspect what the audit contains, how it runs, and when to rerun it.",
         cta: "Run the evidence-linked audit",
+      },
+      {
+        path: "/pricing",
+        primaryQuery: "AI visibility benchmark pricing",
+        intent: "Price and package evaluation",
+        uniqueJob: "Compare prepaid packages, inclusions, fit, limitations, and checkout paths.",
+        cta: "Buy the right benchmark package",
       },
       {
         path: "/ai-search-visibility-tool",
@@ -29,6 +36,32 @@ export const SEARCH_INTENT_CLUSTERS = [
         intent: "Single-provider tool comparison",
         uniqueJob: "Choose among manual ChatGPT checks, recurring monitoring, and a cross-model benchmark.",
         cta: "Compare the cross-model benchmark",
+      },
+    ],
+  },
+  {
+    id: "technical-discovery",
+    pages: [
+      {
+        path: "/ai-visibility-checker",
+        primaryQuery: "AI visibility checker",
+        intent: "Broad technical readiness check",
+        uniqueJob: "Test indexability, crawler access, page signals, schema, sitemaps, and llms.txt in one preflight.",
+        cta: "Run the free readiness check",
+      },
+      {
+        path: "/how-to-check-if-oai-searchbot-is-blocked",
+        primaryQuery: "check if OAI-SearchBot is blocked",
+        intent: "OpenAI crawler troubleshooting",
+        uniqueJob: "Diagnose robots, path, CDN, firewall, HTTP, and rendering blocks for OAI-SearchBot.",
+        cta: "Verify crawler access",
+      },
+      {
+        path: "/llms-txt-checker",
+        primaryQuery: "llms.txt checker",
+        intent: "Optional machine-discovery file validation",
+        uniqueJob: "Generate, validate, and discover llms.txt without presenting it as a crawler-control mechanism.",
+        cta: "Check or generate llms.txt",
       },
     ],
   },

@@ -215,6 +215,13 @@ describe("public SEO metadata", () => {
     expect(
       source.match(/twitter:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
     ).toBe(socialTitle);
+    expect(source).toContain(
+      'headline: "Answer Engine Optimization Tools (2026)"',
+    );
+    expect(source).toContain(`description:\n          "${description}"`);
+    expect(source).not.toContain(
+      "Best AEO Tools for 2026: Six Different Jobs Compared",
+    );
   });
 
   it("keeps every favicon small enough to stay off the critical path", () => {

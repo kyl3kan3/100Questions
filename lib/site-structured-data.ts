@@ -1,4 +1,8 @@
-import { buildEditorialPersonStructuredData, EDITORIAL_AUTHOR_ID } from "./editorial";
+import {
+  buildEditorialPersonStructuredData,
+  EDITORIAL_AUTHOR_ID,
+  EDITORIAL_AUTHOR_PUBLIC_PROFILES,
+} from "./editorial";
 import { absoluteUrl, SITE_NAME } from "./site";
 
 export function buildSiteStructuredData() {
@@ -18,7 +22,8 @@ export function buildSiteStructuredData() {
           url: absoluteUrl("/logo-mark.svg"),
         },
         brand: { "@id": `${homeUrl}#brand` },
-        member: { "@id": EDITORIAL_AUTHOR_ID },
+        founder: { "@id": EDITORIAL_AUTHOR_ID },
+        sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
       },
       buildEditorialPersonStructuredData(),
       {

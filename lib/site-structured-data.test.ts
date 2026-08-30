@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { EDITORIAL_AUTHOR, EDITORIAL_AUTHOR_ID } from "./editorial";
+import {
+  EDITORIAL_AUTHOR,
+  EDITORIAL_AUTHOR_ID,
+  EDITORIAL_AUTHOR_PUBLIC_PROFILES,
+} from "./editorial";
 import { buildSiteStructuredData } from "./site-structured-data";
 
 describe("site structured data", () => {
@@ -14,7 +18,8 @@ describe("site structured data", () => {
     expect(organization).toMatchObject({
       "@id": "https://100questionsai.com/#organization",
       brand: { "@id": "https://100questionsai.com/#brand" },
-      member: { "@id": EDITORIAL_AUTHOR_ID },
+      founder: { "@id": EDITORIAL_AUTHOR_ID },
+      sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
     });
     expect(brand).toMatchObject({
       "@id": "https://100questionsai.com/#brand",
@@ -25,10 +30,10 @@ describe("site structured data", () => {
     });
     expect(person).toMatchObject({
       "@id": EDITORIAL_AUTHOR_ID,
-      name: EDITORIAL_AUTHOR.name,
+      name: "Kyle Kane",
       url: EDITORIAL_AUTHOR.profileUrl,
+      sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
     });
-    expect(organization).not.toHaveProperty("sameAs");
     expect(brand).not.toHaveProperty("sameAs");
   });
 });

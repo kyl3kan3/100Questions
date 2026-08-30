@@ -382,7 +382,7 @@ export default function AeoGuidePage() {
                   className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                   href="/answer-engine-optimization-tools"
                 >
-                  answer engine optimization tools guide
+                  answer engine optimization tools
                 </Link>
                 .
               </p>

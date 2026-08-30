@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Best AEO Tools for 2026: Six Different Jobs Compared",
+    title: "Answer Engine Optimization Tools (2026) · 100 Questions",
     description:
-      "Choose an AEO tool by measurement model, evidence, cadence, and workflow rather than the longest feature list.",
+      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best AEO Tools for 2026: Six Different Jobs Compared",
+    title: "Answer Engine Optimization Tools (2026) · 100 Questions",
     description:
-      "A practical comparison of monitoring, benchmarking, research, and enterprise AEO workflows.",
+      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
     images: [SOCIAL_IMAGE],
   },
 };

@@ -114,7 +114,7 @@ const toolMap = [
   },
   {
     icon: Radar,
-    name: "AEO tools comparison",
+    name: "Answer engine optimization tools",
     job: "Compare six answer engine optimization tools by workflow, cadence, evidence, and tradeoffs.",
     href: "/answer-engine-optimization-tools",
     cost: "Guide",

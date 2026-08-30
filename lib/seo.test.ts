@@ -189,6 +189,41 @@ describe("public SEO metadata", () => {
     expect(existsSync(join(process.cwd(), "app", "icon.svg"))).toBe(false);
   });
 
+  it("keeps AEO tools social metadata aligned with the HTML title", () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        "app",
+        "answer-engine-optimization-tools",
+        "page.tsx",
+      ),
+      "utf8",
+    );
+    const description =
+      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.";
+    const socialTitle =
+      "Answer Engine Optimization Tools (2026) · 100 Questions";
+
+    expect(source).toContain(
+      'title: "Answer Engine Optimization Tools (2026)"',
+    );
+    expect(source).toContain(`description:\n      "${description}"`);
+    expect(source).toContain(`title: "${socialTitle}"`);
+    expect(
+      source.match(/openGraph:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
+    ).toBe(socialTitle);
+    expect(
+      source.match(/twitter:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
+    ).toBe(socialTitle);
+    expect(source).toContain(
+      'headline: "Answer Engine Optimization Tools (2026)"',
+    );
+    expect(source).toContain(`description:\n          "${description}"`);
+    expect(source).not.toContain(
+      "Best AEO Tools for 2026: Six Different Jobs Compared",
+    );
+  });
+
   it("keeps every favicon small enough to stay off the critical path", () => {
     // The favicon downloads on every first page view. A previous revision
     // shipped uncompressed 128px and 256px BMP frames totalling 361KB, which

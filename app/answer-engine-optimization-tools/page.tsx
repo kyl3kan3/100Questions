@@ -25,9 +25,10 @@ const publishedAt = "2026-07-24T00:00:00.000Z";
 const reviewedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "Best AEO Tools (2026): 6 Compared",
+  // Layout appends " · 100 Questions" (target ≤60 full).
+  title: "Answer Engine Optimization Tools (2026)",
   description:
-    "Compare six AEO tools by workflow, cadence, evidence, fit, and tradeoffs using linked first-party documentation and a transparent selection method.",
+    "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Best AEO Tools for 2026: Six Different Jobs Compared",

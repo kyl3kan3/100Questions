@@ -31,6 +31,8 @@ const geistMono = Geist_Mono({
 });
 
 const GOOGLE_ANALYTICS_ID = "G-9S1WQ6LGPR";
+const INDEXABLE_DEPLOYMENT =
+  process.env.VERCEL_ENV === "production" || !process.env.VERCEL_ENV;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -76,10 +78,10 @@ export const metadata: Metadata = {
       : {}),
   },
   robots: {
-    index: true,
+    index: INDEXABLE_DEPLOYMENT,
     follow: true,
     googleBot: {
-      index: true,
+      index: INDEXABLE_DEPLOYMENT,
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,

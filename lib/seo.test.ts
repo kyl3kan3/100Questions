@@ -63,7 +63,7 @@ describe("public SEO metadata", () => {
 
     expect(
       buildSitemap().find(
-        ({ url }) => url === "https://100questionsai.com/",
+        ({ url }) => url === "https://100questionsai.com",
       ),
     ).toMatchObject({
       lastModified: new Date("2026-08-28T00:00:00.000Z"),
@@ -73,7 +73,9 @@ describe("public SEO metadata", () => {
       buildSitemap().find(
         ({ url }) => url === "https://100questionsai.com/about",
       ),
-    ).not.toHaveProperty("lastModified");
+    ).toMatchObject({
+      lastModified: new Date("2026-08-20T00:00:00.000Z"),
+    });
   });
 
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {
@@ -140,6 +142,11 @@ describe("public SEO metadata", () => {
     ).toBe(false);
     expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
       source: "/tools",
+      destination: "/resources",
+      permanent: true,
+    });
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/blog",
       destination: "/resources",
       permanent: true,
     });

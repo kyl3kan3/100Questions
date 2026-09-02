@@ -26,7 +26,7 @@ const featuredBadges = [
   },
   {
     name: "FoundrList",
-    href: "https://www.foundrlist.com/product/100questions?utm_source=badge&utm_medium=embed",
+    href: "https://www.foundrlist.com?utm_source=badge&utm_medium=embed",
     image: {
       src: "https://www.foundrlist.com/api/badge/100questions",
       alt: "Featured on FoundrList",

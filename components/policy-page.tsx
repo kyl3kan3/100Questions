@@ -11,6 +11,7 @@ type PolicyPageProps = {
   eyebrow: string;
   title: string;
   description: string;
+  showEffectiveDate?: boolean;
   children: ReactNode;
 };
 
@@ -19,6 +20,7 @@ export function PolicyPage({
   eyebrow,
   title,
   description,
+  showEffectiveDate = true,
   children,
 }: PolicyPageProps) {
   const pageUrl = absoluteUrl(path);
@@ -81,9 +83,11 @@ export function PolicyPage({
             <p className="mt-5 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
               {description}
             </p>
-            <p className="mt-4 text-xs text-zinc-400">
-              Effective <time dateTime="2026-08-10">August 10, 2026</time>
-            </p>
+            {showEffectiveDate ? (
+              <p className="mt-4 text-xs text-zinc-400">
+                Effective <time dateTime="2026-08-10">August 10, 2026</time>
+              </p>
+            ) : null}
           </div>
         </header>
 

@@ -15,7 +15,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
-import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 import results from "@/public/data/ai-visibility-index-2026-results.json";
 
 const pageUrl = absoluteUrl("/ai-visibility-index");
@@ -70,12 +70,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     publishedTime: INDEX_DATE.iso,
     modifiedTime: PAGE_UPDATED_AT,
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "2026 AI Visibility Index",
     description:
       "A preregistered comparison of 25 AI visibility software brands across OpenAI, Anthropic, Google, and xAI.",
+    images: [SOCIAL_IMAGE],
   },
 };
 

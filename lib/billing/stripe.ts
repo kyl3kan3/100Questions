@@ -11,6 +11,7 @@ import {
 const STRIPE_API_VERSION = "2026-06-24.dahlia";
 
 let stripeClient: Stripe | undefined;
+let stripeTaxEnabledCache: boolean | undefined;
 
 export class BillingConfigurationError extends Error {
   constructor(message: string) {
@@ -27,6 +28,11 @@ function readRequiredEnvironmentVariable(name: string): string {
   }
 
   return value;
+}
+
+function readOptionalEnvironmentVariable(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 export function getStripe(): Stripe {
@@ -54,19 +60,34 @@ export function getStripeWebhookSecret(): string {
   return readRequiredEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
 }
 
-export async function assertStripeTaxRegistrationConfigured(
+export async function isStripeAutomaticTaxEnabled(
   stripe: Stripe,
-): Promise<void> {
-  const registrations = await stripe.tax.registrations.list({
-    status: "active",
-    limit: 1,
-  });
-
-  if (registrations.data.length === 0) {
-    throw new BillingConfigurationError(
-      "Stripe Tax requires at least one active registration",
-    );
+): Promise<boolean> {
+  if (stripeTaxEnabledCache !== undefined) {
+    return stripeTaxEnabledCache;
   }
+
+  const override = readOptionalEnvironmentVariable("STRIPE_AUTOMATIC_TAX");
+  if (override === "true") {
+    stripeTaxEnabledCache = true;
+    return true;
+  }
+  if (override === "false") {
+    stripeTaxEnabledCache = false;
+    return false;
+  }
+
+  try {
+    const registrations = await stripe.tax.registrations.list({
+      status: "active",
+      limit: 1,
+    });
+    stripeTaxEnabledCache = registrations.data.length > 0;
+  } catch {
+    stripeTaxEnabledCache = false;
+  }
+
+  return stripeTaxEnabledCache;
 }
 
 export function getStripePackage(packageId: BillingPackageId) {
@@ -84,24 +105,29 @@ export function getStripePackage(packageId: BillingPackageId) {
   };
 }
 
-export function isStripeCheckoutConfigured(): boolean {
-  try {
-    for (const billingPackage of BILLING_PACKAGES) {
-      getStripePackage(billingPackage.id);
-    }
-    getStripeWebhookSecret();
-
-    return Boolean(process.env.STRIPE_SECRET_KEY?.trim());
-  } catch {
-    return false;
-  }
-}
-
 export function isStripeWebhookConfigured(): boolean {
   return Boolean(
     process.env.STRIPE_SECRET_KEY?.trim() &&
       process.env.STRIPE_WEBHOOK_SECRET?.trim(),
   );
+}
+
+export function isStripePackageConfigured(packageId: BillingPackageId): boolean {
+  if (!isStripeWebhookConfigured()) {
+    return false;
+  }
+
+  try {
+    getStripePackage(packageId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Minimum env needed for the guest $9 intro checkout path. */
+export function isStripeCheckoutConfigured(): boolean {
+  return isStripePackageConfigured("intro");
 }
 
 export function getApplicationOrigin(request: Request): string {

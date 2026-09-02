@@ -6,6 +6,7 @@ import { AnalyticsEvent } from "@/components/analytics-event";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
+import { PackageSignUpButton } from "@/components/package-sign-up-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -164,9 +165,13 @@ export default function PricingPage() {
                       {billingPackage.id === "intro" ? (
                         <MarketingCheckoutButton className="mt-6" label="Buy first benchmark" size="default" variant="secondary" />
                       ) : (
-                        <Button asChild className="mt-6 w-full" variant={featured ? "default" : "secondary"}>
-                          <Link href="/auth/sign-up">Choose package</Link>
-                        </Button>
+                        <PackageSignUpButton
+                          className="mt-6 w-full"
+                          packageId={billingPackage.id}
+                          variant={featured ? "default" : "secondary"}
+                        >
+                          Choose package
+                        </PackageSignUpButton>
                       )}
                     </CardContent>
                   </Card>
@@ -225,7 +230,7 @@ export default function PricingPage() {
               </article>
               <article className="rounded-[26px] bg-[#0b0e0c] p-7 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
                 <Clock3 className="size-6 text-amber-300" aria-hidden="true" />
-                <h3 className="mt-5 text-xl font-semibold text-white">Choose a tracker when</h3>
+                <h3 className="mt-5 text-xl font-semibold text-white">Choose continuous monitoring when</h3>
                 <ul className="mt-5 space-y-3 text-sm leading-6 text-zinc-400">
                   {PRODUCT_LIMITATIONS.map((item) => <li key={item}>• {item}</li>)}
                 </ul>

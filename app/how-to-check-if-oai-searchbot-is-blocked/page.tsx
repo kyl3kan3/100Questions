@@ -14,7 +14,7 @@ export const metadata = buildResourceMetadata({
   path,
   title: "How to Check If OAI-SearchBot Is Blocked",
   description:
-    "Check OAI-SearchBot access in robots.txt, exact page paths, CDN and firewall rules, and server rendering without confusing search discovery with GPTBot training access.",
+    "Check OAI-SearchBot access in robots.txt, page paths, CDN rules, and server rendering without confusing search discovery with GPTBot training access.",
   publishedTime: published.iso,
   modifiedTime: published.iso,
 });

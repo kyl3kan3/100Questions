@@ -15,7 +15,7 @@ const RESOURCE_DATE = { iso: "2026-08-03", label: "August 3, 2026" } as const;
 const REVIEW_DATE = { iso: "2026-08-16", label: "August 16, 2026" } as const;
 
 export const metadata: Metadata = {
-  title: "How to Choose Buyer Questions (+100 AI Prompts)",
+  title: { absolute: "Buyer Questions for AI Visibility (+100)" },
   description:
     "Learn how to choose buyer questions for an AI visibility audit, then use 100 prompts covering discovery, fit, comparison, proof, and brand accuracy.",
   alternates: { canonical: pageUrl },

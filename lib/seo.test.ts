@@ -6,17 +6,32 @@ import { describe, expect, it } from "vitest";
 import {
   buildRobots,
   buildSitemap,
+  buildSitemapEntries,
+  buildSitemapXml,
+  PUBLIC_INDEX_DATA_PATHS,
+  PUBLIC_MACHINE_INTERFACE_PATHS,
+  PUBLIC_MARKDOWN_SITEMAP_PATHS,
   PUBLIC_MARKETING_PATHS,
   PUBLIC_ROUTE_REDIRECTS,
 } from "./seo";
 import { SOCIAL_IMAGE, SOCIAL_IMAGE_PATH } from "./site";
 
 describe("public SEO metadata", () => {
-  it("lists every public marketing page and excludes private application routes", () => {
-    const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
+  it("lists every public marketing page and machine discovery resource", () => {
+    const urls = buildSitemapEntries().map(({ url }) => new URL(url).pathname);
 
-    expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
-    expect(urls).toHaveLength(45);
+    expect(urls.slice(0, PUBLIC_MARKETING_PATHS.length)).toEqual(
+      PUBLIC_MARKETING_PATHS,
+    );
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        ...PUBLIC_MARKETING_PATHS,
+        ...PUBLIC_MACHINE_INTERFACE_PATHS,
+        ...PUBLIC_MARKDOWN_SITEMAP_PATHS,
+        ...PUBLIC_INDEX_DATA_PATHS,
+      ]),
+    );
+    expect(urls).toHaveLength(70);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/pricing");
     expect(urls).toContain("/contact");
@@ -74,6 +89,47 @@ describe("public SEO metadata", () => {
         ({ url }) => url === "https://100questionsai.com/about",
       ),
     ).not.toHaveProperty("lastModified");
+    expect(
+      buildSitemap().find(
+        ({ url }) => url === "https://100questionsai.com/llms.txt",
+      ),
+    ).not.toHaveProperty("lastModified");
+    expect(
+      buildSitemap().find(
+        ({ url }) => url === "https://100questionsai.com/openapi.json",
+      ),
+    ).toMatchObject({
+      url: "https://100questionsai.com/openapi.json",
+    });
+    expect(
+      buildSitemap().find(
+        ({ url }) =>
+          url ===
+          "https://100questionsai.com/data/ai-visibility-index-2026-results.json",
+      ),
+    ).toMatchObject({
+      lastModified: new Date("2026-07-30T00:00:00.000Z"),
+    });
+    expect(
+      buildSitemap().find(
+        ({ url }) => url === "https://100questionsai.com/ai-visibility.md",
+      ),
+    ).toMatchObject({
+      lastModified: new Date("2026-08-28T00:00:00.000Z"),
+    });
+  });
+
+  it("serializes valid XML with stable content type fields", () => {
+    const xml = buildSitemapXml();
+
+    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
+    expect(xml).toContain("<urlset");
+    expect(xml).toContain("<loc>https://100questionsai.com/llms.txt</loc>");
+    expect(xml).toContain(
+      "<loc>https://100questionsai.com/.well-known/mcp/server-card.json</loc>",
+    );
+    expect(xml.match(/<loc>/g)).toHaveLength(70);
+    expect(xml).not.toContain("&");
   });
 
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {

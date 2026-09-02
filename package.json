@@ -2,6 +2,7 @@
   "name": "100questions",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://100questionsai.com",
   "description": "A web-grounded AI visibility benchmark across OpenAI, Claude, Gemini, and Grok.",
   "engines": {
     "node": ">=20.9.0"

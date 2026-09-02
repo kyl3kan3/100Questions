@@ -236,6 +236,36 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "Four alternatives compared by function, commercial model, best-fit user, documented tradeoffs, and cases where Peec AI remains the better fit.",
   },
+  "/profound-alternative": {
+    title: "Profound Alternatives",
+    summary:
+      "Four Profound alternatives by job—prepaid audit, daily monitoring, prompt tracker, and action platform—with sourced prices dated September 2, 2026.",
+    lastReviewed: "2026-09-02",
+  },
+  "/otterly-alternative": {
+    title: "Otterly.AI Alternatives",
+    summary:
+      "Daily Otterly prompt tracking vs a frozen 100-answer audit, with live Otterly prices and engine add-ons dated September 2, 2026.",
+    lastReviewed: "2026-09-02",
+  },
+  "/ai-visibility-audit-vs-monitoring": {
+    title: "AI Visibility Audit vs Monitoring",
+    summary:
+      "When a prepaid snapshot is enough and when to pay for daily GEO monitoring, with a 12-month cash comparison.",
+    lastReviewed: "2026-09-02",
+  },
+  "/how-to-get-cited-in-claude-gemini-grok": {
+    title: "How to Get Cited in Claude, Gemini, and Grok",
+    summary:
+      "Five controllable inputs, provider crawler facts, mentions vs citations, and a cross-provider measurement loop without ranking guarantees.",
+    lastReviewed: "2026-09-02",
+  },
+  "/ai-visibility-tools-pricing": {
+    title: "AI Visibility Tools Pricing (2026)",
+    summary:
+      "Sourced 2026 prices for 100 Questions, Otterly, Profound, Peec, and AthenaHQ with unpublished enterprise tiers marked.",
+    lastReviewed: "2026-09-02",
+  },
   "/for-agencies": {
     title: "AI Visibility Reporting for Agencies",
     summary:

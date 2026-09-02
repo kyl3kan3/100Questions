@@ -65,6 +65,26 @@ export const PAGE_REQUIREMENTS = [
     path: "/peec-ai-alternative",
     types: ["Article", "ItemList", "Brand"],
   },
+  {
+    path: "/profound-alternative",
+    types: ["Article", "ItemList", "Brand"],
+  },
+  {
+    path: "/otterly-alternative",
+    types: ["Article", "ItemList", "Brand"],
+  },
+  {
+    path: "/ai-visibility-audit-vs-monitoring",
+    types: ["Article", "Brand"],
+  },
+  {
+    path: "/how-to-get-cited-in-claude-gemini-grok",
+    types: ["Article", "Brand"],
+  },
+  {
+    path: "/ai-visibility-tools-pricing",
+    types: ["Article", "Brand"],
+  },
 ];
 
 function decodeHtml(value) {

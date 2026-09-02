@@ -21,4 +21,9 @@ export const PUBLIC_PAGE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/can-google-alerts-track-chatgpt-mentions": "2026-08-16",
   "/generative-engine-optimization": "2026-08-16",
   "/ai-overviews-tracker-vs-cross-model-visibility-testing": "2026-08-16",
+  "/profound-alternative": "2026-09-02",
+  "/otterly-alternative": "2026-09-02",
+  "/ai-visibility-audit-vs-monitoring": "2026-09-02",
+  "/how-to-get-cited-in-claude-gemini-grok": "2026-09-02",
+  "/ai-visibility-tools-pricing": "2026-09-02",
 };

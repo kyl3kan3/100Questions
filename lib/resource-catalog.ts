@@ -74,6 +74,18 @@ export const RESOURCE_GROUPS = [
           "A five-input guide to crawlability, entity facts, schema, reviews, citations, and honest measurement.",
       },
       {
+        href: "/how-to-get-cited-in-claude-gemini-grok",
+        title: "How to get cited in Claude, Gemini, and Grok",
+        description:
+          "Extend the five-input framework across four providers with crawler facts, mentions vs citations, and reruns.",
+      },
+      {
+        href: "/ai-visibility-audit-vs-monitoring",
+        title: "AI visibility audit vs monitoring",
+        description:
+          "Choose a prepaid snapshot or daily GEO monitoring by job, evidence model, and 12-month cost.",
+      },
+      {
         href: "/how-to-check-if-oai-searchbot-is-blocked",
         title: "How to check if OAI-SearchBot is blocked",
         description:
@@ -238,6 +250,24 @@ export const RESOURCE_GROUPS = [
         title: "Peec AI alternatives",
         description:
           "Compare four alternatives by workflow, fit, commercial model, and documented tradeoffs.",
+      },
+      {
+        href: "/profound-alternative",
+        title: "Profound alternatives",
+        description:
+          "Prepaid audit, daily monitor, prompt tracker, or cheaper AEO stack—when Profound is still the better OS.",
+      },
+      {
+        href: "/otterly-alternative",
+        title: "Otterly.AI alternatives",
+        description:
+          "Daily prompt tracking vs a frozen 100-answer audit with sourced Otterly prices and cadence tradeoffs.",
+      },
+      {
+        href: "/ai-visibility-tools-pricing",
+        title: "AI visibility tools pricing (2026)",
+        description:
+          "Sourced prices for 100 Questions, Otterly, Profound, Peec, and AthenaHQ with unpublished tiers marked.",
       },
     ],
   },

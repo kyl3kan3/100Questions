@@ -31,7 +31,7 @@ describe("public SEO metadata", () => {
         ...PUBLIC_INDEX_DATA_PATHS,
       ]),
     );
-    expect(urls).toHaveLength(70);
+    expect(urls).toHaveLength(75);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/pricing");
     expect(urls).toContain("/contact");
@@ -65,6 +65,12 @@ describe("public SEO metadata", () => {
     expect(urls).toContain("/chatgpt-seo-tool");
     expect(urls).toContain("/geo-client-reporting-template");
     expect(urls).toContain("/llm-citation-audit-template");
+    expect(urls).toContain("/peec-ai-alternative");
+    expect(urls).toContain("/profound-alternative");
+    expect(urls).toContain("/otterly-alternative");
+    expect(urls).toContain("/ai-visibility-audit-vs-monitoring");
+    expect(urls).toContain("/how-to-get-cited-in-claude-gemini-grok");
+    expect(urls).toContain("/ai-visibility-tools-pricing");
     expect(urls).not.toContain("/dashboard");
     expect(urls).not.toContain("/auth/sign-in");
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
@@ -128,7 +134,7 @@ describe("public SEO metadata", () => {
     expect(xml).toContain(
       "<loc>https://100questionsai.com/.well-known/mcp/server-card.json</loc>",
     );
-    expect(xml.match(/<loc>/g)).toHaveLength(70);
+    expect(xml.match(/<loc>/g)).toHaveLength(75);
     expect(xml).not.toContain("&");
   });
 

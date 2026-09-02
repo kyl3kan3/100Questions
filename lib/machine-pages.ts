@@ -1,4 +1,4 @@
-import { absoluteUrl, SITE_NAME } from "./site";
+import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE_ALT, SOCIAL_IMAGE_URL } from "./site";
 
 export type MachineMarkdownPage = {
   htmlPath: string;
@@ -343,9 +343,16 @@ export function machineMarkdownResponse(
 
 export function buildMcpLandingHtml() {
   const pageUrl = absoluteUrl("/mcp");
+  const organizationId = `${absoluteUrl()}#organization`;
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: SITE_NAME,
+        url: absoluteUrl(),
+      },
       {
         "@type": "WebPage",
         name: "100 Questions AI Visibility Readiness MCP",
@@ -353,6 +360,7 @@ export function buildMcpLandingHtml() {
         description:
           "Public documentation for the 100 Questions AI visibility readiness MCP endpoint.",
         dateModified: "2026-08-14",
+        isPartOf: { "@id": `${absoluteUrl()}#website` },
       },
       {
         "@type": "WebAPI",
@@ -361,7 +369,7 @@ export function buildMcpLandingHtml() {
         description:
           "A public, read-only MCP tool for checking technical AI-search readiness.",
         documentation: pageUrl,
-        provider: { "@id": `${absoluteUrl()}#organization` },
+        provider: { "@id": organizationId },
         isAccessibleForFree: true,
       },
     ],
@@ -377,6 +385,21 @@ export function buildMcpLandingHtml() {
     '<meta name="description" content="Use the free 100 Questions MCP endpoint to check public website crawlability, structured data, sitemaps, AI crawler access, and llms.txt availability.">',
     '<meta name="robots" content="index, follow, max-snippet:-1">',
     '<link rel="canonical" href="' + pageUrl + '">',
+    '<link rel="icon" href="/favicon-v3.ico" sizes="16x16 32x32 48x48" type="image/x-icon">',
+    '<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" sizes="180x180" type="image/png">',
+    '<meta property="og:title" content="Free AI Visibility Readiness MCP | 100 Questions">',
+    '<meta property="og:description" content="Public MCP endpoint for technical AI-search readiness checks: crawl access, schema, sitemaps, and llms.txt.">',
+    '<meta property="og:url" content="' + pageUrl + '">',
+    '<meta property="og:type" content="website">',
+    '<meta property="og:site_name" content="' + SITE_NAME + '">',
+    '<meta property="og:image" content="' + SOCIAL_IMAGE_URL + '">',
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
+    '<meta property="og:image:alt" content="' + SOCIAL_IMAGE_ALT + '">',
+    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:title" content="Free AI Visibility Readiness MCP">',
+    '<meta name="twitter:description" content="Public MCP endpoint for technical AI-search readiness checks.">',
+    '<meta name="twitter:image" content="' + SOCIAL_IMAGE_URL + '">',
     '<link rel="alternate" type="text/markdown" href="' + absoluteUrl("/mcp.md") + '">',
     '<script type="application/ld+json">' + JSON.stringify(schema) + "</script>",
     "<style>",

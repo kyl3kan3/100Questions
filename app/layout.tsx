@@ -11,6 +11,7 @@ import { EDITORIAL_AUTHOR } from "@/lib/editorial";
 import { buildSiteStructuredData } from "@/lib/site-structured-data";
 import {
   absoluteUrl,
+  canonicalUrl,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
   creator: EDITORIAL_AUTHOR.name,
   publisher: "100 Questions",
   category: "technology",
-  alternates: { canonical: absoluteUrl() },
+  alternates: { canonical: canonicalUrl() },
   formatDetection: { email: false, address: false, telephone: false },
   icons: {
     icon: [
@@ -91,7 +92,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    url: absoluteUrl(),
+    url: canonicalUrl(),
     siteName: SITE_NAME,
     type: "website",
     locale: "en_US",

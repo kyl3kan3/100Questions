@@ -6,32 +6,17 @@ import { describe, expect, it } from "vitest";
 import {
   buildRobots,
   buildSitemap,
-  buildSitemapEntries,
-  buildSitemapXml,
-  PUBLIC_INDEX_DATA_PATHS,
-  PUBLIC_MACHINE_INTERFACE_PATHS,
-  PUBLIC_MARKDOWN_SITEMAP_PATHS,
   PUBLIC_MARKETING_PATHS,
   PUBLIC_ROUTE_REDIRECTS,
 } from "./seo";
 import { SOCIAL_IMAGE, SOCIAL_IMAGE_PATH } from "./site";
 
 describe("public SEO metadata", () => {
-  it("lists every public marketing page and machine discovery resource", () => {
-    const urls = buildSitemapEntries().map(({ url }) => new URL(url).pathname);
+  it("lists only indexable HTML marketing pages in the sitemap", () => {
+    const urls = buildSitemap().map(({ url }) => new URL(url).pathname);
 
-    expect(urls.slice(0, PUBLIC_MARKETING_PATHS.length)).toEqual(
-      PUBLIC_MARKETING_PATHS,
-    );
-    expect(urls).toEqual(
-      expect.arrayContaining([
-        ...PUBLIC_MARKETING_PATHS,
-        ...PUBLIC_MACHINE_INTERFACE_PATHS,
-        ...PUBLIC_MARKDOWN_SITEMAP_PATHS,
-        ...PUBLIC_INDEX_DATA_PATHS,
-      ]),
-    );
-    expect(urls).toHaveLength(75);
+    expect(urls).toEqual(PUBLIC_MARKETING_PATHS);
+    expect(urls).toHaveLength(50);
     expect(urls).toContain("/resources");
     expect(urls).toContain("/pricing");
     expect(urls).toContain("/contact");
@@ -73,6 +58,10 @@ describe("public SEO metadata", () => {
     expect(urls).toContain("/ai-visibility-tools-pricing");
     expect(urls).not.toContain("/dashboard");
     expect(urls).not.toContain("/auth/sign-in");
+    expect(urls).not.toContain("/llms.txt");
+    expect(urls).not.toContain("/openapi.json");
+    expect(urls).not.toContain("/ai-visibility.md");
+    expect(urls.some((url) => url.startsWith("/data/"))).toBe(false);
     expect(urls.some((url) => url.startsWith("/runs/"))).toBe(false);
   });
 
@@ -84,7 +73,7 @@ describe("public SEO metadata", () => {
 
     expect(
       buildSitemap().find(
-        ({ url }) => url === "https://100questionsai.com/",
+        ({ url }) => url === "https://100questionsai.com",
       ),
     ).toMatchObject({
       lastModified: new Date("2026-08-28T00:00:00.000Z"),
@@ -94,48 +83,9 @@ describe("public SEO metadata", () => {
       buildSitemap().find(
         ({ url }) => url === "https://100questionsai.com/about",
       ),
-    ).not.toHaveProperty("lastModified");
-    expect(
-      buildSitemap().find(
-        ({ url }) => url === "https://100questionsai.com/llms.txt",
-      ),
-    ).not.toHaveProperty("lastModified");
-    expect(
-      buildSitemap().find(
-        ({ url }) => url === "https://100questionsai.com/openapi.json",
-      ),
     ).toMatchObject({
-      url: "https://100questionsai.com/openapi.json",
+      lastModified: new Date("2026-08-20T00:00:00.000Z"),
     });
-    expect(
-      buildSitemap().find(
-        ({ url }) =>
-          url ===
-          "https://100questionsai.com/data/ai-visibility-index-2026-results.json",
-      ),
-    ).toMatchObject({
-      lastModified: new Date("2026-07-30T00:00:00.000Z"),
-    });
-    expect(
-      buildSitemap().find(
-        ({ url }) => url === "https://100questionsai.com/ai-visibility.md",
-      ),
-    ).toMatchObject({
-      lastModified: new Date("2026-08-28T00:00:00.000Z"),
-    });
-  });
-
-  it("serializes valid XML with stable content type fields", () => {
-    const xml = buildSitemapXml();
-
-    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
-    expect(xml).toContain("<urlset");
-    expect(xml).toContain("<loc>https://100questionsai.com/llms.txt</loc>");
-    expect(xml).toContain(
-      "<loc>https://100questionsai.com/.well-known/mcp/server-card.json</loc>",
-    );
-    expect(xml.match(/<loc>/g)).toHaveLength(75);
-    expect(xml).not.toContain("&");
   });
 
   it("ships the complete AI visibility prompt library as a downloadable CSV", () => {
@@ -182,6 +132,7 @@ describe("public SEO metadata", () => {
       allow: "/",
       disallow: ["/api/", "/.well-known/workflow/"],
     });
+    expect(rules).not.toHaveProperty("host");
   });
 
   it("maps observed trust and support aliases to canonical public pages", () => {
@@ -202,6 +153,16 @@ describe("public SEO metadata", () => {
     ).toBe(false);
     expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
       source: "/tools",
+      destination: "/resources",
+      permanent: true,
+    });
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/blog",
+      destination: "/resources",
+      permanent: true,
+    });
+    expect(PUBLIC_ROUTE_REDIRECTS).toContainEqual({
+      source: "/blog/:path*",
       destination: "/resources",
       permanent: true,
     });

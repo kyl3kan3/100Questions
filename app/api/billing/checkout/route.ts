@@ -21,13 +21,13 @@ import {
   type BillingPackageId,
 } from "@/lib/billing/packages";
 import {
-  assertStripeTaxRegistrationConfigured,
   BillingConfigurationError,
   getApplicationOrigin,
   getStripe,
   getStripePackage,
   isSameOriginRequest,
-  isStripeWebhookConfigured,
+  isStripeAutomaticTaxEnabled,
+  isStripePackageConfigured,
 } from "@/lib/billing/stripe";
 import { buildDataFastCheckoutMetadata } from "@/lib/datafast-attribution";
 import {
@@ -47,13 +47,6 @@ export async function POST(request: Request) {
   if (sessionError) {
     return Response.json(
       { error: "Authentication is temporarily unavailable" },
-      { status: 503 },
-    );
-  }
-
-  if (!isStripeWebhookConfigured()) {
-    return Response.json(
-      { error: "Payments are unavailable until credit fulfillment is configured" },
       { status: 503 },
     );
   }
@@ -81,9 +74,19 @@ export async function POST(request: Request) {
       return Response.json({ error: "Select a valid benchmark package" }, { status: 400 });
     }
 
-    const billingPackage = getStripePackage(
-      publicPackage.id as BillingPackageId,
-    );
+    const packageId = publicPackage.id as BillingPackageId;
+
+    if (!isStripePackageConfigured(packageId)) {
+      return Response.json(
+        {
+          error: "Checkout is temporarily unavailable",
+          code: "checkout_unavailable",
+        },
+        { status: 503 },
+      );
+    }
+
+    const billingPackage = getStripePackage(packageId);
     const frozenGrant = getFrozenCreditGrant(
       CURRENT_CREDIT_GRANT_VERSION,
       billingPackage.id,
@@ -100,7 +103,7 @@ export async function POST(request: Request) {
     }
 
     const stripe = getStripe();
-    await assertStripeTaxRegistrationConfigured(stripe);
+    const automaticTaxEnabled = await isStripeAutomaticTaxEnabled(stripe);
 
     if (!session?.user?.id) {
       if (billingPackage.id !== "intro") {
@@ -124,7 +127,7 @@ export async function POST(request: Request) {
           mode: "payment",
           integration_identifier: "100_questions_checkout_qmvkzjra",
           managed_payments: { enabled: false },
-          automatic_tax: { enabled: true },
+          ...(automaticTaxEnabled ? { automatic_tax: { enabled: true } } : {}),
           customer_creation: "always",
           line_items: [{ price: billingPackage.stripePriceId, quantity: 1 }],
           client_reference_id: guestReference,
@@ -284,7 +287,7 @@ export async function POST(request: Request) {
         mode: "payment",
         integration_identifier: "100_questions_checkout_qmvkzjra",
         managed_payments: { enabled: false },
-        automatic_tax: { enabled: true },
+        ...(automaticTaxEnabled ? { automatic_tax: { enabled: true } } : {}),
         line_items: [{ price: checkoutPriceId, quantity: 1 }],
         client_reference_id: checkoutUserId,
         customer: checkoutCustomerId,

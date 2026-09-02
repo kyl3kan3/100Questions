@@ -22,22 +22,22 @@ import {
 import { VERIFIED_BRAND_PROFILES } from "@/lib/product-facts";
 import {
   absoluteUrl,
-  SITE_DESCRIPTION,
   SITE_NAME,
   SOCIAL_IMAGE,
 } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/about");
 const aboutUpdatedAt = "2026-08-20T00:00:00.000Z";
+const aboutDescription =
+  "Why 100 Questions exists, what its AI visibility benchmark measures, and the evidence, privacy, and interpretation principles behind each report.";
 
 export const metadata: Metadata = {
   title: "About",
-  description:
-    "Why 100 Questions exists, what its AI visibility benchmark measures, and the evidence, privacy, and interpretation principles behind each report.",
+  description: aboutDescription,
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "About 100 Questions",
-    description: SITE_DESCRIPTION,
+    description: aboutDescription,
     url: pageUrl,
     siteName: SITE_NAME,
     type: "website",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "About 100 Questions",
-    description: SITE_DESCRIPTION,
+    description: aboutDescription,
     images: [SOCIAL_IMAGE],
   },
 };

@@ -38,6 +38,7 @@ export default function ContactPage() {
       eyebrow="Contact and support"
       title="Get the question to the right place"
       description="Choose the route that matches the issue and share only the minimum information needed to investigate it."
+      showEffectiveDate={false}
     >
       <section>
         <h2>Start with the support center</h2>

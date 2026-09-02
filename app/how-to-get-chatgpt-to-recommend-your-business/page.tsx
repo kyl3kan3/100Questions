@@ -18,7 +18,7 @@ const pageUrl = absoluteUrl(
 const publishedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "How to Get ChatGPT to Recommend Your Business",
+  title: { absolute: "Get ChatGPT to Recommend Your Business" },
   description:
     "A practical, evidence-conscious guide to the five inputs you can control: crawlability, entity consistency, structured data, reviews, and third-party citations.",
   alternates: { canonical: pageUrl },

@@ -13,7 +13,7 @@ import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
-import { MeasurementToolkitLinks } from "@/components/measurement-toolkit-links";
+import { PackageSignUpButton } from "@/components/package-sign-up-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,7 @@ import {
 } from "@/lib/product-facts";
 import {
   absoluteUrl,
+  canonicalUrl,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
@@ -52,11 +53,11 @@ export const metadata: Metadata = {
       "directree-verify=b3246ee4e6e1b1ca893315f9b6ca5310",
     "stackscope-claim": "ee5e56jq",
   },
-  alternates: { canonical: absoluteUrl() },
+  alternates: { canonical: canonicalUrl() },
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    url: absoluteUrl(),
+    url: canonicalUrl(),
     siteName: SITE_NAME,
     type: "website",
     locale: "en_US",
@@ -278,8 +279,52 @@ export default function Home() {
       </section>
 
       <div className="border-t border-white/[0.07]">
-        <div className="page-shell py-20 md:py-24">
-          <MeasurementToolkitLinks />
+        <div className="page-shell py-16 md:py-20">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Guides and resources</p>
+            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              Start with the free checker or the full guide library
+            </h2>
+            <p className="mt-5 text-pretty leading-7 text-zinc-400">
+              The benchmark is the paid product. These guides explain the
+              measurement model when you need more context before buying.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                href: "/ai-visibility-checker",
+                title: "Free AI visibility checker",
+                description: "Test crawl access, schema, sitemaps, and llms.txt.",
+              },
+              {
+                href: "/ai-visibility",
+                title: "AI visibility guide",
+                description: "Metrics, evidence, limits, and the improvement loop.",
+              },
+              {
+                href: "/ai-seo-tools",
+                title: "Compare AI visibility tools",
+                description: "Choose monitoring, research, or a frozen benchmark.",
+              },
+              {
+                href: "/resources",
+                title: "Resource library",
+                description: "Templates, checklists, spreadsheets, and deeper guides.",
+              },
+            ].map(({ href, title, description }) => (
+              <Link
+                key={href}
+                href={href}
+                className="rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] transition hover:bg-white/[0.045]"
+              >
+                <h3 className="font-semibold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  {description}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -306,121 +351,6 @@ export default function Home() {
           <Button asChild variant="link" className="mt-5">
             <Link href="/ai-seo-tools">Compare the best AI visibility tools</Link>
           </Button>
-        </div>
-      </section>
-
-      <section className="border-t border-white/[0.07]">
-        <div className="page-shell py-16 md:py-20">
-          <div className="grid gap-4 md:grid-cols-2">
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Guide</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                What AI visibility means—and how to measure it
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Learn the difference between mentions, prominence, competitor
-                share of voice, citations, and coverage in AI-generated answers.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-visibility">Read the AI visibility guide</Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Practical framework</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Generative engine optimization without the hype
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Build clearer entity signals, useful source material, and a
-                repeatable measurement loop for AI search visibility.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/generative-engine-optimization">Read the GEO guide</Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Guide</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Answer engine optimization, explained
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                How AEO differs from SEO and GEO, the practices that earn
-                citations, and how to tell whether any of it worked.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/answer-engine-optimization">Read the AEO guide</Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Checklist</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Check technical AI readiness today
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Run a free instant check for indexability, AI crawler access,
-                schema, page signals, sitemaps, and llms.txt.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-visibility-checker">Run the free checker</Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Commercial guide</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Choose a ChatGPT SEO tool
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Compare manual spot checks, continuous monitoring, and frozen
-                evidence-linked benchmarks for ChatGPT visibility.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/chatgpt-seo-tool">
-                  Explore the ChatGPT SEO tool
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Comparison</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Compare answer engine optimization tools
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Six AEO platforms compared by monitoring model, evidence,
-                cadence, workflow, and the tradeoffs to verify.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/answer-engine-optimization-tools">
-                  Compare AEO tools
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Workflow</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                AI search optimization, step by step
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Connect technical access, entity clarity, answer-ready content,
-                evidence, distribution, and repeatable measurement.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-search-optimization">Read the practical guide</Link>
-              </Button>
-            </article>
-            <article className="rounded-[24px] bg-[#0a0d0b] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
-              <p className="eyebrow">Comparison</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
-                Compare the best AI visibility tools
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Compare monitoring, large-scale research, enterprise suites, and
-                fixed evidence-linked benchmarks by the job each one does.
-              </p>
-              <Button asChild variant="link" className="mt-4">
-                <Link href="/ai-seo-tools">Compare AI visibility tools</Link>
-              </Button>
-            </article>
-          </div>
         </div>
       </section>
 
@@ -490,9 +420,13 @@ export default function Home() {
                       variant="secondary"
                     />
                   ) : (
-                    <Button asChild className="mt-6 w-full" variant={billingPackage.id === "three" ? "default" : "secondary"}>
-                      <Link href="/auth/sign-up">Choose package</Link>
-                    </Button>
+                    <PackageSignUpButton
+                      className="mt-6 w-full"
+                      packageId={billingPackage.id}
+                      variant={billingPackage.id === "three" ? "default" : "secondary"}
+                    >
+                      Choose package
+                    </PackageSignUpButton>
                   )}
                 </CardContent>
               </Card>

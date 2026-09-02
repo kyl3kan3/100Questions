@@ -73,7 +73,9 @@ export function AuthForm({
               ? "Payment received. Choose a password to open the workspace tied to your payment email."
               : "Sign in with the payment email to add the purchased credit to your workspace."
             : isSignUp
-            ? "Create a private workspace for your visibility benchmarks."
+            ? packageId
+              ? "Create a free account, then continue to secure checkout for your selected package."
+              : "Create a private workspace for your visibility benchmarks. No charge until you buy a credit."
             : "Sign in to run benchmarks and review your results."}
         </CardDescription>
       </CardHeader>
@@ -174,6 +176,26 @@ export function AuthForm({
                 : "Sign in"}
           </Button>
         </form>
+
+        {isSignUp && !checkoutSessionId ? (
+          <p className="mt-4 text-center text-xs leading-5 text-zinc-400">
+            By creating an account, you agree to the{" "}
+            <Link
+              className="text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+              href="/terms"
+            >
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link
+              className="text-emerald-300 underline-offset-4 hover:text-emerald-200 hover:underline"
+              href="/privacy"
+            >
+              Privacy
+            </Link>{" "}
+            notices.
+          </p>
+        ) : null}
 
         <p className="mt-6 text-center text-sm text-zinc-400">
           {isSignUp ? "Already have an account?" : "New to 100 Questions?"}{" "}

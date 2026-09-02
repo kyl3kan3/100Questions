@@ -22,3 +22,12 @@ export const SOCIAL_IMAGE = {
 export function absoluteUrl(path = "/"): string {
   return new URL(path, SITE_URL).toString();
 }
+
+/** Canonical URL without a trailing slash on the homepage. */
+export function canonicalUrl(path = "/"): string {
+  if (path === "/" || path === "") {
+    return SITE_URL;
+  }
+
+  return absoluteUrl(path);
+}

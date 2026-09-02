@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { PUBLIC_PAGE_LAST_MODIFIED } from "./content-dates";
-import { absoluteUrl, SITE_URL } from "./site";
+import { absoluteUrl, canonicalUrl, SITE_URL } from "./site";
 
 export const PUBLIC_MARKETING_PATHS = [
   "/",
@@ -62,11 +62,12 @@ export const PUBLIC_ROUTE_REDIRECTS = [
   { source: "/agencies", destination: "/for-agencies", permanent: true },
   { source: "/checker", destination: "/ai-visibility-checker", permanent: true },
   { source: "/chatgpt-seo", destination: "/llm-seo", permanent: true },
+  { source: "/blog", destination: "/resources", permanent: true },
 ] as const;
 
 export function buildSitemap(): MetadataRoute.Sitemap {
   return PUBLIC_MARKETING_PATHS.map((path) => ({
-    url: absoluteUrl(path),
+    url: canonicalUrl(path),
     ...(PUBLIC_PAGE_LAST_MODIFIED[path]
       ? {
           lastModified: new Date(

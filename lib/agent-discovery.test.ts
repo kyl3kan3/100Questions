@@ -113,6 +113,7 @@ describe("agent discovery", () => {
     expect(robots).toContain(
       "Sitemap: https://100questionsai.com/sitemap.xml",
     );
+    expect(robots).not.toContain("Host:");
   });
 
   it("honors explicit markdown media ranges", () => {

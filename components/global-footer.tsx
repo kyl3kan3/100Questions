@@ -20,13 +20,14 @@ const footerGroups = [
       ["AI visibility guide", "/ai-visibility"],
       ["AEO vs GEO", "/aeo-vs-geo"],
       ["AI Visibility Index", "/ai-visibility-index"],
-      ["AI visibility tools", "/ai-visibility-tools"],
+      ["Compare AI visibility tools", "/ai-seo-tools"],
     ],
   },
   {
     label: "Company",
     links: [
       ["About", "/about"],
+      ["Contact", "/contact"],
       ["Support", "/support"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],

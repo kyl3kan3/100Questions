@@ -336,7 +336,6 @@ export function buildRobotsText() {
     "Content-Signal: ai-train=no, search=yes, ai-input=yes",
     "",
     `Sitemap: ${absoluteUrl("/sitemap.xml")}`,
-    `Host: ${SITE_URL}`,
     "",
   ].join("\n");
 }

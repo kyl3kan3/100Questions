@@ -5,29 +5,45 @@ import { type ReactNode, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
+import type { BillingPackageId } from "@/lib/billing/packages";
 
 type MarketingCheckoutButtonProps = {
   buttonClassName?: string;
   className?: string;
   label?: ReactNode;
+  packageId?: BillingPackageId;
+  showInlineError?: boolean;
   size?: "default" | "sm" | "lg";
   variant?: "default" | "secondary";
 };
+
+function signUpPath(packageId: BillingPackageId): string {
+  return `/auth/sign-up?package=${encodeURIComponent(packageId)}`;
+}
 
 export function MarketingCheckoutButton({
   buttonClassName,
   className,
   label = "Run my first audit — $9",
+  packageId = "intro",
+  showInlineError = true,
   size = "lg",
   variant = "default",
 }: MarketingCheckoutButtonProps) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function redirectToSignUp() {
+    window.location.assign(signUpPath(packageId));
+  }
+
   async function startCheckout() {
     setPending(true);
     setError(null);
-    trackEvent("checkout_started", { package_id: "intro", account_state: "guest" });
+    trackEvent("checkout_started", {
+      package_id: packageId,
+      account_state: "guest",
+    });
 
     try {
       const response = await fetch("/api/billing/checkout", {
@@ -36,11 +52,16 @@ export function MarketingCheckoutButton({
           "Content-Type": "application/json",
           "Idempotency-Key": crypto.randomUUID(),
         },
-        body: JSON.stringify({ packageId: "intro" }),
+        body: JSON.stringify({ packageId }),
       });
       const body = (await response.json().catch(() => null)) as
-        | { url?: string; error?: string }
+        | { url?: string; error?: string; code?: string }
         | null;
+
+      if (response.status === 503) {
+        redirectToSignUp();
+        return;
+      }
 
       if (!response.ok || !body?.url) {
         throw new Error(body?.error || "Checkout is temporarily unavailable.");
@@ -48,6 +69,11 @@ export function MarketingCheckoutButton({
 
       window.location.assign(body.url);
     } catch (caught) {
+      if (!showInlineError) {
+        redirectToSignUp();
+        return;
+      }
+
       setError(
         caught instanceof Error
           ? caught.message
@@ -78,7 +104,7 @@ export function MarketingCheckoutButton({
           </>
         )}
       </Button>
-      {error ? (
+      {showInlineError && error ? (
         <p className="mt-2 text-sm text-red-300" role="alert">
           {error}
         </p>

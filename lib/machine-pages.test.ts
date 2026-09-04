@@ -52,11 +52,14 @@ describe("machine-readable SEO pages", () => {
 
     expect(html).toContain("<title>Free AI Visibility Readiness MCP");
     expect(html).toContain('"@type":"WebPage"');
+    expect(html).toContain('"@type":"Organization"');
     expect(html).toContain('"@type":"WebAPI"');
     expect(html).not.toContain('"@type":"SoftwareApplication"');
     expect(html).toContain("https://100questionsai.com/llms.txt");
     expect(html).toContain("https://100questionsai.com/mcp.md");
-    expect(html).toContain("check_ai_visibility_readiness");
+    expect(html).toContain('property="og:image"');
+    expect(html).toContain('name="twitter:image"');
+    expect(html).toContain("/favicon-v3.ico");
   });
 
   it("negotiates HTML and Markdown on GET /mcp", async () => {

@@ -4,11 +4,15 @@ import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "./site";
 
 type ResourceMetadataInput = {
   path: `/${string}`;
-  title: string;
+  title: string | { absolute: string };
   description: string;
   publishedTime?: string;
   modifiedTime?: string;
 };
+
+function resolveTitle(title: ResourceMetadataInput["title"]): string {
+  return typeof title === "string" ? title : title.absolute;
+}
 
 export function buildResourceMetadata({
   path,
@@ -18,13 +22,14 @@ export function buildResourceMetadata({
   modifiedTime = "2026-08-10",
 }: ResourceMetadataInput): Metadata {
   const url = absoluteUrl(path);
+  const resolvedTitle = resolveTitle(title);
 
   return {
     title,
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: resolvedTitle,
       description,
       url,
       siteName: SITE_NAME,
@@ -36,7 +41,7 @@ export function buildResourceMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: resolvedTitle,
       description,
       images: [SOCIAL_IMAGE],
     },

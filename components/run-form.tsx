@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trackEvent } from "@/lib/analytics";
 
 type RunFormProps = {
+  initialDomain?: string;
   creditBalance: number;
   unlimitedAccess?: boolean;
   providerCount: number;
@@ -19,6 +20,7 @@ type RunFormProps = {
 };
 
 export function RunForm({
+  initialDomain = "",
   creditBalance,
   unlimitedAccess = false,
   providerCount,
@@ -33,7 +35,7 @@ export function RunForm({
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
   const [values, setValues] = useState({
     subjectName: "",
-    canonicalDomain: "",
+    canonicalDomain: initialDomain,
     description: "",
     aliases: "",
     competitors: "",

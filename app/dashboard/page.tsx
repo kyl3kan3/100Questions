@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { readinessDomain, READINESS_DOMAIN_COOKIE } from "@/lib/readiness-offer";
 import { eq } from "drizzle-orm";
 import { CreditCard, Gauge, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
@@ -144,6 +146,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         <div className="space-y-6">
           <RunForm
+            initialDomain={readinessDomain((await cookies()).get(READINESS_DOMAIN_COOKIE)?.value)}
             creditBalance={creditBalance}
             unlimitedAccess={unlimitedAccess}
             providerCount={PROVIDERS.length}

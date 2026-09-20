@@ -1,5 +1,8 @@
 "use client";
 
+import { trackEvent } from "@/lib/analytics";
+
+
 import {
   AlertTriangle,
   ArrowRight,
@@ -23,11 +26,11 @@ import {
   buildReadinessAgentPrompt,
   buildReadinessSuggestionCopy,
 } from "@/lib/ai-readiness-copy";
-import { trackEvent } from "@/lib/analytics";
 import type {
   AiReadinessResult,
   ReadinessCheck,
 } from "@/lib/ai-readiness";
+import { buildReadinessOffer } from "@/lib/readiness-offer";
 import { cn } from "@/lib/utils";
 
 export function AiReadinessChecker() {
@@ -66,6 +69,7 @@ export function AiReadinessChecker() {
       setResult(payload);
       trackEvent("readiness_check_completed", {
         score: payload.score,
+        source: "website",
         passed_checks: payload.checks.filter((check) => check.status === "pass")
           .length,
         total_checks: payload.checks.length,
@@ -160,6 +164,7 @@ export function AiReadinessChecker() {
 }
 
 function ReadinessResults({ result }: { result: AiReadinessResult }) {
+  const offer = buildReadinessOffer(result.checkedUrl, result.score);
   const passed = result.checks.filter((check) => check.status === "pass").length;
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copyError, setCopyError] = useState("");
@@ -291,14 +296,14 @@ function ReadinessResults({ result }: { result: AiReadinessResult }) {
                 icon="agent"
               />
               <Button asChild variant="link">
-                <Link href="/auth/sign-up">
+                <Link href={offer.url} onClick={() => trackEvent("readiness_offer_clicked", { source: "website" })}>
                   Measure actual AI visibility <ArrowRight />
                 </Link>
               </Button>
             </div>
           ) : (
             <Button asChild variant="link" className="mt-4">
-              <Link href="/auth/sign-up">
+              <Link href={offer.url} onClick={() => trackEvent("readiness_offer_clicked", { source: "website" })}>
                 Measure actual AI visibility <ArrowRight />
               </Link>
             </Button>
@@ -324,6 +329,16 @@ function ReadinessResults({ result }: { result: AiReadinessResult }) {
         {result.checks.map((check) => (
           <CheckRow key={check.id} check={check} />
         ))}
+      </div>
+
+      <div className="mt-6 rounded-[20px] border border-emerald-300/20 bg-emerald-300/5 p-6">
+        <p className="eyebrow">Optional full audit</p>
+        <h3 className="mt-3 text-xl font-semibold text-white">{offer.title}</h3>
+        <p className="mt-3 text-sm leading-6 text-zinc-300">{offer.description}</p>
+        <Button asChild className="mt-5">
+          <Link href={offer.url} onClick={() => trackEvent("readiness_offer_clicked", { source: "website" })}>{offer.label} <ArrowRight /></Link>
+        </Button>
+        <p className="mt-3 text-xs leading-5 text-zinc-400">{offer.priceNote}</p>
       </div>
 
       <div className="mt-5 flex items-start gap-3 rounded-[16px] bg-amber-300/[0.08] px-4 py-3 text-xs leading-5 text-amber-100 shadow-[inset_0_0_0_1px_rgba(252,211,77,0.14)]">

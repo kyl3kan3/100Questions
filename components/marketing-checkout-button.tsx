@@ -8,6 +8,8 @@ import { trackEvent } from "@/lib/analytics";
 import type { BillingPackageId } from "@/lib/billing/packages";
 
 type MarketingCheckoutButtonProps = {
+  website?: string;
+  source?: string;
   buttonClassName?: string;
   className?: string;
   label?: ReactNode;
@@ -22,6 +24,8 @@ function signUpPath(packageId: BillingPackageId): string {
 }
 
 export function MarketingCheckoutButton({
+  website,
+  source,
   buttonClassName,
   className,
   label = "Run my first audit — $9",
@@ -43,6 +47,7 @@ export function MarketingCheckoutButton({
     trackEvent("checkout_started", {
       package_id: packageId,
       account_state: "guest",
+      source,
     });
 
     try {
@@ -52,7 +57,7 @@ export function MarketingCheckoutButton({
           "Content-Type": "application/json",
           "Idempotency-Key": crypto.randomUUID(),
         },
-        body: JSON.stringify({ packageId }),
+        body: JSON.stringify({ packageId, website, source }),
       });
       const body = (await response.json().catch(() => null)) as
         | { url?: string; error?: string; code?: string }

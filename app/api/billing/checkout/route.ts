@@ -1,3 +1,4 @@
+import { readinessDomain, readinessSource, READINESS_DOMAIN_COOKIE } from "@/lib/readiness-offer";
 import { createHash } from "node:crypto";
 
 import { cookies } from "next/headers";
@@ -63,7 +64,14 @@ export async function POST(request: Request) {
   try {
     const requestBody = (await request.json().catch(() => null)) as {
       packageId?: unknown;
+      website?: unknown;
+      source?: unknown;
     } | null;
+    const domain = readinessDomain(requestBody?.website);
+    const referralMetadata: Record<string, string> = domain ? { readiness_source: readinessSource(requestBody?.source) } : {};
+    if (domain) {
+      (await cookies()).set(READINESS_DOMAIN_COOKIE, domain, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 86400 });
+    }
     const requestedPackageId = requestBody?.packageId;
     const publicPackage =
       typeof requestedPackageId === "string"
@@ -138,6 +146,7 @@ export async function POST(request: Request) {
             creditGrant: String(frozenGrant.credits),
             creditGrantVersion: frozenGrant.version,
             ...dataFastMetadata,
+            ...referralMetadata,
           },
           success_url: `${origin}/checkout/complete?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${origin}/?checkout=cancelled#pricing`,
@@ -194,7 +203,7 @@ export async function POST(request: Request) {
       visitorId: cookieStore.get("datafast_visitor_id")?.value,
       sessionId: cookieStore.get("datafast_session_id")?.value,
     });
-    const persistedDataFastMetadata = dataFastMetadata as Record<string, string>;
+    const persistedDataFastMetadata = { ...dataFastMetadata, ...referralMetadata } as Record<string, string>;
     let checkoutUserId = session.user.id;
     let checkoutCredits: number = frozenGrant.credits;
     let checkoutPriceId = billingPackage.stripePriceId;
@@ -207,6 +216,7 @@ export async function POST(request: Request) {
       creditGrant: String(frozenGrant.credits),
       creditGrantVersion: frozenGrant.version,
       ...dataFastMetadata,
+      ...referralMetadata,
     };
     let stripeIdempotencyKey = getCheckoutIdempotencyKey({
       userId: session.user.id,

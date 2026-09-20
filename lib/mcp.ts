@@ -1,3 +1,4 @@
+import { buildReadinessOffer } from "./readiness-offer";
 import {
   MCP_PROTOCOL_VERSION,
   MCP_TOOL,
@@ -102,9 +103,10 @@ async function handleToolCall(request: Request, params: unknown) {
     };
   }
 
+  const result = { ...payload, optionalPaidAudit: buildReadinessOffer(payload.checkedUrl ?? website, Number(payload.score) || 0, "mcp") };
   return {
-    content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-    structuredContent: payload,
+    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    structuredContent: result,
   };
 }
 

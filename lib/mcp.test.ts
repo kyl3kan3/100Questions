@@ -60,7 +60,7 @@ describe("MCP transport", () => {
       }),
     );
     const body = (await response.json()) as {
-      result: { structuredContent: { score: number } };
+      result: { structuredContent: { score: number; optionalPaidAudit: { url: string } } };
     };
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -73,6 +73,9 @@ describe("MCP transport", () => {
       }),
     );
     expect(body.result.structuredContent.score).toBe(90);
+    const offerUrl = new URL(body.result.structuredContent.optionalPaidAudit.url);
+    expect(offerUrl.searchParams.get("website")).toBe("example.com");
+    expect(offerUrl.searchParams.get("source")).toBe("mcp");
   });
 
   it("acknowledges notifications without a response body", async () => {

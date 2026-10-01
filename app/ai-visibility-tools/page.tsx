@@ -24,7 +24,6 @@ import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/ai-visibility-tools");
-const toolsComparisonUrl = absoluteUrl("/ai-seo-tools");
 const publishedAt = "2026-08-11T00:00:00.000Z";
 const reviewedAt = "2026-08-13T00:00:00.000Z";
 
@@ -32,7 +31,7 @@ export const metadata: Metadata = {
   title: "AI Visibility Tools: Check, Audit & Track",
   description:
     "Find the right AI visibility tools for technical checks, multi-model audits, prompt tracking, scoring, AEO, and GEO. Start with free tools or compare platforms.",
-  alternates: { canonical: toolsComparisonUrl },
+  alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI Visibility Tools: Check, Audit, Track, and Improve",
     description:

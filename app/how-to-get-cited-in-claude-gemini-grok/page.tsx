@@ -15,7 +15,8 @@ const publishedAt = "2026-09-02T00:00:00.000Z";
 const reviewedAt = "2026-09-02T00:00:00.000Z";
 
 export const metadata: Metadata = {
-  title: "How to Get Cited in Claude, Gemini, and Grok Answers",
+  // Layout appends " · 100 Questions" (target ≤60 full).
+  title: "Get Cited in Claude, Gemini & Grok",
   description:
     "How to get cited in Claude, Gemini, and Grok. Same frozen questions across four providers. No ranking formula. Measure, then rerun.",
   alternates: { canonical: pageUrl },

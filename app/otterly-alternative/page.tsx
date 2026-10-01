@@ -26,7 +26,8 @@ const otterlyBaseline = {
 } as const;
 
 export const metadata: Metadata = {
-  title: "Otterly.AI Alternatives: Daily Prompt Tracking vs a Frozen 100-Answer Audit",
+  // Layout appends " · 100 Questions" (target ≤60 full).
+  title: "4 Otterly.AI Alternatives for 2026",
   description:
     "Otterly.AI alternatives by job: daily prompt tracking vs a frozen 100-answer audit. Live Otterly prices dated Sept 2, 2026.",
   alternates: { canonical: pageUrl },

@@ -26,8 +26,8 @@ const profoundBaseline = {
 } as const;
 
 export const metadata: Metadata = {
-  title:
-    "Profound Alternatives for Teams That Do Not Need an AEO Operating System",
+  // Layout appends " · 100 Questions" (target ≤60 full).
+  title: "Profound Alternatives (2026)",
   description:
     "Job-based Profound alternatives—prepaid audit, daily monitoring, or a cheaper AEO stack. Sourced prices, dated Sept 2, 2026. No ranking promises.",
   alternates: { canonical: pageUrl },

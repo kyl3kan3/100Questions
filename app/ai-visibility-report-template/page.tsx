@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Link from "next/link";
 
 import { SeoResourceShell } from "@/components/seo-resource-shell";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
@@ -77,6 +78,42 @@ export default function AiVisibilityReportTemplatePage() {
             appendix so the main report stays readable without becoming opaque.
           </p>
         </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2" aria-labelledby="report-audience-heading">
+        <article className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+          <h2 id="report-audience-heading" className="text-xl font-semibold text-white">
+            Who this template is for
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            Agencies preparing a client readout, in-house marketers briefing
+            leadership, and consultants documenting a before-and-after rerun. It
+            assumes you already collected answers under a frozen protocol—not
+            that a dashboard score alone is sufficient evidence.
+          </p>
+        </article>
+        <article className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+          <h2 className="text-xl font-semibold text-white">Pair with other resources</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            Build the question set with the{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/ai-visibility-prompts">
+              AI visibility prompt library
+            </Link>
+            , track reruns in the{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/ai-search-prompt-tracking-spreadsheet">
+              prompt tracking spreadsheet
+            </Link>
+            , and compare software on{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/profound-alternative">
+              Profound alternatives
+            </Link>{" "}
+            or{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/otterly-alternative">
+              Otterly alternatives
+            </Link>{" "}
+            if you are choosing a monitoring vendor.
+          </p>
+        </article>
       </section>
 
       <section aria-labelledby="report-sections-heading">

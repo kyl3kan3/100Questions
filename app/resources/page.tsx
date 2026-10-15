@@ -6,6 +6,7 @@ import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
+import { buildFaqPageNode } from "@/lib/faq-schema";
 import { RESOURCE_COUNT, RESOURCE_GROUPS } from "@/lib/resource-catalog";
 import {
   absoluteUrl,
@@ -15,11 +16,35 @@ import {
 
 const pageUrl = absoluteUrl("/resources");
 const publishedAt = "2026-08-10";
+const modifiedAt = "2026-10-15";
+
+const resourceFaqs = [
+  {
+    question: "What free AI visibility resources does 100 Questions publish?",
+    answer:
+      "The library includes open research such as the 2026 AI Visibility Index, practical guides, free checkers and calculators, downloadable templates and spreadsheets, and software comparison pages for AEO, GEO, and AI SEO tools.",
+  },
+  {
+    question: "Where should I start if I am comparing AI visibility software?",
+    answer:
+      "Start with the AI visibility tools hub for route-by-job navigation, then read the best AI SEO tools comparison, Profound alternatives, or Otterly alternatives pages depending on whether you need monitoring, enterprise AEO, or a prepaid audit.",
+  },
+  {
+    question: "Are the templates and spreadsheets gated behind email?",
+    answer:
+      "No. Every download on this page is ungated. Use the on-page descriptions to choose the right template, then download the file directly.",
+  },
+  {
+    question: "How often are comparison pages updated?",
+    answer:
+      "Comparison and pricing pages are updated when first-party vendor documentation changes materially. Each page shows a published or reviewed date in the byline; verify live vendor pricing before purchasing.",
+  },
+] as const;
 
 export const metadata: Metadata = {
-  title: "Free AI Visibility Resources",
+  title: "AI Visibility Resources & Tool Guides",
   description:
-    "Explore free AI visibility guides, research, checkers, prompt libraries, calculators, comparison pages, spreadsheets, and reporting templates.",
+    "Free AI visibility guides, Profound & Otterly alternatives, SEO tool comparisons, checkers, templates, and open research—no email gate.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Free AI Visibility Resources",
@@ -53,7 +78,7 @@ export default function ResourcesPage() {
           "A curated library of AI visibility research, guides, free tools, templates, and software comparisons.",
         isPartOf: { "@id": `${absoluteUrl()}#website` },
         datePublished: publishedAt,
-        dateModified: publishedAt,
+        dateModified: modifiedAt,
         inLanguage: "en-US",
         mainEntity: { "@id": `${pageUrl}#resources` },
       },
@@ -94,6 +119,9 @@ export default function ResourcesPage() {
           },
         ],
       },
+      buildFaqPageNode(pageUrl, resourceFaqs, {
+        name: "AI visibility resources FAQ",
+      }),
     ],
   };
 
@@ -140,6 +168,91 @@ export default function ResourcesPage() {
         </header>
 
         <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+          <section aria-labelledby="featured-comparisons-heading">
+            <div className="grid gap-5 lg:grid-cols-[0.68fr_1.32fr] lg:items-end">
+              <div>
+                <p className="eyebrow">Most-read comparisons</p>
+                <h2
+                  id="featured-comparisons-heading"
+                  className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+                >
+                  Software guides buyers search for
+                </h2>
+              </div>
+              <p className="max-w-2xl text-pretty leading-7 text-zinc-400">
+                These pages go deeper than a feature checklist. Each one compares
+                vendors by measurement job, evidence model, cadence, and honest
+                tradeoffs—with sourced pricing notes and links back to first-party
+                documentation.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {[
+                {
+                  href: "/ai-seo-tools",
+                  title: "AI SEO tools for visibility",
+                  description:
+                    "Six tools for tracking, SEO suites, enterprise GEO, and prepaid audits—matched to the decision you need to make.",
+                },
+                {
+                  href: "/profound-alternative",
+                  title: "Profound alternatives",
+                  description:
+                    "Prepaid audit, daily monitor, prompt tracker, or cheaper AEO stack—with when Profound is still the better platform.",
+                },
+                {
+                  href: "/otterly-alternative",
+                  title: "Otterly.AI alternatives",
+                  description:
+                    "Daily prompt tracking vs a frozen 100-answer audit, with cadence and pricing tradeoffs spelled out.",
+                },
+              ].map((item) => (
+                <article
+                  key={item.href}
+                  className="flex h-full flex-col rounded-[22px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                >
+                  <h3 className="text-balance text-lg font-semibold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-pretty text-sm leading-6 text-zinc-400">
+                    {item.description}
+                  </p>
+                  <Link
+                    className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
+                    href={item.href}
+                  >
+                    Read comparison <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="resources-faq-heading">
+            <p className="eyebrow">Library FAQ</p>
+            <h2
+              id="resources-faq-heading"
+              className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+            >
+              How to use this resource library
+            </h2>
+            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+              {resourceFaqs.map((faq) => (
+                <article
+                  key={faq.question}
+                  className="rounded-[22px] bg-white/[0.025] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)]"
+                >
+                  <h3 className="font-semibold leading-6 text-white">
+                    {faq.question}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400">
+                    {faq.answer}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           {RESOURCE_GROUPS.map((group) => (
             <section key={group.id} id={group.id} className="scroll-mt-8">
               <div className="grid gap-5 lg:grid-cols-[0.68fr_1.32fr] lg:items-end">

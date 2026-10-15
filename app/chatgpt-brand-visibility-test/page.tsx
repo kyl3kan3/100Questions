@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ChatgptBrandVisibilityTest } from "@/components/chatgpt-brand-visibility-test";
 import { SeoResourceShell } from "@/components/seo-resource-shell";
 import { buildResourceMetadata } from "@/lib/resource-metadata";
@@ -76,6 +78,51 @@ export default function ChatgptBrandVisibilityTestPage() {
           </ol>
         </section>
       </noscript>
+
+      <section className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]" aria-labelledby="when-to-use-chatgpt-test">
+        <div>
+          <p className="eyebrow">When to use this test</p>
+          <h2
+            id="when-to-use-chatgpt-test"
+            className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white"
+          >
+            ChatGPT brand checks vs a full audit
+          </h2>
+        </div>
+        <div className="space-y-4 text-pretty leading-7 text-zinc-400">
+          <p>
+            This worksheet is for a quick, manual ChatGPT surface check when you
+            need directional evidence before buying software. It is not a
+            cross-provider benchmark and it does not store answers automatically.
+          </p>
+          <p>
+            Use the free{" "}
+            <Link
+              className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+              href="/ai-visibility-checker"
+            >
+              AI visibility checker
+            </Link>{" "}
+            first if crawl access or schema problems would invalidate any
+            visibility test. For a frozen 25-question audit across four grounded
+            providers, see the{" "}
+            <Link
+              className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+              href="/ai-search-visibility-tool"
+            >
+              AI search visibility tool
+            </Link>{" "}
+            or compare vendors on{" "}
+            <Link
+              className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+              href="/ai-seo-tools"
+            >
+              AI SEO tools for visibility
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
 
       <section className="grid gap-5 md:grid-cols-3" aria-label="Test protocol">
         {[

@@ -84,7 +84,7 @@ describe("public SEO metadata", () => {
         ({ url }) => url === "https://100questionsai.com/about",
       ),
     ).toMatchObject({
-      lastModified: new Date("2026-08-20T00:00:00.000Z"),
+      lastModified: new Date("2026-10-15T00:00:00.000Z"),
     });
   });
 

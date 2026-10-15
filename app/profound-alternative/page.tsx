@@ -8,11 +8,12 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { buildFaqPageNode } from "@/lib/faq-schema";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/profound-alternative");
 const publishedAt = "2026-09-02T00:00:00.000Z";
-const reviewedAt = "2026-09-02T00:00:00.000Z";
+const reviewedAt = "2026-10-15T00:00:00.000Z";
 
 const profoundBaseline = {
   does:
@@ -27,9 +28,9 @@ const profoundBaseline = {
 
 export const metadata: Metadata = {
   // Layout appends " · 100 Questions" (target ≤60 full).
-  title: "Profound Alternatives (2026)",
+  title: "Profound Alternative: 4 Compared (2026)",
   description:
-    "Job-based Profound alternatives—prepaid audit, daily monitoring, or a cheaper AEO stack. Sourced prices, dated Sept 2, 2026. No ranking promises.",
+    "Profound alternatives for audits, daily monitoring, and cheaper AEO stacks. Four tools compared with sourced prices (reviewed Oct 15, 2026).",
   alternates: { canonical: pageUrl },
   openGraph: {
     title:
@@ -46,9 +47,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Profound Alternatives (Honest 2026 Guide)",
+    title: "Profound Alternative: 4 Compared (2026) · 100 Questions",
     description:
-      "Prepaid audit, daily monitoring, or a cheaper AEO stack—sourced prices dated September 2, 2026.",
+      "Profound alternatives by job: prepaid audit, daily monitor, prompt tracker, or mid-market AEO—with when Profound still wins.",
     images: [SOCIAL_IMAGE],
   },
 };
@@ -134,6 +135,16 @@ const alternatives = [
 
 const faqs = [
   {
+    question: "What is a good Profound alternative?",
+    answer:
+      "A good Profound alternative matches the measurement job you actually have. For a prepaid, evidence-linked baseline across four grounded providers, 100 Questions fits. For focused daily prompt monitoring, Otterly.AI is a common pick. For dedicated visibility tracking with flexible models, Peec AI is built for that workflow. Profound remains stronger when you need prompt-demand data, agent analytics, content agents, and enterprise AEO operations together.",
+  },
+  {
+    question: "What are the best Profound alternatives?",
+    answer:
+      "This page compares four credible Profound alternatives—100 Questions, Otterly.AI, Peec AI, and AthenaHQ—by function, price signal, fit, and tradeoffs. There is no universal winner: a prepaid audit, a daily monitor, and an enterprise AEO platform answer different buying questions.",
+  },
+  {
     question: "What is the best Profound alternative?",
     answer:
       "The best Profound alternative depends on the job. 100 Questions is the best fit for a prepaid, evidence-linked audit; Otterly.AI for focused daily prompt monitoring; Peec AI for dedicated visibility tracking with flexible model coverage; and AthenaHQ for a lower-cost action-oriented platform. Profound remains the stronger fit when you need prompt-demand data, agent analytics, content agents, and enterprise AEO operations in one subscription.",
@@ -211,6 +222,9 @@ export default function ProfoundAlternativePage() {
           },
         ],
       },
+      buildFaqPageNode(pageUrl, faqs, {
+        name: "Profound alternatives FAQ",
+      }),
     ],
   };
 
@@ -258,7 +272,7 @@ export default function ProfoundAlternativePage() {
                 publishedAt={publishedAt}
                 publishedLabel="September 2, 2026"
                 modifiedAt={reviewedAt}
-                modifiedLabel="September 2, 2026"
+                modifiedLabel="October 15, 2026"
                 note="First-party documentation review of vendor pricing and product pages"
               />
             </div>
@@ -288,6 +302,57 @@ export default function ProfoundAlternativePage() {
                   <ExternalLink aria-hidden="true" className="size-4" />
                 </a>
               </div>
+            </section>
+
+            <section aria-labelledby="who-should-switch-heading">
+              <p className="eyebrow">Buyer fit</p>
+              <h2
+                id="who-should-switch-heading"
+                className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                Who should look for a Profound alternative?
+              </h2>
+              <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                <div className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+                  <h3 className="text-lg font-semibold text-white">
+                    Teams that often outgrow Profound on price or scope
+                  </h3>
+                  <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-400">
+                    <li>Agencies that need one client deliverable, not another dashboard seat.</li>
+                    <li>Startups validating category language before committing to enterprise AEO.</li>
+                    <li>SEO leads who only need ChatGPT and AI Overviews monitoring on a small prompt set.</li>
+                    <li>Operators who want inspectable answer evidence, not only aggregate scores.</li>
+                  </ul>
+                </div>
+                <div className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">
+                  <h3 className="text-lg font-semibold text-white">
+                    Signals Profound may still be the right platform
+                  </h3>
+                  <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-400">
+                    <li>Prompt Volumes and daily structured prompts are part of the operating model.</li>
+                    <li>Agent analytics for AI crawlers must sit beside visibility reporting.</li>
+                    <li>Content agents and integrated AEO workflows are on the roadmap this quarter.</li>
+                    <li>SSO, SOC 2, and multi-team governance are non-negotiable.</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="mt-6 max-w-3xl text-sm leading-6 text-zinc-400">
+                For a wider software shortlist, start with{" "}
+                <Link
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                  href="/ai-seo-tools"
+                >
+                  AI SEO tools for visibility
+                </Link>{" "}
+                or browse everything in the{" "}
+                <Link
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                  href="/resources#comparisons"
+                >
+                  comparisons library
+                </Link>
+                .
+              </p>
             </section>
 
             <section aria-labelledby="quick-answer-heading">

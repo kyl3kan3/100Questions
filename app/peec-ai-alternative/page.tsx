@@ -8,6 +8,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { buildFaqPageNode } from "@/lib/faq-schema";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/peec-ai-alternative");
@@ -202,6 +203,9 @@ export default function PeecAiAlternativePage() {
           },
         ],
       },
+      buildFaqPageNode(pageUrl, faqs, {
+        name: "Peec AI alternatives FAQ",
+      }),
     ],
   };
 

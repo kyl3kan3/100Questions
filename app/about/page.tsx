@@ -32,8 +32,9 @@ const aboutDescription =
   "Why 100 Questions exists, what its AI visibility benchmark measures, and the evidence, privacy, and interpretation principles behind each report.";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: aboutDescription,
+  title: "About 100 Questions AI Visibility",
+  description:
+    "Who builds 100 Questions, how the AI visibility benchmark works, and the evidence, privacy, and interpretation rules behind every report.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "About 100 Questions",

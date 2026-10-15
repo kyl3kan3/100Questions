@@ -10,6 +10,7 @@ import { MeasurementToolkitLinks } from "@/components/measurement-toolkit-links"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { buildFaqPageNode } from "@/lib/faq-schema";
 import { getArticleImage } from "@/lib/page-images";
 import { absoluteUrl } from "@/lib/site";
 
@@ -113,6 +114,9 @@ export function SeoResourceShell({
           },
         ],
       },
+      buildFaqPageNode(pageUrl, faqs, {
+        name: `${breadcrumb} FAQ`,
+      }),
     ],
   };
 

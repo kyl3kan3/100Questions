@@ -3,6 +3,10 @@ import { parse as parseDomain } from "tldts";
 import { analyzeAiReadiness, type AiReadinessResult } from "./ai-readiness";
 import { normalizeCanonicalDomain } from "./ai/matching";
 import {
+  DEFAULT_SITE_FETCH_BUDGET_MS,
+  FetchTimeBudget,
+} from "./fetch-time-budget";
+import {
   buildHomepageUrlCandidates,
   fetchPublicResourceFollowRedirects,
   PUBLIC_BROWSER_ACCEPT_HTML,
@@ -21,6 +25,7 @@ export type SiteReadinessFetchOutcome = {
 
 export async function fetchPublicSiteReadinessWithFallback(
   submittedWebsite: string,
+  budgetMs = DEFAULT_SITE_FETCH_BUDGET_MS,
 ): Promise<SiteReadinessFetchOutcome> {
   const hostname = normalizeCanonicalDomain(submittedWebsite);
   if (!hostname) {
@@ -32,22 +37,30 @@ export async function fetchPublicSiteReadinessWithFallback(
     throw new Error("invalid_website");
   }
 
+  const budget = new FetchTimeBudget(budgetMs);
   const candidates = buildHomepageUrlCandidates(hostname);
   let lastError = "Website unavailable";
 
   for (const candidate of candidates) {
+    if (budget.exhausted) {
+      lastError = "fetch_time_budget_exceeded";
+      break;
+    }
+
     try {
       const homepage = await fetchPublicResourceFollowRedirects({
         initialUrl: candidate,
         accept: PUBLIC_BROWSER_ACCEPT_HTML,
         maxBytes: MAX_HTML_BYTES,
         requireHtml: true,
+        budget,
       });
 
       const baseUrl = new URL(homepage.finalUrl);
       const sidecars = await fetchSidecarTexts(
         baseUrl,
         homepage.registrableDomain,
+        budget,
       );
 
       const readiness = analyzeAiReadiness({
@@ -74,10 +87,18 @@ export async function fetchPublicSiteReadinessWithFallback(
     } catch (error) {
       lastError =
         error instanceof Error ? error.message : "Website unavailable";
+      if (lastError === "fetch_time_budget_exceeded") {
+        break;
+      }
     }
   }
 
-  const partial = await buildPartialOutcomeFromSidecars(hostname, parsed.domain, lastError);
+  const partial = await buildPartialOutcomeFromSidecars(
+    hostname,
+    parsed.domain,
+    lastError,
+    budget,
+  );
   return partial;
 }
 
@@ -94,6 +115,7 @@ async function buildPartialOutcomeFromSidecars(
   enteredHostname: string,
   registrableDomain: string,
   homepageError: string,
+  budget: FetchTimeBudget,
 ): Promise<SiteReadinessFetchOutcome> {
   const hosts = buildHomepageUrlCandidates(enteredHostname).map(
     (url) => url.hostname,
@@ -106,8 +128,9 @@ async function buildPartialOutcomeFromSidecars(
   let anySidecar = false;
 
   for (const host of uniqueHosts) {
+    if (budget.exhausted) break;
     const baseUrl = new URL(`https://${host}/`);
-    const sidecars = await fetchSidecarTexts(baseUrl, registrableDomain);
+    const sidecars = await fetchSidecarTexts(baseUrl, registrableDomain, budget);
     if (sidecars.robotsText) {
       robotsText = sidecars.robotsText;
       anySidecar = true;
@@ -122,14 +145,17 @@ async function buildPartialOutcomeFromSidecars(
     }
   }
 
+  const timedOut = homepageError === "fetch_time_budget_exceeded";
   const blockedLikely =
     /returned 403|returned 401|returned 429|did not return HTML/i.test(
       homepageError,
     );
 
-  const fetchNote = blockedLikely
-    ? "The homepage blocked or challenged our automated fetch (common on high-traffic sites). Sidecar files below were checked where reachable — this is not a live ChatGPT test."
-    : `We could not download the homepage HTML (${homepageError}). Sidecar checks ran where possible — not a live ChatGPT test.`;
+  const fetchNote = timedOut
+    ? "The check hit its time budget while loading the site (slow redirects or large pages). Sidecar files were checked where possible — not a live ChatGPT test."
+    : blockedLikely
+      ? "The homepage blocked or challenged our automated fetch (common on high-traffic sites). Sidecar files below were checked where reachable — this is not a live ChatGPT test."
+      : `We could not download the homepage HTML (${homepageError}). Sidecar checks ran where possible — not a live ChatGPT test.`;
 
   if (!anySidecar) {
     return {
@@ -170,7 +196,11 @@ function minimalPlaceholderHtml(hostname: string) {
   return `<!doctype html><html><head><title>${hostname}</title></head><body></body></html>`;
 }
 
-async function fetchSidecarTexts(baseUrl: URL, registrableDomain: string) {
+async function fetchSidecarTexts(
+  baseUrl: URL,
+  registrableDomain: string,
+  budget: FetchTimeBudget,
+) {
   const parsedFinal = parseDomain(baseUrl.hostname, { allowPrivateDomains: false });
   const domainForSidecars = parsedFinal.domain ?? registrableDomain;
 
@@ -179,16 +209,19 @@ async function fetchSidecarTexts(baseUrl: URL, registrableDomain: string) {
       new URL("/robots.txt", baseUrl),
       domainForSidecars,
       "text/plain,*/*;q=0.2",
+      budget,
     ),
     fetchOptionalText(
       new URL("/sitemap.xml", baseUrl),
       domainForSidecars,
       "application/xml,text/xml,*/*;q=0.2",
+      budget,
     ),
     fetchOptionalText(
       new URL("/llms.txt", baseUrl),
       domainForSidecars,
       "text/plain,*/*;q=0.2",
+      budget,
     ),
   ]);
 
@@ -200,6 +233,7 @@ async function fetchSidecarTexts(baseUrl: URL, registrableDomain: string) {
         declared,
         domainForSidecars,
         "application/xml,text/xml,*/*;q=0.2",
+        budget,
       );
       sitemapFound = isSitemap(declaredSitemap?.text ?? "");
     }
@@ -216,8 +250,10 @@ async function fetchOptionalText(
   url: URL,
   registrableDomain: string,
   accept: string,
+  budget: FetchTimeBudget,
 ) {
   try {
+    if (budget.exhausted) return null;
     const parsed = parseDomain(url.hostname, { allowPrivateDomains: false });
     if (!parsed.domain || parsed.isPrivate) return null;
 
@@ -226,6 +262,7 @@ async function fetchOptionalText(
       accept,
       maxBytes: MAX_TEXT_BYTES,
       requireHtml: false,
+      budget,
     });
     return result.response.ok ? result : null;
   } catch {

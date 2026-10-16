@@ -4,6 +4,10 @@ import { withWorkflow } from "workflow/next";
 import { AGENT_DISCOVERY_LINK_HEADER } from "./lib/agent-discovery";
 import { ADVERTISED_PUBLIC_MARKDOWN_PAGES } from "./lib/public-markdown";
 import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
+import {
+  CHATGPT_STARTUP_CHECK_PATH,
+  xPlayerFrameSecurityHeaders,
+} from "./lib/x-player-card";
 
 const nextConfig: NextConfig = {
   images: {
@@ -17,6 +21,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: CHATGPT_STARTUP_CHECK_PATH,
+        headers: xPlayerFrameSecurityHeaders(),
+      },
       {
         source: "/",
         headers: [

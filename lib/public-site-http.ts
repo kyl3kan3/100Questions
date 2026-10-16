@@ -4,6 +4,7 @@ import {
   fetchPinnedHttps,
   resolvePublicAddresses,
 } from "./auth/public-network";
+import type { FetchTimeBudget } from "./fetch-time-budget";
 
 export const PUBLIC_BROWSER_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
@@ -70,12 +71,17 @@ export async function fetchPublicResourceFollowRedirects(options: {
   requireHtml: boolean;
   timeoutMs?: number;
   maxRedirects?: number;
+  budget?: FetchTimeBudget;
 }): Promise<PublicFetchedResource> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_PUBLIC_FETCH_TIMEOUT_MS;
+  const perHopCap = options.timeoutMs ?? DEFAULT_PUBLIC_FETCH_TIMEOUT_MS;
   const maxRedirects = options.maxRedirects ?? DEFAULT_PUBLIC_MAX_REDIRECTS;
   let currentUrl = options.initialUrl;
 
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
+    options.budget?.assertTimeRemaining();
+    const timeoutMs =
+      options.budget?.timeoutForNextHop(perHopCap) ?? perHopCap;
+
     const addresses = await assertPublicHttpsUrl(currentUrl);
     const response = await fetchPinnedHttps(currentUrl, addresses, {
       headers: {

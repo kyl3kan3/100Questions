@@ -6,6 +6,10 @@ import { parse as parseDomain } from "tldts";
 
 import type { AiReadinessResult } from "./ai-readiness";
 import { normalizeCanonicalDomain } from "./ai/matching";
+import {
+  buildBuyerQuestionTexts,
+  normalizeCategoryLabel,
+} from "./startup-buyer-questions";
 
 export type DiscoverySignal = "strong" | "moderate" | "weak" | "blocked";
 
@@ -151,26 +155,25 @@ export function cacheKeyForStartupVisibility(inputLabel: string): string {
 
 type CategoryContext = {
   label: string;
-  topic: string;
 };
 
 export function inferCategoryContext(
   readiness: AiReadinessResult | null,
 ): CategoryContext {
   if (!readiness) {
-    return { label: "tools in your space", topic: "your category" };
+    return { label: "B2B software tools" };
   }
 
   const title = cleanMarketingPhrase(readiness.detected.title ?? "");
   const h1 = cleanMarketingPhrase(readiness.detected.h1 ?? "");
   const description = cleanMarketingPhrase(readiness.detected.description ?? "");
-  const primary = h1 || title || description;
 
   const host = hostnameFromReadiness(readiness);
-  const topic = primary || hostToBrandTopic(host) || "your category";
-  const label = deriveCategoryLabel(`${title} ${h1} ${description}`, host);
+  const label = normalizeCategoryLabel(
+    deriveCategoryLabel(`${title} ${h1} ${description}`, host),
+  );
 
-  return { label, topic };
+  return { label };
 }
 
 function hostnameFromReadiness(readiness: AiReadinessResult | null): string {
@@ -180,11 +183,6 @@ function hostnameFromReadiness(readiness: AiReadinessResult | null): string {
   } catch {
     return "";
   }
-}
-
-function hostToBrandTopic(host: string): string {
-  const base = host.replace(/^www\./iu, "").split(".")[0] ?? "";
-  return base ? titleCase(base) : "";
 }
 
 function deriveCategoryLabel(combined: string, host = ""): string {
@@ -206,6 +204,9 @@ function deriveCategoryLabel(combined: string, host = ""): string {
   }
   if (/notion\.(so|com)/iu.test(host)) {
     return "collaborative workspace software";
+  }
+  if (/100questionsai\.com/iu.test(host)) {
+    return "AI visibility benchmarking tools";
   }
   if (/issue tracking|project management|linear/iu.test(text)) {
     return "product development tools";
@@ -242,35 +243,27 @@ function buildBuyerQuestions(
   readiness: AiReadinessResult | null,
   benchmark: IndexRanking | undefined,
 ): StartupVisibilityQuestion[] {
-  const topic = category.topic;
-  const templates = [
-    {
-      text: `What are the best ${category.label} for a startup team evaluating ${topic}?`,
-      checks: ["crawler-access", "question-content"] as const,
-    },
-    {
-      text: `Which ${category.label} should a technical founder shortlist instead of ${topic}?`,
-      checks: ["structured-data", "page-signals"] as const,
-    },
-    {
-      text: `What public evidence (docs, comparisons, pricing) should I verify before trusting an AI answer about ${topic}?`,
-      checks: ["sitemap", "llms"] as const,
-    },
+  const checkGroups = [
+    ["crawler-access", "question-content"] as const,
+    ["structured-data", "page-signals"] as const,
+    ["sitemap", "llms"] as const,
   ];
 
+  const texts = buildBuyerQuestionTexts(category);
   const benchmarkBoost =
     benchmark && benchmark.discoveryVisibility >= 0.05 ? 1 : 0;
 
-  return templates.map((template, index) => {
-    const signal = signalForChecks(readiness, [...template.checks], index, benchmarkBoost);
+  return texts.map((text, index) => {
+    const checks = checkGroups[index];
+    const signal = signalForChecks(readiness, [...checks], index, benchmarkBoost);
     return {
-      text: template.text,
+      text,
       signal,
       summary: summaryForChecks(
         signal,
         brandName,
         readiness,
-        template.checks,
+        checks,
         category,
       ),
     };

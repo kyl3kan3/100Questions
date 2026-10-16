@@ -182,6 +182,12 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "Six AEO tools compared by monitoring model, evidence, cadence, workflow, and tradeoffs.",
   },
+  "/check": {
+    title: "Does ChatGPT know your startup?",
+    summary:
+      "Interactive X Player Card preview for technical AI-discovery readiness on a public domain, with sample buyer questions and a path to the full 100-question benchmark.",
+    lastReviewed: "2026-10-16",
+  },
   "/chatgpt-brand-visibility-test": {
     title: "ChatGPT Brand Visibility Test",
     summary:

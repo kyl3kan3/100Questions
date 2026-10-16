@@ -129,6 +129,12 @@ export function ChatgptStartupVisibilityWidget({ embed = false }: Props) {
 
           <p className="text-xs leading-5 text-zinc-400">{result.methodology}</p>
 
+          {result.fetchNote ? (
+            <p className="rounded-lg bg-amber-300/[0.08] px-3 py-2 text-[11px] leading-5 text-amber-100">
+              {result.fetchNote}
+            </p>
+          ) : null}
+
           <ul className="space-y-2">
             {result.questions.map((question) => (
               <li

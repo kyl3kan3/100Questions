@@ -24,6 +24,7 @@ export type StartupChatgptVisibilityResult = {
   methodology: string;
   checkedAt: string;
   readiness: AiReadinessResult | null;
+  fetchNote: string | null;
   benchmarkNote: string | null;
   questions: StartupVisibilityQuestion[];
   topActions: string[];
@@ -96,11 +97,20 @@ export function buildStartupVisibilityFromReadiness(
     inputLabel: string;
   },
   readiness: AiReadinessResult | null,
-  checkedAt = new Date().toISOString(),
+  options?: {
+    checkedAt?: string;
+    fetchNote?: string | null;
+    resolvedDomain?: string | null;
+  },
 ): StartupChatgptVisibilityResult {
-  const category = inferCategory(readiness);
-  const benchmark = input.domain
-    ? loadIndexRankingsByDomain().get(input.domain.toLowerCase())
+  const checkedAt = options?.checkedAt ?? new Date().toISOString();
+  const fetchNote = options?.fetchNote ?? null;
+  const effectiveDomain =
+    options?.resolvedDomain?.toLowerCase() ?? input.domain?.toLowerCase() ?? null;
+
+  const category = inferCategoryContext(readiness);
+  const benchmark = effectiveDomain
+    ? loadIndexRankingsByDomain().get(effectiveDomain)
     : undefined;
 
   const score = readiness?.score ?? estimateBrandOnlyScore(input.brandName);
@@ -119,7 +129,7 @@ export function buildStartupVisibilityFromReadiness(
 
   return {
     inputLabel: input.inputLabel,
-    domain: input.domain,
+    domain: effectiveDomain ?? input.domain,
     brandName: input.brandName,
     score,
     grade,
@@ -127,6 +137,7 @@ export function buildStartupVisibilityFromReadiness(
       "Score is a technical AI-discovery readiness preview from your public site (crawl access, page signals, schema, sitemaps, question-shaped content). It does not query ChatGPT and is not a brand-mention rate.",
     checkedAt,
     readiness,
+    fetchNote,
     benchmarkNote,
     questions,
     topActions: readiness?.topActions ?? defaultBrandOnlyActions(),
@@ -138,54 +149,161 @@ export function cacheKeyForStartupVisibility(inputLabel: string): string {
   return createHash("sha256").update(normalized).digest("hex").slice(0, 32);
 }
 
-function inferCategory(readiness: AiReadinessResult | null): string {
-  if (!readiness) return "your category";
-  const title = readiness.detected.title ?? "";
-  const h1 = readiness.detected.h1 ?? "";
-  const description = readiness.detected.description ?? "";
-  const combined = `${title} ${h1} ${description}`.toLowerCase();
-  if (/saas|software|platform|tool|api/iu.test(combined)) return "B2B software";
-  if (/agency|marketing|seo|visibility/iu.test(combined)) return "marketing services";
-  if (/e-?commerce|shop|store/iu.test(combined)) return "e-commerce";
-  return "your category";
+type CategoryContext = {
+  label: string;
+  topic: string;
+};
+
+export function inferCategoryContext(
+  readiness: AiReadinessResult | null,
+): CategoryContext {
+  if (!readiness) {
+    return { label: "tools in your space", topic: "your category" };
+  }
+
+  const title = cleanMarketingPhrase(readiness.detected.title ?? "");
+  const h1 = cleanMarketingPhrase(readiness.detected.h1 ?? "");
+  const description = cleanMarketingPhrase(readiness.detected.description ?? "");
+  const primary = h1 || title || description;
+
+  const host = hostnameFromReadiness(readiness);
+  const topic = primary || hostToBrandTopic(host) || "your category";
+  const label = deriveCategoryLabel(`${title} ${h1} ${description}`, host);
+
+  return { label, topic };
+}
+
+function hostnameFromReadiness(readiness: AiReadinessResult | null): string {
+  if (!readiness?.checkedUrl) return "";
+  try {
+    return new URL(readiness.checkedUrl).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function hostToBrandTopic(host: string): string {
+  const base = host.replace(/^www\./iu, "").split(".")[0] ?? "";
+  return base ? titleCase(base) : "";
+}
+
+function deriveCategoryLabel(combined: string, host = ""): string {
+  const text = `${combined} ${host}`.toLowerCase();
+  if (/payment|billing|checkout|fintech|stripe/iu.test(text)) {
+    return "payment infrastructure";
+  }
+  if (/vercel\.com/iu.test(host) || /deploy|hosting|edge|serverless|vercel|cloud platform/iu.test(text)) {
+    return "frontend cloud platforms";
+  }
+  if (/stripe\.com/iu.test(host)) {
+    return "payment infrastructure";
+  }
+  if (/linear\.app/iu.test(host)) {
+    return "product development tools";
+  }
+  if (/posthog\.com/iu.test(host)) {
+    return "product analytics stacks";
+  }
+  if (/notion\.(so|com)/iu.test(host)) {
+    return "collaborative workspace software";
+  }
+  if (/issue tracking|project management|linear/iu.test(text)) {
+    return "product development tools";
+  }
+  if (/product analytics|posthog|analytics platform/iu.test(text)) {
+    return "product analytics stacks";
+  }
+  if (/wiki|docs|notion|workspace/iu.test(text)) {
+    return "collaborative workspace software";
+  }
+  if (/saas|software|platform|api|developer/iu.test(text)) {
+    return "B2B software";
+  }
+  if (/agency|marketing|seo|visibility/iu.test(text)) {
+    return "marketing services";
+  }
+  if (/e-?commerce|shop|store/iu.test(text)) {
+    return "e-commerce platforms";
+  }
+  return "tools in this category";
+}
+
+function cleanMarketingPhrase(value: string): string {
+  return value
+    .replace(/\s*[|–—-]\s*.+$/u, "")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .slice(0, 120);
 }
 
 function buildBuyerQuestions(
   brandName: string,
-  category: string,
+  category: CategoryContext,
   readiness: AiReadinessResult | null,
   benchmark: IndexRanking | undefined,
 ): StartupVisibilityQuestion[] {
+  const topic = category.topic;
   const templates = [
-    `What are the best ${category} options for a growing startup?`,
-    `Which ${category} tools should a founder evaluate this quarter?`,
-    `What evidence should I check before buying ${category}?`,
+    {
+      text: `What are the best ${category.label} for a startup team evaluating ${topic}?`,
+      checks: ["crawler-access", "question-content"] as const,
+    },
+    {
+      text: `Which ${category.label} should a technical founder shortlist instead of ${topic}?`,
+      checks: ["structured-data", "page-signals"] as const,
+    },
+    {
+      text: `What public evidence (docs, comparisons, pricing) should I verify before trusting an AI answer about ${topic}?`,
+      checks: ["sitemap", "llms"] as const,
+    },
   ];
-
-  const baseSignal = readiness
-    ? signalFromReadiness(readiness)
-    : ("weak" as DiscoverySignal);
 
   const benchmarkBoost =
     benchmark && benchmark.discoveryVisibility >= 0.05 ? 1 : 0;
 
-  return templates.map((text, index) => {
-    const signal = adjustSignal(baseSignal, index, benchmarkBoost);
+  return templates.map((template, index) => {
+    const signal = signalForChecks(readiness, [...template.checks], index, benchmarkBoost);
     return {
-      text,
+      text: template.text,
       signal,
-      summary: signalSummary(signal, brandName, readiness),
+      summary: summaryForChecks(
+        signal,
+        brandName,
+        readiness,
+        template.checks,
+        category,
+      ),
     };
   });
 }
 
-function signalFromReadiness(readiness: AiReadinessResult): DiscoverySignal {
-  if (readiness.checks.some((check) => check.id === "indexability" && check.status === "fail")) {
+function signalForChecks(
+  readiness: AiReadinessResult | null,
+  checkIds: string[],
+  questionIndex: number,
+  benchmarkBoost: number,
+): DiscoverySignal {
+  if (!readiness) return "weak";
+  if (
+    readiness.checks.some(
+      (check) => check.id === "indexability" && check.status === "fail",
+    )
+  ) {
     return "blocked";
   }
-  if (readiness.score >= 75) return "strong";
-  if (readiness.score >= 45) return "moderate";
-  return "weak";
+
+  const targeted = readiness.checks.filter((check) =>
+    checkIds.includes(check.id),
+  );
+  const failCount = targeted.filter((check) => check.status === "fail").length;
+  const warnCount = targeted.filter((check) => check.status === "warning").length;
+
+  let base: DiscoverySignal = "strong";
+  if (failCount > 0) base = "weak";
+  else if (warnCount > 0) base = "moderate";
+  else if (readiness.score < 45) base = "weak";
+
+  return adjustSignal(base, questionIndex, benchmarkBoost);
 }
 
 function adjustSignal(
@@ -201,29 +319,28 @@ function adjustSignal(
   return order[idx];
 }
 
-function signalSummary(
+function summaryForChecks(
   signal: DiscoverySignal,
   brandName: string,
   readiness: AiReadinessResult | null,
+  checkIds: readonly string[],
+  category: CategoryContext,
 ): string {
-  switch (signal) {
-    case "strong":
-      return `Public signals suggest ${brandName} is easier for AI crawlers to interpret; a neutral prompt could still omit you without a live test.`;
-    case "moderate":
-      return `Some discovery signals are present, but gaps remain in ${weakLabels(readiness).join(", ") || "page evidence"}.`;
-    case "weak":
-      return `Thin or missing public evidence — discovery-style answers often skip ${brandName} without brand-named prompts.`;
-    case "blocked":
-      return `Crawl or index blockers detected — AI systems may not reliably see ${brandName}'s site.`;
-  }
-}
+  const checks = readiness?.checks.filter((check) => checkIds.includes(check.id)) ?? [];
+  const evidence = checks
+    .map((check) => `${check.label.toLowerCase()}: ${check.evidence}`)
+    .join(" ");
 
-function weakLabels(readiness: AiReadinessResult | null): string[] {
-  if (!readiness) return [];
-  return readiness.checks
-    .filter((check) => check.status !== "pass")
-    .map((check) => check.label.toLowerCase())
-    .slice(0, 2);
+  if (signal === "blocked") {
+    return `Index/crawl blockers on ${brandName}'s public site — ${evidence || "noindex or robots rules may hide pages from AI crawlers."}`;
+  }
+  if (signal === "strong") {
+    return `For ${category.label} prompts, ${brandName}'s public signals look solid (${evidence || "crawl access and page evidence look usable"}). Neutral answers can still omit you without a live test.`;
+  }
+  if (signal === "moderate") {
+    return `Mixed signals for ${category.label} discovery — ${evidence || "some checks passed, others need clearer public evidence."}`;
+  }
+  return `Weak ${category.label} discovery signals for ${brandName} — ${evidence || "buyer-style answers may skip you unless prompts name the brand."}`;
 }
 
 function estimateBrandOnlyScore(brandName: string): number {

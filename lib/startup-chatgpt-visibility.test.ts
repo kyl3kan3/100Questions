@@ -68,5 +68,39 @@ describe("startup ChatGPT visibility preview", () => {
     expect(result.methodology).toMatch(/does not query ChatGPT/i);
     expect(result.questions).toHaveLength(3);
     expect(result.questions[0].summary).not.toMatch(/ChatGPT said/i);
+    expect(result.questions[0].text).toMatch(/startup team evaluating/i);
+    expect(result.questions[0].summary).toMatch(/crawler access|AI crawler/i);
+  });
+
+  it("uses page copy to phrase category-specific buyer questions", () => {
+    const readiness = mockReadiness(80);
+    readiness.detected.title = "Stripe | Payment Processing Platform";
+    readiness.detected.description =
+      "Online payment infrastructure for internet businesses";
+    readiness.detected.h1 = "Financial infrastructure to grow your revenue";
+
+    const result = buildStartupVisibilityFromReadiness(
+      normalizeStartupVisibilityInput("stripe.com"),
+      readiness,
+    );
+
+    expect(result.questions[0].text).toMatch(/payment infrastructure/i);
+    expect(result.questions[1].text).toMatch(/Financial infrastructure/i);
+    expect(new Set(result.questions.map((q) => q.summary)).size).toBeGreaterThan(
+      1,
+    );
+  });
+
+  it("surfaces fetch notes without failing the payload shape", () => {
+    const result = buildStartupVisibilityFromReadiness(
+      normalizeStartupVisibilityInput("notion.so"),
+      mockReadiness(70),
+      {
+        fetchNote: "Homepage resolved to www.notion.com after redirects.",
+        resolvedDomain: "www.notion.com",
+      },
+    );
+    expect(result.domain).toBe("www.notion.com");
+    expect(result.fetchNote).toContain("notion.com");
   });
 });

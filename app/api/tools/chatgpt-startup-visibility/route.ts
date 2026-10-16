@@ -4,7 +4,7 @@ import {
   readMemoryCache,
   writeMemoryCache,
 } from "@/lib/public-api-guard";
-import { fetchPublicSiteReadiness } from "@/lib/fetch-public-site-readiness";
+import { fetchPublicSiteReadinessWithFallback } from "@/lib/fetch-public-site-readiness";
 import { jsonError } from "@/lib/http";
 import {
   buildStartupVisibilityFromReadiness,
@@ -16,6 +16,7 @@ import {
 export const runtime = "nodejs";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const FAILURE_CACHE_TTL_MS = 5 * 60 * 1000;
 const IP_LIMIT_PER_MINUTE = 30;
 
 export async function POST(request: Request) {
@@ -60,35 +61,45 @@ export async function POST(request: Request) {
   }
 
   try {
-    let readiness = null;
+    let result: StartupChatgptVisibilityResult;
+    let cacheTtl = CACHE_TTL_MS;
+
     if (normalized.domain) {
-      readiness = await fetchPublicSiteReadiness(normalized.domain);
+      const outcome = await fetchPublicSiteReadinessWithFallback(
+        normalized.domain,
+      );
+      result = buildStartupVisibilityFromReadiness(normalized, outcome.readiness, {
+        fetchNote: outcome.fetchNote,
+        resolvedDomain: outcome.resolvedDomain,
+      });
+      if (!outcome.homepageFetched) {
+        cacheTtl = FAILURE_CACHE_TTL_MS;
+      }
+    } else {
+      result = buildStartupVisibilityFromReadiness(normalized, null);
     }
 
-    const result = buildStartupVisibilityFromReadiness(normalized, readiness);
-    writeMemoryCache(cacheKey, result, CACHE_TTL_MS);
+    writeMemoryCache(cacheKey, result, cacheTtl);
     return jsonResponse(result, { cached: false });
   } catch (error) {
-    const code =
-      error instanceof Error && error.message === "invalid_website"
-        ? "invalid_website"
-        : "website_unavailable";
-    if (code === "invalid_website") {
+    if (error instanceof Error && error.message === "invalid_website") {
       return jsonError(
         "Enter a valid public website domain.",
         400,
-        code,
+        "invalid_website",
       );
     }
     console.warn("[chatgpt-startup-visibility] Check failed.", {
       query: normalized.inputLabel,
       message: error instanceof Error ? error.message : "unknown",
     });
-    return jsonError(
-      "We could not fetch that website over HTTPS. Try a domain or check spelling.",
-      422,
-      code,
-    );
+
+    const fallback = buildStartupVisibilityFromReadiness(normalized, null, {
+      fetchNote:
+        "This domain could not be checked automatically. Add a public website or try again later — not a live ChatGPT test.",
+    });
+    writeMemoryCache(cacheKey, fallback, FAILURE_CACHE_TTL_MS);
+    return jsonResponse(fallback, { cached: false });
   }
 }
 

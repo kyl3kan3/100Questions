@@ -5,6 +5,12 @@ import {
 } from "./editorial";
 import { absoluteUrl, SITE_NAME } from "./site";
 
+export const PARENT_ORGANIZATION_STRUCTURED_DATA = {
+  "@type": "Organization",
+  name: "Decent4",
+  url: "https://decent4.com/",
+} as const;
+
 export function buildSiteStructuredData() {
   const homeUrl = absoluteUrl();
   return {
@@ -24,6 +30,7 @@ export function buildSiteStructuredData() {
         brand: { "@id": `${homeUrl}#brand` },
         founder: { "@id": EDITORIAL_AUTHOR_ID },
         sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
+        parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
       },
       buildEditorialPersonStructuredData(),
       {

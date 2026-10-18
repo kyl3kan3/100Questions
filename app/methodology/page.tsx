@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { PARENT_ORGANIZATION_STRUCTURED_DATA } from "@/lib/site-structured-data";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -114,6 +115,7 @@ export default function MethodologyPage() {
             "@type": "ImageObject",
             url: absoluteUrl("/logo-mark.svg"),
           },
+          parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
         },
         about: [
           "AI visibility",

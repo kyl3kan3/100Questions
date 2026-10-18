@@ -49,6 +49,11 @@ export function GlobalFooter() {
             Results may differ from consumer chat products and do not guarantee
             future mentions or citations.
           </p>
+          <p className="mt-4 text-sm">
+            <a className="hover:text-zinc-200" href="https://decent4.com/">
+              Built by Decent4
+            </a>
+          </p>
         </div>
 
         <nav

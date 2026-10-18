@@ -7,6 +7,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_FAQS } from "@/lib/product-facts";
+import { PARENT_ORGANIZATION_STRUCTURED_DATA } from "@/lib/site-structured-data";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const faqUrl = absoluteUrl("/faq");
@@ -164,6 +165,7 @@ export default function FaqPage() {
         "@type": "Organization",
         name: SITE_NAME,
         url: absoluteUrl(),
+        parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
       },
     ],
   };

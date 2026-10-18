@@ -1,3 +1,4 @@
+import { PARENT_ORGANIZATION_STRUCTURED_DATA } from "./site-structured-data";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE_ALT, SOCIAL_IMAGE_URL } from "./site";
 
 export type MachineMarkdownPage = {
@@ -352,6 +353,7 @@ export function buildMcpLandingHtml() {
         "@id": organizationId,
         name: SITE_NAME,
         url: absoluteUrl(),
+        parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
       },
       {
         "@type": "WebPage",

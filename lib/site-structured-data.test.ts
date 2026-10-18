@@ -5,7 +5,10 @@ import {
   EDITORIAL_AUTHOR_ID,
   EDITORIAL_AUTHOR_PUBLIC_PROFILES,
 } from "./editorial";
-import { buildSiteStructuredData } from "./site-structured-data";
+import {
+  buildSiteStructuredData,
+  PARENT_ORGANIZATION_STRUCTURED_DATA,
+} from "./site-structured-data";
 
 describe("site structured data", () => {
   it("publishes one linked Organization, Brand, and WebSite identity", () => {
@@ -20,6 +23,7 @@ describe("site structured data", () => {
       brand: { "@id": "https://100questionsai.com/#brand" },
       founder: { "@id": EDITORIAL_AUTHOR_ID },
       sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
+      parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
     });
     expect(brand).toMatchObject({
       "@id": "https://100questionsai.com/#brand",

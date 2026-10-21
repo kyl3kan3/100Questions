@@ -71,7 +71,11 @@ describe("machine-readable SEO pages", () => {
     );
     expect(html.status).toBe(200);
     expect(html.headers.get("content-type")).toContain("text/html");
-    expect(await html.text()).toContain("Free AI visibility readiness MCP");
+    const htmlBody = await html.text();
+    expect(htmlBody).toContain("Free AI visibility readiness MCP");
+    expect(htmlBody).toContain(
+      '<a href="https://decent4.com/">Built by Decent4</a>',
+    );
 
     const markdown = mcpLandingResponse(
       new Request("https://100questionsai.com/mcp", {

@@ -33,7 +33,6 @@ export const PUBLIC_PAGE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/aeo-vs-geo": "2026-08-16",
   "/answer-engine-optimization-tools": "2026-08-16",
   "/chatgpt-brand-visibility-test": "2026-10-15",
-  "/check": "2026-10-16",
   "/chatgpt-citations-vs-brand-mentions": "2026-08-16",
   "/can-google-alerts-track-chatgpt-mentions": "2026-08-16",
   "/chatgpt-seo-tool": "2026-08-16",

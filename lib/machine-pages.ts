@@ -405,7 +405,7 @@ export function buildMcpLandingHtml() {
     '<link rel="alternate" type="text/markdown" href="' + absoluteUrl("/mcp.md") + '">',
     '<script type="application/ld+json">' + JSON.stringify(schema) + "</script>",
     "<style>",
-    "body{margin:0;background:#070908;color:#e4e4e7;font:16px/1.65 system-ui,sans-serif}main{max-width:880px;margin:auto;padding:64px 24px 96px}a{color:#6ee7b7}h1{font-size:clamp(2.4rem,7vw,5rem);line-height:1;letter-spacing:-.05em;margin:.35em 0}h2{margin-top:2.4em;color:#fff}.eyebrow{color:#6ee7b7;font:700 12px ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}.lede{font-size:1.2rem;color:#a1a1aa;max-width:720px}.card{background:#0b0e0c;border:1px solid #27272a;border-radius:24px;padding:24px;margin-top:24px}code{color:#a7f3d0}ul{padding-left:1.3em}.cta{display:inline-block;background:#6ee7b7;color:#07100b;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;margin-top:18px}",
+    "body{margin:0;background:#070908;color:#e4e4e7;font:16px/1.65 system-ui,sans-serif}main{max-width:880px;margin:auto;padding:64px 24px 96px}a{color:#6ee7b7}h1{font-size:clamp(2.4rem,7vw,5rem);line-height:1;letter-spacing:-.05em;margin:.35em 0}h2{margin-top:2.4em;color:#fff}.eyebrow{color:#6ee7b7;font:700 12px ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}.lede{font-size:1.2rem;color:#a1a1aa;max-width:720px}.card{background:#0b0e0c;border:1px solid #27272a;border-radius:24px;padding:24px;margin-top:24px}code{color:#a7f3d0}ul{padding-left:1.3em}.cta{display:inline-block;background:#6ee7b7;color:#07100b;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;margin-top:18px}footer{border-top:1px solid rgba(255,255,255,.07);background:#070908;color:#a1a1aa;padding:40px 24px}footer a{color:#a1a1aa;text-decoration:none}footer a:hover{color:#e4e4e7}footer p{margin:0;font-size:.875rem;max-width:880px;margin-inline:auto}",
     "</style>",
     "</head>",
     "<body>",
@@ -433,6 +433,7 @@ export function buildMcpLandingHtml() {
     '<a class="cta" href="' + absoluteUrl("/pricing") + '">Review the $9 audit</a>',
     "</section>",
     "</main>",
+    '<footer><p><a href="https://decent4.com/">Built by Decent4</a></p></footer>',
     "</body>",
     "</html>",
   ].join("");

@@ -36,7 +36,6 @@ export const PUBLIC_MARKETING_PATHS = [
   "/aeo-vs-geo",
   "/answer-engine-optimization-tools",
   "/chatgpt-brand-visibility-test",
-  "/check",
   "/chatgpt-citations-vs-brand-mentions",
   "/can-google-alerts-track-chatgpt-mentions",
   "/chatgpt-seo-tool",

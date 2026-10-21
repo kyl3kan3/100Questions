@@ -38,6 +38,7 @@ export async function generateMetadata({
   return {
     title: { absolute: `${card.title} | ${SITE_NAME}` },
     description: card.description,
+    robots: { index: false, follow: true },
     alternates: { canonical: shareUrl },
     openGraph: {
       title: card.title,

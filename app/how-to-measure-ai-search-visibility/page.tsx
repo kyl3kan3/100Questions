@@ -85,7 +85,15 @@ export default function HowToMeasureAiSearchVisibilityPage() {
             <Link className="text-emerald-300 underline underline-offset-4" href="/aeo-vs-geo">
               AEO vs GEO comparison
             </Link>{" "}
-            maps each surface to the right metrics.
+            maps each surface to the right metrics. Ground the question set in{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/customer-research-methods">
+              customer research methods for AI search
+            </Link>{" "}
+            before you freeze prompts, then audit cited pages with the{" "}
+            <Link className="text-emerald-300 underline underline-offset-4" href="/llm-citation-audit-template">
+              LLM citation audit template
+            </Link>
+            .
           </p>
         </div>
       </section>

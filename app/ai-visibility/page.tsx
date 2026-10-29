@@ -408,6 +408,21 @@ export default function AiVisibilityGuidePage() {
                 AI visibility adds a different observation layer: whether answer
                 systems actually surface the brand and which sources accompany it.
                 The practices work together rather than replacing one another.
+                When buyers ask questions in chat instead of search, pair this guide with{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/customer-research-methods"
+                >
+                  customer research methods for AI search
+                </Link>{" "}
+                and see why{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/can-google-alerts-track-chatgpt-mentions"
+                >
+                  Google Alerts cannot track ChatGPT mentions
+                </Link>
+                .
               </p>
             </section>
 

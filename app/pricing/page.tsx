@@ -125,7 +125,19 @@ export default function PricingPage() {
               One credit. One complete AI visibility benchmark.
             </h1>
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-              Start with a complete $9 benchmark. Buy more only when you need a fresh baseline, a post-implementation rerun, or additional client capacity.
+              Start with a complete $9 benchmark. Buy more only when you need a fresh baseline, a post-implementation rerun, or additional client capacity. Compare{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/ai-visibility-tools-pricing">
+                other vendors&apos; published AI visibility prices
+              </Link>
+              , read the{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/terms">
+                terms of service
+              </Link>
+              , or open the{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/support">
+                support center
+              </Link>{" "}
+              for billing questions.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MarketingCheckoutButton label="Buy my first benchmark — $9" />

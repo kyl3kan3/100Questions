@@ -171,9 +171,17 @@ export default function ChatGptCitationsVsBrandMentionsPage() {
           These actions support both{" "}
           <Link className="text-emerald-300 underline underline-offset-4" href="/aeo-vs-geo">
             AEO and GEO
-          </Link>:
-          answer-ready pages help selection, while corroborating sources help
-          generative engines verify the entity and its claims.
+          </Link>
+          : answer-ready pages help selection, while corroborating sources help
+          generative engines verify the entity and its claims. Log cited URLs with the{" "}
+          <Link className="text-emerald-300 underline underline-offset-4" href="/llm-citation-audit-template">
+            LLM citation audit template
+          </Link>{" "}
+          and read why{" "}
+          <Link className="text-emerald-300 underline underline-offset-4" href="/can-google-alerts-track-chatgpt-mentions">
+            Google Alerts will not surface ChatGPT answer changes
+          </Link>
+          .
         </p>
       </section>
 

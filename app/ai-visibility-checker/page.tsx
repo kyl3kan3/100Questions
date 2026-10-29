@@ -303,7 +303,13 @@ export default function AiVisibilityCheckerPage() {
                   </li>
                   <li>Check the title, description, primary heading, and visible entity facts.</li>
                   <li>Inspect JSON-LD for organization, product, article, or FAQ data that matches the page.</li>
-                  <li>Confirm sitemap.xml and llms.txt are public and point to canonical URLs.</li>
+                  <li>
+                    Confirm sitemap.xml and llms.txt are public and point to canonical URLs. Use the{" "}
+                    <Link className="text-emerald-300 underline underline-offset-4" href="/llms-txt-checker">
+                      llms.txt checker
+                    </Link>{" "}
+                    to validate or draft the file.
+                  </li>
                 </ol>
                 <p className="mt-4 text-sm leading-6 text-zinc-400">
                   The automated scan requires JavaScript, but the checklist and
@@ -440,12 +446,19 @@ export default function AiVisibilityCheckerPage() {
                   >
                     AI visibility audit
                   </Link>{" "}
-                  works, or browse the complete{" "}
+                  works, browse the complete{" "}
                   <Link
                     className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                     href="/ai-visibility-tools"
                   >
                     AI visibility tools hub
+                  </Link>
+                  , or compare{" "}
+                  <Link
+                    className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                    href="/ai-visibility-tools-pricing"
+                  >
+                    sourced AI visibility tool pricing
                   </Link>
                   .
                 </p>

@@ -1,3 +1,4 @@
+import { NON_HTML_NOINDEX_HEADER } from "./non-html-crawler-headers";
 import { PARENT_ORGANIZATION_STRUCTURED_DATA } from "./site-structured-data";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE_ALT, SOCIAL_IMAGE_URL } from "./site";
 
@@ -338,6 +339,7 @@ export function machineMarkdownResponse(
         absoluteUrl(page.htmlPath) +
         '>; rel="canonical"; type="text/html"',
       vary: "Accept",
+      [NON_HTML_NOINDEX_HEADER.key]: NON_HTML_NOINDEX_HEADER.value,
     },
   });
 }

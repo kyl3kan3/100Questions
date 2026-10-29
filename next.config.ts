@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withWorkflow } from "workflow/next";
 
 import { AGENT_DISCOVERY_LINK_HEADER } from "./lib/agent-discovery";
+import { nonHtmlNoindexHeaderRules } from "./lib/non-html-crawler-headers";
 import { ADVERTISED_PUBLIC_MARKDOWN_PAGES } from "./lib/public-markdown";
 import { PUBLIC_ROUTE_REDIRECTS } from "./lib/seo";
 import {
@@ -21,6 +22,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      ...nonHtmlNoindexHeaderRules(),
       {
         source: CHATGPT_STARTUP_CHECK_PATH,
         headers: xPlayerFrameSecurityHeaders(),

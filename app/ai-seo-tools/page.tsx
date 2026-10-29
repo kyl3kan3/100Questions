@@ -481,9 +481,22 @@ export default function AiSeoToolsPage() {
                   className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
                 >
                   free AI visibility alternatives
-                </Link>{" "}
-                and their measurement limits, or browse the rest of the hub for
-                calculators, templates, audits, and platform buying criteria.
+                </Link>
+                , the{" "}
+                <Link
+                  href="/ai-visibility-tools-pricing"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                >
+                  sourced AI visibility tools pricing table
+                </Link>
+                , and why{" "}
+                <Link
+                  href="/can-google-alerts-track-chatgpt-mentions"
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                >
+                  Google Alerts is not a ChatGPT mention tracker
+                </Link>
+                .
               </p>
             </section>
 

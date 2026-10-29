@@ -287,7 +287,24 @@ export default function Home() {
             </h2>
             <p className="mt-5 text-pretty leading-7 text-zinc-400">
               The benchmark is the paid product. These guides explain the
-              measurement model when you need more context before buying.
+              measurement model when you need more context before buying. For
+              vendor budgets, see{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/ai-visibility-tools-pricing">
+                sourced AI visibility tool pricing
+              </Link>
+              ; for account help, visit the{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/support">
+                support center
+              </Link>
+              . Technical teams can also use the{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/llms-txt-checker">
+                llms.txt checker
+              </Link>{" "}
+              and the{" "}
+              <Link className="text-emerald-300 underline underline-offset-4" href="/customer-research-methods">
+                customer research methods guide
+              </Link>{" "}
+              before freezing a benchmark.
             </p>
           </div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -295,7 +312,7 @@ export default function Home() {
               {
                 href: "/ai-visibility-checker",
                 title: "Free AI visibility checker",
-                description: "Test crawl access, schema, sitemaps, and llms.txt.",
+                description: "Test crawl access, schema, sitemaps, and llms.txt—or use the dedicated llms.txt checker.",
               },
               {
                 href: "/ai-visibility",

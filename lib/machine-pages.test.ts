@@ -40,6 +40,7 @@ describe("machine-readable SEO pages", () => {
 
     const response = machineMarkdownResponse(page!);
     expect(response.headers.get("content-type")).toContain("text/markdown");
+    expect(response.headers.get("x-robots-tag")).toBe("noindex");
     expect(response.headers.get("content-location")).toBe("/ai-seo-tools.md");
     expect(response.headers.get("link")).toContain(
       '<https://100questionsai.com/ai-seo-tools>; rel="canonical"',

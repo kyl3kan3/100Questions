@@ -31,6 +31,7 @@ import type {
   ReadinessCheck,
 } from "@/lib/ai-readiness";
 import { buildReadinessOffer } from "@/lib/readiness-offer";
+import { ReadinessEmailOptIn } from "@/components/readiness-email-optin";
 import { cn } from "@/lib/utils";
 
 export function AiReadinessChecker() {
@@ -155,7 +156,10 @@ export function AiReadinessChecker() {
 
         <div aria-live="polite" aria-busy={isLoading}>
           {result ? (
-            <ReadinessResults key={result.checkedAt} result={result} />
+            <>
+              <ReadinessResults key={result.checkedAt} result={result} />
+              <ReadinessEmailOptIn website={result.checkedUrl} score={result.score} />
+            </>
           ) : null}
         </div>
       </div>

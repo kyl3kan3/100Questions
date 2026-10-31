@@ -3,6 +3,7 @@ import {
   EDITORIAL_AUTHOR_ID,
   EDITORIAL_AUTHOR_PUBLIC_PROFILES,
 } from "./editorial";
+import { ORGANIZATION_KNOWS_ABOUT } from "./organization-knows-about";
 import { absoluteUrl, SITE_NAME } from "./site";
 
 export const PARENT_ORGANIZATION_STRUCTURED_DATA = {
@@ -30,6 +31,7 @@ export function buildSiteStructuredData() {
         brand: { "@id": `${homeUrl}#brand` },
         founder: { "@id": EDITORIAL_AUTHOR_ID },
         sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
+        knowsAbout: [...ORGANIZATION_KNOWS_ABOUT],
         parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
       },
       buildEditorialPersonStructuredData(),

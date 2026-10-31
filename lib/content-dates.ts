@@ -51,4 +51,5 @@ export const PUBLIC_PAGE_LAST_MODIFIED: Readonly<Record<string, string>> = {
   "/methodology": "2026-08-16",
   "/faq": "2026-08-16",
   "/sample-report": "2026-08-16",
+  "/sitemap": "2026-10-31",
 };

@@ -104,7 +104,7 @@ export function buildHomeStructuredData() {
         "@type": "WebPage",
         "@id": `${homeUrl}#webpage`,
         url: homeUrl,
-        name: "AI Visibility Benchmark for OpenAI, Claude, Gemini, and Grok",
+        name: "100 Questions — AI search visibility platform",
         description:
           `Measure brand mentions, prominence, competitor share of voice, citations, and coverage across ${BENCHMARK_PLANNED_ANSWER_COUNT} planned web-grounded AI answers.`,
         isPartOf: { "@id": `${homeUrl}#website` },

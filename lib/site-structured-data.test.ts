@@ -5,6 +5,7 @@ import {
   EDITORIAL_AUTHOR_ID,
   EDITORIAL_AUTHOR_PUBLIC_PROFILES,
 } from "./editorial";
+import { ORGANIZATION_KNOWS_ABOUT } from "./organization-knows-about";
 import {
   buildSiteStructuredData,
   PARENT_ORGANIZATION_STRUCTURED_DATA,
@@ -24,6 +25,7 @@ describe("site structured data", () => {
       founder: { "@id": EDITORIAL_AUTHOR_ID },
       sameAs: [...EDITORIAL_AUTHOR_PUBLIC_PROFILES],
       parentOrganization: PARENT_ORGANIZATION_STRUCTURED_DATA,
+      knowsAbout: [...ORGANIZATION_KNOWS_ABOUT],
     });
     expect(brand).toMatchObject({
       "@id": "https://100questionsai.com/#brand",

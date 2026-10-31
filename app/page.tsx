@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+import { AiVisibilityPrimaryPaths } from "@/components/ai-visibility-primary-paths";
 import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
@@ -93,16 +94,20 @@ export default function Home() {
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
           <Badge variant="outline" className="mb-7 border-emerald-300/25 text-emerald-200">
-            AI visibility benchmark · Four web-grounded models
+            AI search visibility platform · Four web-grounded models
           </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-            Find where AI models overlook your brand—and what to fix next.
+            The AI search visibility platform for evidence-backed brand benchmarks.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            A $9 AI visibility benchmark across OpenAI, Claude, Gemini, and Grok:
-            missed buyer questions, competitors shown instead, sources models
-            trust, and five evidence-backed actions—no subscription.
+            <strong className="font-semibold text-zinc-200">100 Questions</strong>{" "}
+            runs a prepaid{" "}
+            <strong className="font-semibold text-zinc-200">AI visibility benchmark</strong>{" "}
+            across OpenAI, Claude, Gemini, and Grok: missed buyer questions,
+            competitors shown instead, sources models trust, and five
+            evidence-backed actions—no subscription.
           </p>
+          <AiVisibilityPrimaryPaths currentPath="/" />
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <MarketingCheckoutButton />
             <Button asChild size="lg" variant="outline">
@@ -117,7 +122,7 @@ export default function Home() {
               className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
               href="/ai-visibility-audit"
             >
-              See how the evidence-linked audit works
+              AI visibility audit service — how the paid benchmark works
             </Link>
           </p>
         </div>

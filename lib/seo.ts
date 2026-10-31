@@ -54,6 +54,7 @@ export const PUBLIC_MARKETING_PATHS = [
   "/methodology",
   "/faq",
   "/sample-report",
+  "/sitemap",
 ] as const;
 
 export const PUBLIC_ROUTE_REDIRECTS = [

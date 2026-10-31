@@ -12,6 +12,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AiVisibilityPrimaryPaths } from "@/components/ai-visibility-primary-paths";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
@@ -32,14 +33,14 @@ const publishedAt = "2026-08-11T00:00:00.000Z";
 const introPrice = formatPackagePrice(BILLING_PACKAGES[0].priceCents);
 
 export const metadata: Metadata = {
-  title: "AI Visibility Audit: 100 Answers, 4 Models",
+  title: "AI Visibility Audit Service — 100 Answers, 4 Models",
   description:
-    "Run a source-backed AI visibility audit across OpenAI, Claude, Gemini, and Grok. Get 100 planned answers, competitor evidence, and five actions from $9.",
+    "Paid AI visibility audit: one frozen buyer question set, up to 100 grounded answers across OpenAI, Claude, Gemini, and Grok, competitor evidence, and five actions from $9.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "AI Visibility Audit: 100 Answers Across Four AI Models",
+    title: "AI Visibility Audit Service — Cross-Model Benchmark",
     description:
-      "Benchmark brand mentions, prominence, competitors, and citations with a frozen question set and inspectable evidence.",
+      "Prepaid audit with frozen questions, inspectable answers, competitor share of voice, citations, and a prioritized action plan.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "website",
@@ -48,9 +49,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Visibility Audit: 100 Answers Across Four AI Models",
+    title: "AI Visibility Audit Service — 100 Answers, 4 Models",
     description:
-      "A prepaid, source-backed brand visibility benchmark with a prioritized action plan.",
+      "Source-backed, prepaid brand visibility audit with exports and a prioritized action plan.",
     images: [SOCIAL_IMAGE],
   },
 };
@@ -209,13 +210,36 @@ export default function AiVisibilityAuditPage() {
                 AI visibility audit · From {introPrice}
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                AI visibility audit: see where four AI models recommend your brand
+                AI visibility audit service
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                Run one frozen set of 25 buyer questions across OpenAI, Claude,
-                Gemini, and Grok. See who mentions you, which competitors win
-                instead, what sources shape the answers, and what to fix next.
+                Order a prepaid{" "}
+                <strong className="font-semibold text-zinc-200">
+                  AI visibility audit
+                </strong>
+                : one frozen set of 25 buyer questions across OpenAI, Claude,
+                Gemini, and Grok—up to{" "}
+                <strong className="font-semibold text-zinc-200">
+                  100 grounded answers
+                </strong>{" "}
+                with competitors, citations, and five prioritized fixes. New to
+                the topic? Read{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility"
+                >
+                  what is AI visibility?
+                </Link>{" "}
+                or run the{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility-checker"
+                >
+                  free AI visibility checker
+                </Link>{" "}
+                first.
               </p>
+              <AiVisibilityPrimaryPaths currentPath="/ai-visibility-audit" />
               <ContentByline
                 publishedAt={publishedAt}
                 publishedLabel="August 11, 2026"

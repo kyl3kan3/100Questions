@@ -2,8 +2,9 @@ import { ArrowRight, CheckCircle2, ChevronDown } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AiReadinessChecker } from "@/components/ai-readiness-checker";
 import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
+import { AiVisibilityPrimaryPaths } from "@/components/ai-visibility-primary-paths";
+import { AiReadinessChecker } from "@/components/ai-readiness-checker";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -24,10 +25,10 @@ const checkerModifiedAt = "2026-08-13T00:00:00.000Z";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Free AI Visibility Checker | 100 Questions",
+    absolute: "Free AI Visibility Checker — Technical Readiness Scan",
   },
   description:
-    "Run a free AI visibility readiness check for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt. No account required.",
+    "Free AI visibility checker for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt—plus a manual workflow to test what assistants say. No account required.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Free AI Visibility Checker for Technical Readiness",
@@ -260,14 +261,32 @@ export default function AiVisibilityCheckerPage() {
                 Free AI visibility checker
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                Check your site&apos;s AI visibility readiness in seconds.
+                Run a{" "}
+                <strong className="font-semibold text-zinc-200">
+                  free AI visibility checker
+                </strong>{" "}
+                for technical readiness in seconds.
               </p>
               <p className="mt-3 max-w-3xl text-pretty text-base leading-7 text-zinc-400">
-                Run a free technical preflight for indexability, AI crawler
-                access, schema, core page signals, sitemap discovery, and
-                llms.txt. Then use the manual check below to test what AI
-                assistants actually say.
+                Scan indexability, AI crawler access, schema, core page signals,
+                sitemap discovery, and llms.txt—then follow the manual steps to
+                test what assistants actually say. For definitions read{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility"
+                >
+                  what is AI visibility?
+                </Link>
+                ; for a paid benchmark open the{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility-audit"
+                >
+                  AI visibility audit service
+                </Link>
+                .
               </p>
+              <AiVisibilityPrimaryPaths currentPath="/ai-visibility-checker" />
               <ContentByline
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"

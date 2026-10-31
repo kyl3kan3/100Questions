@@ -31,6 +31,7 @@ const footerGroups = [
       ["Support", "/support"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
+      ["Sitemap", "/sitemap"],
     ],
   },
 ] as const;

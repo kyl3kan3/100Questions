@@ -122,10 +122,13 @@ export default function PricingPage() {
               Prepaid · No subscription
             </Badge>
             <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-              One credit. One complete AI visibility benchmark.
+              One credit. One complete{" "}
+              <strong className="font-semibold text-white">AI visibility benchmark</strong>.
             </h1>
             <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-              Start with a complete $9 benchmark. Buy more only when you need a fresh baseline, a post-implementation rerun, or additional client capacity. Compare{" "}
+              Start with a complete{" "}
+              <strong className="font-semibold text-zinc-200">$9 prepaid benchmark</strong>.
+              Buy more only when you need a fresh baseline, a post-implementation rerun, or additional client capacity. Compare{" "}
               <Link className="text-emerald-300 underline underline-offset-4" href="/ai-visibility-tools-pricing">
                 other vendors&apos; published AI visibility prices
               </Link>

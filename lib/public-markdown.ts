@@ -286,6 +286,11 @@ const PUBLIC_PAGE_SUMMARIES: Record<PublicMarketingPath, PageSummary> = {
     summary:
       "A complete fictional audit with metrics, missed questions, competitor evidence, citations, limitations, and recommended actions.",
   },
+  "/sitemap": {
+    title: "HTML Sitemap",
+    summary:
+      "Human-readable index of every public marketing page on 100 Questions, grouped by section.",
+  },
 };
 
 function markdownPathForHtmlPath(htmlPath: PublicMarketingPath) {

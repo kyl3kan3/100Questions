@@ -2,6 +2,26 @@ import Link from "next/link";
 
 const paths = [
   {
+    href: "/",
+    title: "AI search visibility platform",
+    description: "100 Questions — prepaid cross-model benchmarks with stored evidence.",
+  },
+  {
+    href: "/ai-visibility",
+    title: "What is AI visibility?",
+    description: "Definitions, metrics, worked examples, and how visibility differs from SEO.",
+  },
+  {
+    href: "/ai-visibility-audit",
+    title: "AI visibility audit service",
+    description: "Paid 100-answer benchmark across four providers with exports and actions.",
+  },
+  {
+    href: "/ai-visibility-checker",
+    title: "Free AI visibility checker",
+    description: "Technical readiness scan plus a manual answer-check workflow.",
+  },
+  {
     href: "/ai-search-visibility-tool",
     title: "Measure cross-model visibility",
     description: "Run 25 buyer questions across four providers with answer and citation evidence.",
@@ -12,11 +32,6 @@ const paths = [
     description: "Compare the surfaces, inputs, metrics, and reporting jobs before naming the program.",
   },
   {
-    href: "/ai-visibility-checker",
-    title: "Free AI visibility checker",
-    description: "Test crawl access, page signals, schema, and sitemap discovery.",
-  },
-  {
     href: "/ai-visibility-tools",
     title: "Choose an AI visibility tool category",
     description: "Route from readiness checks and templates to benchmarks, trackers, and enterprise suites.",
@@ -25,11 +40,6 @@ const paths = [
     href: "/answer-engine-optimization-tools",
     title: "Answer engine optimization tools",
     description: "Choose AEO software by workflow, cadence, evidence, and fit.",
-  },
-  {
-    href: "/ai-visibility",
-    title: "AI visibility guide",
-    description: "Understand the metrics, evidence, limits, and improvement loop.",
   },
   {
     href: "/how-to-get-chatgpt-to-recommend-your-business",

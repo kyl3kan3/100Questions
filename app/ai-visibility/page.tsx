@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AiVisibilityLinkCluster } from "@/components/ai-visibility-link-cluster";
+import { AiVisibilityPrimaryPaths } from "@/components/ai-visibility-primary-paths";
 import { ArticleHeroImage } from "@/components/article-hero-image";
 import { ContentByline } from "@/components/content-byline";
 import { EvidenceNotes } from "@/components/evidence-notes";
@@ -25,14 +26,14 @@ const modifiedAt = "2026-08-20T00:00:00.000Z";
 const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
-  title: "AI Visibility: How to Measure and Improve It",
+  title: "What Is AI Visibility? Metrics, Examples, and Next Steps",
   description:
-    "AI visibility measures how often your brand appears in AI answers. Learn the core metrics, see a worked example, and find practical ways to improve it.",
+    "Learn what AI visibility means, how mention rate, prominence, citations, and coverage differ, and when to use a free checker versus a paid audit.",
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "AI Visibility: What It Is, How to Measure and Improve It",
+    title: "What Is AI Visibility? Definition, Metrics, and Improvement Loop",
     description:
-      "Learn the core AI visibility metrics, see a worked example, and find practical ways to improve your brand's presence in AI answers.",
+      "Plain-language definitions, a worked example, measurement steps, and practical ways to improve brand presence in AI answers.",
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
@@ -43,9 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Visibility: A Practical Measurement Guide",
+    title: "What Is AI Visibility? A Practical Measurement Guide",
     description:
-      "Measure brand mentions, prominence, citations, competitors, and coverage across AI answers.",
+      "Define AI visibility, interpret metrics with coverage, and choose the right next step on the platform.",
     images: [articleImage],
   },
 };
@@ -198,17 +199,40 @@ export default function AiVisibilityGuidePage() {
                 variant="outline"
                 className="mt-8 border-emerald-300/25 text-emerald-200"
               >
-                AI visibility guide
+                AI visibility explainer
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                AI visibility: what it is, how to measure it, and how to improve it
+                What is AI visibility?
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
-                AI visibility measures how often and how prominently your brand appears
-                when systems such as ChatGPT, Claude, Gemini, and Grok answer relevant
-                buyer questions. This guide explains the metrics, shows a worked
-                example, and outlines practical ways to improve your visibility.
+                <strong className="font-semibold text-zinc-200">AI visibility</strong>{" "}
+                is how often and how prominently your brand appears when systems
+                such as ChatGPT, Claude, Gemini, and Grok answer relevant buyer
+                questions. This guide defines the metrics, shows a worked
+                example, and points to the{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/"
+                >
+                  AI search visibility platform
+                </Link>
+                , a{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility-checker"
+                >
+                  free AI visibility checker
+                </Link>
+                , and the{" "}
+                <Link
+                  className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200"
+                  href="/ai-visibility-audit"
+                >
+                  AI visibility audit service
+                </Link>
+                .
               </p>
+              <AiVisibilityPrimaryPaths currentPath={path} />
               <ContentByline
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"

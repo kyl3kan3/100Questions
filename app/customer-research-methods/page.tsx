@@ -11,7 +11,7 @@ const modified = { iso: "2026-08-20", label: "August 20, 2026" } as const;
 
 export const metadata = buildResourceMetadata({
   path,
-  title: { absolute: "Customer Research for AI Search" },
+  title: { absolute: "Customer Research for AI Search · 100 Questions" },
   description:
     "Compare customer research methods and learn where AI visibility testing fits: research studies customers; AI benchmarks study answer-engine output.",
   publishedTime: published.iso,

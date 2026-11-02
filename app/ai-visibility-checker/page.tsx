@@ -8,7 +8,6 @@ import { AiReadinessChecker } from "@/components/ai-readiness-checker";
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { PRODUCT_UPDATED_AT } from "@/lib/product-facts";
@@ -251,13 +250,7 @@ export default function AiVisibilityCheckerPage() {
                 <span aria-hidden="true">/</span>{" "}
                 <span className="text-zinc-300">AI visibility checker</span>
               </nav>
-              <Badge
-                variant="outline"
-                className="mt-8 border-emerald-300/25 text-emerald-200"
-              >
-                AI visibility checker
-              </Badge>
-              <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-8 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
                 Free AI visibility checker
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">

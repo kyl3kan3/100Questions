@@ -9,7 +9,6 @@ import { ContentByline } from "@/components/content-byline";
 import { EvidenceNotes } from "@/components/evidence-notes";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingHeader } from "@/components/marketing-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
@@ -195,13 +194,7 @@ export default function AiVisibilityGuidePage() {
                 <span aria-hidden="true">/</span>{" "}
                 <span className="text-zinc-300">AI visibility</span>
               </nav>
-              <Badge
-                variant="outline"
-                className="mt-8 border-emerald-300/25 text-emerald-200"
-              >
-                AI visibility explainer
-              </Badge>
-              <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-8 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
                 What is AI visibility?
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">

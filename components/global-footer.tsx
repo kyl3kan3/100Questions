@@ -6,6 +6,7 @@ const footerGroups = [
   {
     label: "Product",
     links: [
+      ["Free AI visibility checker", "/ai-visibility-checker"],
       ["AI search visibility tool", "/ai-search-visibility-tool"],
       ["AI visibility audit", "/ai-visibility-audit"],
       ["Sample report", "/sample-report"],

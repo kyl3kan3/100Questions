@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Clock3, FileSearch, Gauge, RefreshCw } from "lucide-react";
+import { ArrowRight, Check, Clock3, FileSearch, Gauge, LockKeyhole, RefreshCw } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -15,6 +15,7 @@ import {
   CREDIT_VALIDITY_MONTHS,
   formatPackagePrice,
 } from "@/lib/billing/packages";
+import { BENCHMARK_RETENTION_DAYS } from "@/lib/product-facts";
 import {
   PRODUCT_BEST_FITS,
   PRODUCT_FEATURES,
@@ -118,10 +119,7 @@ export default function PricingPage() {
               <span aria-hidden="true">/</span>{" "}
               <span className="text-zinc-300">Pricing</span>
             </nav>
-            <Badge variant="outline" className="mt-8 border-emerald-300/25 text-emerald-200">
-              Prepaid · No subscription
-            </Badge>
-            <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-8 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
               One credit. One complete{" "}
               <strong className="font-semibold text-white">AI visibility benchmark</strong>.
             </h1>
@@ -142,6 +140,10 @@ export default function PricingPage() {
               </Link>{" "}
               for billing questions.
             </p>
+            <p className="mt-4 flex items-center gap-2 text-xs text-zinc-400">
+              <LockKeyhole className="size-3.5 shrink-0" aria-hidden="true" />
+              Private by default · {BENCHMARK_RETENTION_DAYS}-day answer retention on completed benchmarks
+            </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MarketingCheckoutButton label="Buy my first benchmark — $9" />
               <Button asChild size="lg" variant="outline">
@@ -153,8 +155,7 @@ export default function PricingPage() {
 
         <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
           <section aria-labelledby="packages-heading">
-            <p className="eyebrow">Choose the project size</p>
-            <h2 id="packages-heading" className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 id="packages-heading" className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Pay for finished benchmarks, not dashboard access
             </h2>
             <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -200,8 +201,7 @@ export default function PricingPage() {
 
           <section className="grid gap-8 lg:grid-cols-[0.68fr_1.32fr]" aria-labelledby="included-heading">
             <div>
-              <p className="eyebrow">Included in every run</p>
-              <h2 id="included-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              <h2 id="included-heading" className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
                 The same evidence, regardless of package
               </h2>
             </div>
@@ -216,8 +216,7 @@ export default function PricingPage() {
           </section>
 
           <section className="rounded-[26px] border border-emerald-300/15 bg-emerald-300/[0.025] p-7 sm:p-9" aria-labelledby="research-proof-heading">
-            <p className="eyebrow">Inspect the measurement work</p>
-            <h2 id="research-proof-heading" className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+            <h2 id="research-proof-heading" className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
               The open Index publishes the evidence standard behind the product
             </h2>
             <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
@@ -231,8 +230,7 @@ export default function PricingPage() {
           </section>
 
           <section aria-labelledby="fit-heading">
-            <p className="eyebrow">Choose the right measurement model</p>
-            <h2 id="fit-heading" className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 id="fit-heading" className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Best for a bounded decision—not continuous monitoring
             </h2>
             <div className="mt-8 grid gap-5 lg:grid-cols-2">
@@ -274,8 +272,7 @@ export default function PricingPage() {
           </section>
 
           <section aria-labelledby="pricing-faq-heading">
-            <p className="eyebrow">Pricing questions</p>
-            <h2 id="pricing-faq-heading" className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 id="pricing-faq-heading" className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Know what you are buying before checkout
             </h2>
             <div className="mt-8 grid gap-4 lg:grid-cols-2">
@@ -289,8 +286,7 @@ export default function PricingPage() {
           </section>
 
           <section className="rounded-[28px] bg-emerald-300 p-7 text-zinc-950 sm:p-9">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em]">First benchmark</p>
-            <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="max-w-2xl text-balance text-3xl font-semibold tracking-[-0.035em]">Start with one complete $9 benchmark.</h2>
                 <p className="mt-3 max-w-2xl leading-7 text-zinc-800">Review the evidence, export the report, and decide whether a later rerun is worth buying.</p>

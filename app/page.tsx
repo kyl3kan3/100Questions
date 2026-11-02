@@ -1,15 +1,8 @@
-import {
-  Check,
-  CircleGauge,
-  Database,
-  Globe2,
-  LockKeyhole,
-} from "lucide-react";
+import { Check, CircleGauge, Database, Globe2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-import { AiVisibilityPrimaryPaths } from "@/components/ai-visibility-primary-paths";
 import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
@@ -31,7 +24,6 @@ import {
 import { buildHomeStructuredData } from "@/lib/home-structured-data";
 import {
   BENCHMARK_PROVIDER_FACTS,
-  BENCHMARK_RETENTION_DAYS,
   PRODUCT_BEST_FITS,
   PRODUCT_FAQS,
   PRODUCT_FEATURES,
@@ -73,7 +65,7 @@ export const metadata: Metadata = {
 };
 
 const providerRows = BENCHMARK_PROVIDER_FACTS.map(
-  ({ provider, model, grounding }) => [provider, model, grounding] as const,
+  ({ provider, model }) => [provider, model] as const,
 );
 
 const scoreCards = [
@@ -93,9 +85,6 @@ export default function Home() {
 
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
         <div className="animate-enter">
-          <Badge variant="outline" className="mb-7 border-emerald-300/25 text-emerald-200">
-            AI search visibility platform · Four web-grounded models
-          </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
             The AI search visibility platform for evidence-backed brand benchmarks.
           </h1>
@@ -107,17 +96,10 @@ export default function Home() {
             competitors shown instead, sources models trust, and five
             evidence-backed actions—no subscription.
           </p>
-          <AiVisibilityPrimaryPaths currentPath="/" />
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <MarketingCheckoutButton />
-            <Button asChild size="lg" variant="outline">
-              <Link href="/sample-report">View a sample report</Link>
-            </Button>
+          <div className="mt-9">
+            <MarketingCheckoutButton label="Run an audit — $9" />
           </div>
-          <p className="mt-5 flex items-center gap-2 text-xs text-zinc-400">
-            <LockKeyhole className="size-3.5" /> Private by default · {BENCHMARK_RETENTION_DAYS}-day answer retention
-          </p>
-          <p className="mt-3 text-sm text-zinc-400">
+          <p className="mt-5 text-sm text-zinc-400">
             <Link
               className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
               href="/ai-visibility-audit"
@@ -128,36 +110,35 @@ export default function Home() {
         </div>
 
         <Card className="animate-enter relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d] [animation-delay:120ms]">
-          <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
-            <Image
-              src="/sample-report-preview.png"
-              alt="Sample report showing visibility, missed questions, competitors, sources, and recommended actions"
-              fill
-              priority
-              sizes="(min-width: 768px) 42vw, 100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_42%,rgba(7,9,8,0.88)_100%)]" />
-            <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-200">
-                  A real deliverable, before you buy
+          <Link href="/sample-report" className="group block">
+            <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
+              <Image
+                src="/sample-report-preview.png"
+                alt="Sample report showing visibility, missed questions, competitors, sources, and recommended actions"
+                fill
+                priority
+                sizes="(min-width: 768px) 42vw, 100vw"
+                className="object-cover transition duration-300 group-hover:scale-[1.02]"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_42%,rgba(7,9,8,0.88)_100%)]" />
+              <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
+                <p className="text-sm font-medium text-zinc-100 group-hover:text-white">
+                  View sample report
                 </p>
-                <p className="mt-1 text-xs text-zinc-300">
-                  Metrics, missed questions, sources, and five next actions.
-                </p>
-              </div>
-              <Badge variant="success" className="shrink-0">Live evidence</Badge>
-            </figcaption>
-          </figure>
+                <Badge variant="success" className="shrink-0">Live evidence</Badge>
+              </figcaption>
+            </figure>
+          </Link>
           <CardHeader className="border-b border-white/[0.07] pb-5">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="eyebrow mb-2">Example benchmark</p>
-                <CardTitle as="h2" className="text-xl">
+              <CardTitle as="h2" className="text-xl">
+                <Link
+                  href="/sample-report"
+                  className="hover:text-emerald-200"
+                >
                   Northstar analytics
-                </CardTitle>
-              </div>
+                </Link>
+              </CardTitle>
               <Badge variant="success">Complete</Badge>
             </div>
           </CardHeader>
@@ -188,10 +169,10 @@ export default function Home() {
 
       <section className="border-y border-white/[0.07] bg-white/[0.018]">
         <div className="page-shell grid divide-y divide-white/[0.07] md:grid-cols-4 md:divide-x md:divide-y-0">
-          {providerRows.map(([provider, model, grounding]) => (
+          {providerRows.map(([provider, model]) => (
             <div key={provider} className="px-1 py-7 md:px-7 first:md:pl-0 last:md:pr-0">
               <p className="text-sm font-semibold text-zinc-100">{provider}</p>
-              <p className="mt-1 text-xs text-zinc-400">{model} · {grounding}</p>
+              <p className="mt-1 text-xs text-zinc-400">{model}</p>
             </div>
           ))}
         </div>
@@ -222,8 +203,7 @@ export default function Home() {
         <div className="rounded-[28px] border border-emerald-300/15 bg-emerald-300/[0.025] p-7 sm:p-9">
           <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
             <div>
-              <p className="eyebrow">Know what you receive</p>
-              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">A client-ready audit, not another monitoring dashboard.</h2>
+              <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white">A client-ready audit, not another monitoring dashboard.</h2>
               <Button asChild variant="link" className="mt-4"><Link href="/ai-visibility-audit">Explore the AI visibility audit</Link></Button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">

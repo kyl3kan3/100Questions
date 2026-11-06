@@ -53,7 +53,7 @@ export default function ContactPage() {
       <section>
         <h2>Account, benchmark, or billing help</h2>
         <p className="mt-4">
-          Sign in to your <Link href="/dashboard">private dashboard</Link> to
+          Sign in to your <Link href="/auth/sign-in">private dashboard</Link> to
           review credits, runs, exports, and billing controls. Keep the Stripe
           receipt and benchmark run identifier available when reporting a
           purchase or fulfillment problem. Never post receipt details, account

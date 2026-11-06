@@ -67,7 +67,7 @@ const supportRoutes = [
     title: "Billing and credits",
     description:
       "Review prepaid credits and billing controls. Keep the Stripe receipt for any purchase investigation.",
-    href: "/dashboard",
+    href: "/auth/sign-in",
     label: "Open billing controls",
   },
   {

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     absolute: "Free AI Visibility Checker — Technical Readiness Scan",
   },
   description:
-    "Free AI visibility checker for indexability, AI crawlers, schema, page signals, sitemaps, and llms.txt—plus a manual workflow to test what assistants say. No account required.",
+    "Free AI visibility checker for indexability, crawlers, schema, sitemaps, and llms.txt—plus a workflow to test what assistants say. No account required.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "Free AI Visibility Checker for Technical Readiness",

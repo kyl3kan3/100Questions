@@ -12,7 +12,7 @@ export const metadata = buildResourceMetadata({
   path,
   title: "Can Google Alerts Track ChatGPT Mentions?",
   description:
-    "Learn what Google Alerts can monitor, why it does not measure mentions inside ChatGPT answers, and how to combine web alerts with cross-model visibility testing.",
+    "What Google Alerts can monitor, why it misses ChatGPT mentions, and how to pair web alerts with cross-model visibility testing.",
   publishedTime: date.iso,
   modifiedTime: date.iso,
 });

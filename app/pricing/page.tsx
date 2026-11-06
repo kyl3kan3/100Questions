@@ -15,6 +15,7 @@ import {
   CREDIT_VALIDITY_MONTHS,
   formatPackagePrice,
 } from "@/lib/billing/packages";
+import { buildHomeProductStructuredData } from "@/lib/home-structured-data";
 import { BENCHMARK_RETENTION_DAYS } from "@/lib/product-facts";
 import {
   PRODUCT_BEST_FITS,
@@ -81,6 +82,7 @@ export default function PricingPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
+      buildHomeProductStructuredData(),
       {
         "@type": "WebPage",
         "@id": `${pageUrl}#webpage`,

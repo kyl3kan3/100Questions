@@ -25,7 +25,9 @@ const modifiedAt = "2026-08-20T00:00:00.000Z";
 const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
-  title: "What Is AI Visibility? Metrics, Examples, and Next Steps",
+  title: {
+    absolute: "AI Visibility: Metrics, Examples, Next Steps · 100 Questions",
+  },
   description:
     "Learn what AI visibility means, how mention rate, prominence, citations, and coverage differ, and when to use a free checker versus a paid audit.",
   alternates: { canonical: pageUrl },

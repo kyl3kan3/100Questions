@@ -34,7 +34,7 @@ const introPrice = formatPackagePrice(BILLING_PACKAGES[0].priceCents);
 export const metadata: Metadata = {
   title: "AI Visibility Audit Service — 100 Answers, 4 Models",
   description:
-    "Paid AI visibility audit: one frozen buyer question set, up to 100 grounded answers across OpenAI, Claude, Gemini, and Grok, competitor evidence, and five actions from $9.",
+    "Paid AI visibility audit: one buyer question set, up to 100 grounded answers across OpenAI, Claude, Gemini, and Grok, plus five actions from $9.",
   alternates: { canonical: pageUrl },
   openGraph: {
     title: "AI Visibility Audit Service — Cross-Model Benchmark",

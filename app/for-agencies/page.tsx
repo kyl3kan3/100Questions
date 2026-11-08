@@ -1,5 +1,6 @@
 import { ArrowRight, Check, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
@@ -44,7 +45,12 @@ export const metadata: Metadata = {
   },
 };
 
-const workflow = [
+type WorkflowStep = {
+  title: string;
+  description: ReactNode;
+};
+
+const workflow: WorkflowStep[] = [
   {
     title: "Pitch with a baseline",
     description:
@@ -52,15 +58,37 @@ const workflow = [
   },
   {
     title: "Deliver the report",
-    description:
-      "Every run produces a client-ready report: visibility, prominence, share of voice, citations, sentiment, and coverage, each linked to stored answer evidence, plus five prioritized actions and PDF and CSV exports.",
+    description: (
+      <>
+        Every run produces a client-ready report: visibility, prominence, share
+        of voice,{" "}
+        <Link
+          href="/chatgpt-citations-vs-brand-mentions"
+          className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+        >
+          citations
+        </Link>
+        , sentiment, and coverage, each linked to stored answer evidence, plus
+        five prioritized actions and PDF and CSV exports.
+      </>
+    ),
   },
   {
-    title: "Prove the movement",
-    description:
-      "After you ship content, entity, and authority fixes, rerun the identical frozen question set and present the before-and-after comparison at the next review.",
+    title: "Compare reruns on the same question set",
+    description: (
+      <>
+        After you ship content, entity, and authority fixes,{" "}
+        <Link
+          href="/ai-visibility-audit-vs-monitoring"
+          className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+        >
+          rerun the identical frozen question set
+        </Link>{" "}
+        and present the before-and-after comparison at the next review.
+      </>
+    ),
   },
-] as const;
+];
 
 const fits = [
   "Evidence-linked findings you can defend in a client meeting",
@@ -71,7 +99,12 @@ const fits = [
   "Prepaid credits—no per-client subscription or seat fees",
 ] as const;
 
-const faqs = [
+type FaqItem = {
+  question: string;
+  answer: ReactNode;
+};
+
+const faqs: FaqItem[] = [
   {
     question: "Can I use the reports with my clients?",
     answer:
@@ -79,8 +112,21 @@ const faqs = [
   },
   {
     question: "How does pricing work for multiple clients?",
-    answer:
-      "Credits are prepaid and valid for 12 months: one credit runs one complete benchmark for one subject. Agencies typically buy the three-pack or ten-pack and allocate credits across clients as audits, deliverables, or rerun comparisons come up. There is no subscription, seat fee, or per-provider add-on.",
+    answer: (
+      <>
+        Credits are prepaid and valid for 12 months: one credit runs one
+        complete benchmark for one subject. Agencies typically buy the{" "}
+        <Link
+          href="/pricing"
+          className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+        >
+          three-pack or ten-pack
+        </Link>{" "}
+        and allocate credits across clients as audits, deliverables, or rerun
+        comparisons come up. There is no subscription, seat fee, or
+        per-provider add-on.
+      </>
+    ),
   },
   {
     question: "How do reruns work for retainer clients?",
@@ -89,10 +135,25 @@ const faqs = [
   },
   {
     question: "What should I tell clients about the methodology?",
-    answer:
-      "Point them at the public methodology page. Results are directional, API-grounded snapshots across OpenAI, Claude, Gemini, and Grok with shared web-search grounding—not replicas of any individual's consumer chat session. Metrics with under 90% provider coverage are marked provisional, and every number links to stored evidence, which is exactly the transparency a skeptical client wants.",
+    answer: (
+      <>
+        Point them at the{" "}
+        <Link
+          href="/methodology"
+          className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+        >
+          public methodology page
+        </Link>
+        . Results are directional, API-grounded snapshots across OpenAI,
+        Claude, Gemini, and Grok with shared web-search grounding—not replicas of
+        any individual&apos;s consumer chat session. Metrics with under 90%
+        provider coverage are marked provisional, and every number links to
+        stored evidence, which is exactly the transparency a skeptical client
+        wants.
+      </>
+    ),
   },
-] as const;
+];
 
 export default function ForAgenciesPage() {
   const packages = getPublicBillingPackages(false);
@@ -228,6 +289,84 @@ export default function ForAgenciesPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section aria-labelledby="agency-interpretation-heading">
+            <h2
+              id="agency-interpretation-heading"
+              className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+            >
+              How to read a benchmark with your client
+            </h2>
+            <div className="mt-8 max-w-3xl space-y-5 text-pretty text-sm leading-6 text-zinc-400 sm:text-base sm:leading-7">
+              <p>
+                <strong className="font-semibold text-zinc-200">
+                  What each run contains:
+                </strong>{" "}
+                25 frozen questions (20 discovery and 5 diagnostic) asked across
+                OpenAI, Claude, Gemini, and Grok, for 100 planned provider
+                answers.
+              </p>
+              <p>
+                <strong className="font-semibold text-zinc-200">
+                  What counts toward a score:
+                </strong>{" "}
+                Only successful answers that return valid web sources are
+                score-eligible. Report completed answers, score-eligible answers,
+                and exclusions separately. Failed calls, unsupported search, and
+                missing sources remain visible in coverage; they do not enter
+                score-eligible denominators. The conservative visibility floor
+                still includes all planned discovery answers in its denominator.
+              </p>
+              <p>
+                <strong className="font-semibold text-zinc-200">
+                  What coverage and &ldquo;provisional&rdquo; mean:
+                </strong>{" "}
+                Coverage is score-eligible answers divided by planned answers.
+                When coverage is below 90%, metrics are marked provisional.
+                Present them as a signal to re-check, not as a settled finding.
+              </p>
+              <p>
+                <strong className="font-semibold text-zinc-200">
+                  What to compare:
+                </strong>{" "}
+                Compare only reruns of the same frozen question set, and state
+                each run&apos;s date and coverage. Read movement as directional.
+                It does not show that a specific fix caused the change.
+              </p>
+              <p>
+                <strong className="font-semibold text-zinc-200">
+                  What the benchmark does not measure:
+                </strong>{" "}
+                individual consumer chat sessions, a permanent rank in any AI
+                product, or the client&apos;s leads and revenue. Report commercial
+                outcomes separately, from the client&apos;s own analytics.
+              </p>
+              <p>
+                Full metric definitions and denominators are in the{" "}
+                <Link
+                  href="/methodology"
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+                >
+                  benchmark methodology
+                </Link>
+                . To build your client deck, start from the{" "}
+                <Link
+                  href="/geo-client-reporting-template"
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+                >
+                  GEO client reporting template
+                </Link>{" "}
+                or the{" "}
+                <Link
+                  href="/ai-visibility-report-template"
+                  className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-2 hover:text-emerald-200"
+                >
+                  AI visibility report template
+                </Link>
+                .
+              </p>
             </div>
           </section>
 

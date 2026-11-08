@@ -293,10 +293,9 @@ export default function ForAgenciesPage() {
           </section>
 
           <section aria-labelledby="agency-interpretation-heading">
-            <p className="eyebrow">Client conversations</p>
             <h2
               id="agency-interpretation-heading"
-              className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
             >
               How to read a benchmark with your client
             </h2>

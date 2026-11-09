@@ -411,7 +411,25 @@ export default function AeoGuidePage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {question === "Do I need an AEO tool?" ? (
+                        <>
+                          You need a way to measure whether answers include
+                          you—otherwise AEO is guesswork. Options range from
+                          continuous monitoring subscriptions to prepaid
+                          benchmarks. A benchmark with a frozen question set, like
+                          100 Questions, shows where you stand across OpenAI,{" "}
+                          <Link
+                            className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                            href="/how-to-get-cited-in-claude-gemini-grok"
+                          >
+                            Claude, Gemini, and Grok
+                          </Link>{" "}
+                          for a fixed price, and a rerun after your changes shows
+                          directional movement without a subscription.
+                        </>
+                      ) : (
+                        answer
+                      )}
                     </p>
                   </details>
                 ))}

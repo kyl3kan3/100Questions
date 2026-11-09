@@ -86,10 +86,16 @@ export default function AiVisibilityReportTemplatePage() {
             Who this template is for
           </h2>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
-            Agencies preparing a client readout, in-house marketers briefing
-            leadership, and consultants documenting a before-and-after rerun. It
-            assumes you already collected answers under a frozen protocol—not
-            that a dashboard score alone is sufficient evidence.
+            <Link
+              className="text-emerald-300 underline underline-offset-4"
+              href="/for-agencies"
+            >
+              Agencies preparing a client readout
+            </Link>
+            , in-house marketers briefing leadership, and consultants documenting
+            a before-and-after rerun. It assumes you already collected answers
+            under a frozen protocol—not that a dashboard score alone is
+            sufficient evidence.
           </p>
         </article>
         <article className="rounded-[24px] bg-[#0b0e0c] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] sm:p-8">

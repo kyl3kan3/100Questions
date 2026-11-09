@@ -546,7 +546,26 @@ export default function AiSeoToolsPage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-pretty text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {question === "What is the best AI visibility tool?" ? (
+                        <>
+                          The best AI visibility tool is the one that matches
+                          the decision you need to make. Choose continuous
+                          monitoring for trend lines and alerts, a broad research
+                          database for market discovery, an SEO suite for combined
+                          search workflows, an enterprise platform for multi-team
+                          operations, or a fixed benchmark for a defensible
+                          baseline and{" "}
+                          <Link
+                            className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                            href="/for-agencies"
+                          >
+                            client-ready before-and-after evidence
+                          </Link>
+                          .
+                        </>
+                      ) : (
+                        answer
+                      )}
                     </p>
                   </details>
                 ))}

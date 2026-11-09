@@ -461,7 +461,27 @@ export default function LlmSeoGuidePage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {question === "What is LLM SEO?" ? (
+                        <>
+                          LLM SEO is the practice of improving how large language
+                          models—the systems behind ChatGPT, Claude, Gemini, and
+                          Grok—mention, describe, and{" "}
+                          <Link
+                            className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                            href="/how-to-get-cited-in-claude-gemini-grok"
+                          >
+                            cite your brand
+                          </Link>{" "}
+                          when they answer relevant questions. It spans two
+                          channels: what models absorbed during training, and what
+                          they retrieve from the live web when a question triggers
+                          search. The retrieval channel responds to your work in
+                          weeks; the training channel moves slowly, over model
+                          release cycles.
+                        </>
+                      ) : (
+                        answer
+                      )}
                     </p>
                   </details>
                 ))}

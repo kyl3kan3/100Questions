@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { ContentByline } from "@/components/content-byline";
 import { JsonLd } from "@/components/json-ld";
@@ -472,7 +473,14 @@ export default function OtterlyAlternativePage() {
                       {alternative.name}
                     </h3>
                     <div className="mt-6 grid gap-5 lg:grid-cols-2">
-                      <Fact label="What it does" value={alternative.does} />
+                      <Fact
+                        label="What it does"
+                        value={
+                          alternative.rank === 1
+                            ? hundredQuestionsWhatItDoes
+                            : alternative.does
+                        }
+                      />
                       <Fact label="Pricing signal" value={alternative.pricing} />
                       <Fact label="Best-fit user" value={alternative.bestFor} />
                       <Fact label="Main tradeoff" value={alternative.tradeoff} />
@@ -605,13 +613,28 @@ export default function OtterlyAlternativePage() {
   );
 }
 
+const inBodyLinkClass =
+  "text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200";
+
+const hundredQuestionsWhatItDoes = (
+  <>
+    Runs one frozen 25-question benchmark across OpenAI, Claude, Gemini, and
+    Grok for 100 planned provider answers. It stores answer and citation
+    evidence, scores the run, recommends five prioritized actions, and exports a{" "}
+    <Link className={inBodyLinkClass} href="/for-agencies">
+      client-ready PDF and CSV
+    </Link>
+    .
+  </>
+);
+
 function Fact({
   label,
   value,
   positive = false,
 }: {
   label: string;
-  value: string;
+  value: string | ReactNode;
   positive?: boolean;
 }) {
   return (

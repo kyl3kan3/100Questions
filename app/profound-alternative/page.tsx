@@ -318,7 +318,16 @@ export default function ProfoundAlternativePage() {
                     Teams that often outgrow Profound on price or scope
                   </h3>
                   <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-400">
-                    <li>Agencies that need one client deliverable, not another dashboard seat.</li>
+                    <li>
+                      Agencies that need{" "}
+                      <Link
+                        className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                        href="/for-agencies"
+                      >
+                        one client deliverable
+                      </Link>
+                      , not another dashboard seat.
+                    </li>
                     <li>Startups validating category language before committing to enterprise AEO.</li>
                     <li>SEO leads who only need ChatGPT and AI Overviews monitoring on a small prompt set.</li>
                     <li>Operators who want inspectable answer evidence, not only aggregate scores.</li>

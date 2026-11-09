@@ -623,7 +623,22 @@ export default function AnswerEngineOptimizationToolsPage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-pretty text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {question === "Should a small team buy continuous AEO monitoring?" ? (
+                        <>
+                          Only if it will act on frequent trend data. A fixed
+                          benchmark can be more economical for a baseline, a{" "}
+                          <Link
+                            className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+                            href="/for-agencies"
+                          >
+                            client report
+                          </Link>
+                          , or an occasional rerun; recurring monitoring is more
+                          useful when a team owns an ongoing AI-search program.
+                        </>
+                      ) : (
+                        answer
+                      )}
                     </p>
                   </details>
                 ))}

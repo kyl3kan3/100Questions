@@ -29,6 +29,7 @@ import {
   PRODUCT_FEATURES,
   PRODUCT_LIMITATIONS,
 } from "@/lib/product-facts";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import {
   absoluteUrl,
   canonicalUrl,
@@ -371,22 +372,7 @@ export default function Home() {
                   {question}
                 </h3>
                 <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
-                  {id === "best-fit" ? (
-                    <>
-                      100 Questions is best for consultants, agencies, and
-                      in-house teams that need a bounded AI visibility baseline,
-                      an{" "}
-                      <Link
-                        className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
-                        href="/for-agencies"
-                      >
-                        evidence-linked client deliverable
-                      </Link>
-                      , or a comparable rerun after implementation work.
-                    </>
-                  ) : (
-                    answer
-                  )}
+                  {renderInlineInternalLinks(answer)}
                 </p>
               </article>
             ))}

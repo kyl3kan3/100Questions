@@ -7,6 +7,10 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_FAQS } from "@/lib/product-facts";
+import {
+  renderInlineInternalLinks,
+  stripInlineInternalLinkMarkers,
+} from "@/lib/inline-internal-link";
 import { PARENT_ORGANIZATION_STRUCTURED_DATA } from "@/lib/site-structured-data";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
@@ -140,7 +144,7 @@ export default function FaqPage() {
           name: question,
           acceptedAnswer: {
             "@type": "Answer",
-            text: answer,
+            text: stripInlineInternalLinkMarkers(answer),
           },
         })),
       },
@@ -221,7 +225,7 @@ export default function FaqPage() {
                   {question}
                 </h2>
                 <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
-                  {answer}
+                  {renderInlineInternalLinks(answer)}
                 </p>
               </article>
             ))}

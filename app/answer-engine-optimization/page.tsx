@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -94,7 +95,7 @@ const faqs = [
   {
     question: "Do I need an AEO tool?",
     answer:
-      "You need a way to measure whether answers include you—otherwise AEO is guesswork. Options range from continuous monitoring subscriptions to prepaid benchmarks. A benchmark with a frozen question set, like 100 Questions, shows where you stand across OpenAI, Claude, Gemini, and Grok for a fixed price, and a rerun after your changes shows directional movement without a subscription.",
+      "You need a way to measure whether answers include you—otherwise AEO is guesswork. Options range from continuous monitoring subscriptions to prepaid benchmarks. A benchmark with a frozen question set, like 100 Questions, shows where you stand across OpenAI, [[/how-to-get-cited-in-claude-gemini-grok|Claude, Gemini, and Grok]] for a fixed price, and a rerun after your changes shows directional movement without a subscription.",
   },
   {
     question: "How long does AEO take to show results?",
@@ -411,7 +412,7 @@ export default function AeoGuidePage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {renderInlineInternalLinks(answer)}
                     </p>
                   </details>
                 ))}

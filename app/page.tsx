@@ -29,6 +29,7 @@ import {
   PRODUCT_FEATURES,
   PRODUCT_LIMITATIONS,
 } from "@/lib/product-facts";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import {
   absoluteUrl,
   canonicalUrl,
@@ -371,7 +372,7 @@ export default function Home() {
                   {question}
                 </h3>
                 <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
-                  {answer}
+                  {renderInlineInternalLinks(answer)}
                 </p>
               </article>
             ))}

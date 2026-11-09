@@ -120,7 +120,7 @@ export const PRODUCT_FAQS = [
     id: "best-fit",
     question: "Who is 100 Questions best for?",
     answer:
-      "100 Questions is best for consultants, agencies, and in-house teams that need a bounded AI visibility baseline, an evidence-linked client deliverable, or a comparable rerun after implementation work.",
+      "100 Questions is best for consultants, agencies, and in-house teams that need a bounded AI visibility baseline, an [[/for-agencies|evidence-linked client deliverable]], or a comparable rerun after implementation work.",
   },
   {
     id: "continuous-monitoring",

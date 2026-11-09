@@ -1,3 +1,5 @@
+import { stripInlineInternalLinkMarkers } from "./inline-internal-link";
+
 type FaqEntry = {
   question: string;
   answer: string;
@@ -20,7 +22,7 @@ export function buildFaqPageNode(
       name: question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: answer,
+        text: stripInlineInternalLinkMarkers(answer),
       },
     })),
   };

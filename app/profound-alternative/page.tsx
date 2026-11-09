@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { buildFaqPageNode } from "@/lib/faq-schema";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
+
+const teamsOutgrowProfoundScope =
+  "Agencies that need [[/for-agencies|one client deliverable]], not another dashboard seat.";
 
 const pageUrl = absoluteUrl("/profound-alternative");
 const publishedAt = "2026-09-02T00:00:00.000Z";
@@ -318,7 +322,7 @@ export default function ProfoundAlternativePage() {
                     Teams that often outgrow Profound on price or scope
                   </h3>
                   <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-zinc-400">
-                    <li>Agencies that need one client deliverable, not another dashboard seat.</li>
+                    <li>{renderInlineInternalLinks(teamsOutgrowProfoundScope)}</li>
                     <li>Startups validating category language before committing to enterprise AEO.</li>
                     <li>SEO leads who only need ChatGPT and AI Overviews monitoring on a small prompt set.</li>
                     <li>Operators who want inspectable answer evidence, not only aggregate scores.</li>

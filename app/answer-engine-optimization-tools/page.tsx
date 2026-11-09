@@ -14,6 +14,7 @@ import { MarketingHeader } from "@/components/marketing-header";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { Badge } from "@/components/ui/badge";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import {
   absoluteUrl,
   SITE_NAME,
@@ -229,7 +230,7 @@ const faqs = [
   {
     question: "Should a small team buy continuous AEO monitoring?",
     answer:
-      "Only if it will act on frequent trend data. A fixed benchmark can be more economical for a baseline, a client report, or an occasional rerun; recurring monitoring is more useful when a team owns an ongoing AI-search program.",
+      "Only if it will act on frequent trend data. A fixed benchmark can be more economical for a baseline, a [[/for-agencies|client report]], or an occasional rerun; recurring monitoring is more useful when a team owns an ongoing AI-search program.",
   },
 ] as const;
 
@@ -623,7 +624,7 @@ export default function AnswerEngineOptimizationToolsPage() {
                       {question}
                     </summary>
                     <p className="mt-3 text-pretty text-sm leading-6 text-zinc-400">
-                      {answer}
+                      {renderInlineInternalLinks(answer)}
                     </p>
                   </details>
                 ))}

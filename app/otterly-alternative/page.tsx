@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EDITORIAL_AUTHOR_ID } from "@/lib/editorial";
 import { buildFaqPageNode } from "@/lib/faq-schema";
+import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
 
 const pageUrl = absoluteUrl("/otterly-alternative");
@@ -59,7 +60,7 @@ const alternatives = [
     name: "100 Questions",
     verdict: "Best for a frozen 100-answer audit",
     does:
-      "Runs one frozen 25-question benchmark across OpenAI, Claude, Gemini, and Grok for 100 planned provider answers. It stores answer and citation evidence, scores the run, recommends five prioritized actions, and exports a client-ready PDF and CSV.",
+      "Runs one frozen 25-question benchmark across OpenAI, Claude, Gemini, and Grok for 100 planned provider answers. It stores answer and citation evidence, scores the run, recommends five prioritized actions, and exports a [[/for-agencies|client-ready PDF and CSV]].",
     pricing:
       "$9 for the first benchmark; then $15 for one credit, $39 for three, or $99 for ten. No subscription. Credits are valid for 12 months. Answer evidence is retained for 30 days.",
     bestFor:
@@ -617,7 +618,9 @@ function Fact({
   return (
     <div className="rounded-2xl bg-white/[0.025] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
       <p className={positive ? "eyebrow text-emerald-300" : "eyebrow"}>{label}</p>
-      <p className="mt-3 text-pretty text-sm leading-6 text-zinc-300">{value}</p>
+      <p className="mt-3 text-pretty text-sm leading-6 text-zinc-300">
+        {renderInlineInternalLinks(value)}
+      </p>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import { BILLING_PACKAGES } from "./billing/packages";
+import { buildFaqPageNode } from "./faq-schema";
 import {
   BENCHMARK_PLANNED_ANSWER_COUNT,
   BENCHMARK_PROVIDER_FACTS,
   BENCHMARK_QUESTION_COUNT,
   BENCHMARK_RETENTION_DAYS,
+  PRODUCT_FAQS,
   PRODUCT_FEATURES,
   PRODUCT_NAME,
   PRODUCT_SKU,
@@ -114,6 +116,10 @@ export function buildHomeStructuredData() {
         inLanguage: "en-US",
       },
       buildHomeProductStructuredData(),
+      buildFaqPageNode(homeUrl, PRODUCT_FAQS, {
+        id: `${homeUrl}#faq`,
+        name: "100 Questions product FAQ",
+      }),
     ],
   };
 }

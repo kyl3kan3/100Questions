@@ -21,7 +21,7 @@ import {
 
 const path = "/llm-seo" as const;
 const pageUrl = absoluteUrl(path);
-const modifiedAt = "2026-08-20";
+const articleModifiedAt = "2026-11-12";
 const articleImage = getArticleImage(path)!;
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: SITE_UPDATED_AT,
-    modifiedTime: modifiedAt,
+    modifiedTime: articleModifiedAt,
     images: [articleImage],
   },
   twitter: {
@@ -142,7 +142,7 @@ export default function LlmSeoGuidePage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: SITE_UPDATED_AT,
-        dateModified: modifiedAt,
+        dateModified: articleModifiedAt,
         image: articleImage,
         author: { "@id": EDITORIAL_AUTHOR_ID },
         reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
@@ -208,6 +208,9 @@ export default function LlmSeoGuidePage() {
               <ContentByline
                 publishedAt={SITE_UPDATED_AT}
                 publishedLabel="July 24, 2026"
+                modifiedAt={articleModifiedAt}
+                modifiedLabel="November 12, 2026"
+                modifiedKind="updated"
               />
             </div>
           </header>
@@ -359,6 +362,20 @@ export default function LlmSeoGuidePage() {
                     </CardHeader>
                     <CardContent className="pt-0 text-sm leading-6 text-zinc-400">
                       {description}
+                      {title === "Be present where models already look" ? (
+                        <p className="mt-4">
+                          In an{" "}
+                          <Link
+                            className="text-emerald-300 underline underline-offset-4 decoration-emerald-300/40 hover:text-emerald-200 hover:decoration-emerald-200"
+                            href="https://ahrefs.com/blog/ai-brand-visibility-correlations/"
+                          >
+                            Ahrefs study
+                          </Link>{" "}
+                          of 75,000 brands, YouTube mentions had the strongest
+                          correlation with AI visibility, about 0.737. The
+                          number of pages a brand had was about 0.194.
+                        </p>
+                      ) : null}
                     </CardContent>
                   </Card>
                 ))}

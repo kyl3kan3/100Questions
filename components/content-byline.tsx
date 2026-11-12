@@ -7,6 +7,7 @@ type ContentBylineProps = {
   publishedLabel: string;
   modifiedAt?: string;
   modifiedLabel?: string;
+  modifiedKind?: "fact-checked" | "updated";
   note?: string;
 };
 
@@ -15,6 +16,7 @@ export function ContentByline({
   publishedLabel,
   modifiedAt,
   modifiedLabel,
+  modifiedKind = "fact-checked",
   note,
 }: ContentBylineProps) {
   return (
@@ -33,7 +35,8 @@ export function ContentByline({
         <>
           <span aria-hidden="true">·</span>
           <span>
-            Fact-checked <time dateTime={modifiedAt}>{modifiedLabel}</time>
+            {modifiedKind === "updated" ? "Updated" : "Fact-checked"}{" "}
+            <time dateTime={modifiedAt}>{modifiedLabel}</time>
           </span>
         </>
       ) : null}

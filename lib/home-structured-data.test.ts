@@ -6,10 +6,12 @@ import {
   buildHomeStructuredData,
 } from "./home-structured-data";
 import {
+  PRODUCT_FAQS,
   PRODUCT_FEATURES,
   PRODUCT_SKU,
   PRODUCT_UPDATED_AT,
 } from "./product-facts";
+import { stripInlineInternalLinkMarkers } from "./inline-internal-link";
 
 function hasType(item: { "@type": string | readonly string[] }, type: string) {
   return Array.isArray(item["@type"])
@@ -83,13 +85,28 @@ describe("homepage structured data", () => {
     expect(product).not.toHaveProperty("audience");
   });
 
-  it("does not publish low-value FAQ rich-result markup", () => {
+  it("publishes homepage FAQPage markup from PRODUCT_FAQS", () => {
     const structuredData = buildHomeStructuredData();
     const faqPage = structuredData["@graph"].find((item) =>
       hasType(item, "FAQPage"),
     );
 
-    expect(faqPage).toBeUndefined();
+    expect(faqPage).toBeDefined();
+    expect(faqPage).toMatchObject({ "@type": "FAQPage" });
+    const faqMainEntity = (faqPage as { mainEntity: unknown[] }).mainEntity;
+    expect(faqMainEntity).toHaveLength(PRODUCT_FAQS.length);
+    expect(faqMainEntity).toEqual(
+      PRODUCT_FAQS.map(({ question, answer }) =>
+        expect.objectContaining({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: stripInlineInternalLinkMarkers(answer),
+          },
+        }),
+      ),
+    );
   });
 
   it("links the page and product to one descriptive product image", () => {

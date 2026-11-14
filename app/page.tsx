@@ -33,7 +33,7 @@ import { renderInlineInternalLinks } from "@/lib/inline-internal-link";
 import {
   absoluteUrl,
   canonicalUrl,
-  SITE_DESCRIPTION,
+  HOMEPAGE_META_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
   SOCIAL_IMAGE,
@@ -41,7 +41,7 @@ import {
 
 export const metadata: Metadata = {
   title: { absolute: SITE_TITLE },
-  description: SITE_DESCRIPTION,
+  description: HOMEPAGE_META_DESCRIPTION,
   other: {
     "directree-verify":
       "directree-verify=b3246ee4e6e1b1ca893315f9b6ca5310",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalUrl() },
   openGraph: {
     title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
+    description: HOMEPAGE_META_DESCRIPTION,
     url: canonicalUrl(),
     siteName: SITE_NAME,
     type: "website",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
+    description: HOMEPAGE_META_DESCRIPTION,
     images: [SOCIAL_IMAGE],
   },
 };

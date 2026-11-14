@@ -65,7 +65,7 @@ export default function LlmsTxtCheckerPage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "Service",
+          "@type": ["Service", "WebApplication", "SoftwareApplication"],
           name: "llms.txt Checker and Generator",
           url: absoluteUrl(path),
           serviceType: "llms.txt generation and public discovery check",

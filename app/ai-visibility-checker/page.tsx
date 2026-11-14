@@ -187,12 +187,13 @@ export default function AiVisibilityCheckerPage() {
         inLanguage: "en-US",
       },
       {
-        "@type": "Service",
+        "@type": ["Service", "WebApplication", "SoftwareApplication"],
         "@id": `${pageUrl}#checker`,
         name: "100 Questions AI Visibility Readiness Checker",
         url: pageUrl,
         serviceType: "AI visibility technical readiness check",
         browserRequirements: "Requires a modern web browser",
+        isAccessibleForFree: true,
         dateModified: PRODUCT_UPDATED_AT,
         description:
           "A free technical preflight for public website signals used in AI search discovery.",

@@ -17,11 +17,11 @@ describe("raw HTML discovery validation", () => {
   it("extracts graph nodes and excludes JSON-LD text from visible copy", () => {
     const html = page(
       [{ "@type": "FAQPage", name: "Hidden schema name" }],
-      "<h1>Visible &amp; useful</h1>",
+      '<h1>Visible &amp; useful, with <a href="/for-agencies">inline links</a>, in prose.</h1>',
     );
 
     expect(extractJsonLdNodes(html)).toHaveLength(1);
-    expect(visibleText(html)).toBe("Visible & useful");
+    expect(visibleText(html)).toBe("Visible & useful, with inline links, in prose.");
     expect(visibleText(html)).not.toContain("Hidden schema name");
   });
 
@@ -95,6 +95,28 @@ describe("raw HTML discovery validation", () => {
         requiredTypes: ["SoftwareApplication"],
       }),
     ).toThrow("needs a genuine aggregateRating or review");
+  });
+
+  it("allows free interactive web tools to declare SoftwareApplication/WebApplication without fake reviews", () => {
+    const html = page(
+      [
+        {
+          "@type": ["Service", "WebApplication", "SoftwareApplication"],
+          name: "Free checker",
+          isAccessibleForFree: true,
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        },
+      ],
+      "<h1>Free checker</h1>",
+    );
+
+    expect(
+      validateDiscoveryPage({
+        html,
+        path: "/ai-visibility-checker",
+        requiredTypes: ["Service"],
+      }),
+    ).toEqual({ nodes: 1, types: 1 });
   });
 
   it("rejects Product audience markup that Google reports as an invalid type", () => {

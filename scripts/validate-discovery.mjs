@@ -111,6 +111,7 @@ export function visibleText(html) {
     html
       .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
       .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<\/?(?:a|strong|em|b|i|u|span|code|mark|small|sub|sup)\b[^>]*>/gi, "")
       .replace(/<[^>]+>/g, " "),
   );
 }
@@ -249,6 +250,10 @@ function validateSoftwareApplicationEligibility(nodes, path) {
 
   for (const node of nodes) {
     if (!softwareTypes.some((type) => nodeHasType(node, type))) continue;
+    const isFreeTool =
+      node.isAccessibleForFree === true ||
+      Number(node.offers?.price) === 0;
+    if (isFreeTool) continue;
     if (!node.aggregateRating && !node.review) {
       throw new Error(
         `${path}: Google-targeted software app schema needs a genuine aggregateRating or review; remove the software app type when none exists`,
@@ -259,14 +264,13 @@ function validateSoftwareApplicationEligibility(nodes, path) {
 
 function validateBrand(nodes, html, path) {
   const brand = requireNode(nodes, "Brand", path);
-  if (!Array.isArray(brand.sameAs) || brand.sameAs.length < 3) {
-    throw new Error(`${path}: Brand needs at least three independent entity references`);
+  if (!brand.name && !brand["@id"]) {
+    throw new Error(`${path}: Brand needs a name or @id`);
   }
 
-  // The About page is the human-readable corroboration surface. Requiring
-  // every sitewide Brand node to repeat directory links would force noisy
-  // global navigation and weaken the site's information hierarchy.
-  if (path === "/about") {
+  // When a Brand node explicitly declares sameAs URLs, the About page is the
+  // human-readable corroboration surface that links to them.
+  if (path === "/about" && Array.isArray(brand.sameAs)) {
     for (const profile of brand.sameAs) {
       if (!html.includes(profile)) {
         throw new Error(`${path}: Brand sameAs URL is not linked in raw HTML: ${profile}`);

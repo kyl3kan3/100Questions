@@ -116,7 +116,7 @@ export function FeaturedOnSection() {
               <a
                 href={badge.href}
                 target="_blank"
-                rel={"rel" in badge ? badge.rel : "nofollow noopener noreferrer"}
+                rel="nofollow noopener noreferrer"
                 aria-label={`View 100 Questions on ${badge.name}`}
                 className="group flex min-h-28 items-center justify-center rounded-[22px] bg-[#f7f7f5] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_18px_45px_-32px_rgba(0,0,0,0.9)] transition-[scale,box-shadow] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_22px_52px_-30px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908] active:scale-[0.96]"
               >

@@ -102,11 +102,6 @@ export const VERIFIED_BRAND_PROFILES = [
     url: "https://peerlist.io/kyl3kan3/project/100-questions",
     description: "Public project profile",
   },
-  {
-    name: "SEOReceipts",
-    url: "https://seoreceipts.com/site/100questionsai/",
-    description: "Public search-performance profile",
-  },
 ] as const;
 
 function packagePrice(id: (typeof BILLING_PACKAGES)[number]["id"]) {

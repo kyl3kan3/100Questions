@@ -90,17 +90,6 @@ const featuredBadges = [
     href: "https://peerlist.io/kyl3kan3/project/100-questions",
     label: "Featured project",
   },
-  {
-    name: "SEOReceipts",
-    href: "https://seoreceipts.com/site/100questionsai/?ref=badge&utm_source=embed&utm_medium=badge&utm_campaign=status-auto",
-    rel: "nofollow sponsored noopener noreferrer",
-    image: {
-      src: "https://seoreceipts.com/api/badge?slug=100questionsai&mode=auto&theme=paper&size=card",
-      alt: "Google Search Console stats for 100questionsai.com",
-      width: 330,
-      height: 68,
-    },
-  },
 ] as const;
 
 export function FeaturedOnSection() {

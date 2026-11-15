@@ -20,6 +20,7 @@ export type ProductEvent =
   | "seo_landing_viewed"
   | "ai_referral_landing"
   | "readiness_check_completed"
+  | "lead_captured"
   | "purchase_completed"
   | "sample_report_viewed"
   | "signup_started"

@@ -92,6 +92,62 @@ const featuredBadges = [
   },
 ] as const;
 
+export function FeaturedBadgeGrid({ className }: { className?: string }) {
+  return (
+    <ul
+      className={
+        className ??
+        "mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      }
+    >
+      {featuredBadges.map((badge) => (
+        <li key={badge.name}>
+          <a
+            href={badge.href}
+            target="_blank"
+            rel="nofollow noopener noreferrer"
+            aria-label={`View 100 Questions on ${badge.name}`}
+            className="group flex min-h-28 items-center justify-center rounded-[22px] bg-[#f7f7f5] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_18px_45px_-32px_rgba(0,0,0,0.9)] transition-[scale,box-shadow] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_22px_52px_-30px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908] active:scale-[0.96]"
+          >
+            {"image" in badge && "optimized" in badge ? (
+              <Image
+                src={badge.image.src}
+                alt={badge.image.alt}
+                width={badge.image.width}
+                height={badge.image.height}
+                loading="lazy"
+                className="max-h-16 w-auto max-w-full object-contain outline outline-1 -outline-offset-1 outline-black/10"
+              />
+            ) : "image" in badge ? (
+              <img
+                src={badge.image.src}
+                alt={badge.image.alt}
+                width={badge.image.width}
+                height={badge.image.height}
+                loading="lazy"
+                decoding="async"
+                className="max-h-16 w-auto max-w-full object-contain outline outline-1 -outline-offset-1 outline-black/10"
+              />
+            ) : (
+              <span className="flex items-center gap-3 rounded-xl bg-[#111] px-5 py-3 text-left text-white shadow-[0_0_0_1px_rgba(0,0,0,0.1)]">
+                <span>
+                  <span className="block text-base font-semibold">
+                    {badge.name}
+                  </span>
+                  <span className="block text-xs text-zinc-400">
+                    {badge.label}
+                  </span>
+                </span>
+                <ExternalLink className="size-4 text-emerald-300" aria-hidden="true" />
+              </span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function FeaturedOnSection() {
   return (
     <section className="border-t border-white/[0.07] bg-white/[0.018]">
@@ -110,52 +166,7 @@ export function FeaturedOnSection() {
           </p>
         </div>
 
-        <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredBadges.map((badge) => (
-            <li key={badge.name}>
-              <a
-                href={badge.href}
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-                aria-label={`View 100 Questions on ${badge.name}`}
-                className="group flex min-h-28 items-center justify-center rounded-[22px] bg-[#f7f7f5] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_18px_45px_-32px_rgba(0,0,0,0.9)] transition-[scale,box-shadow] duration-150 ease-out hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_22px_52px_-30px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908] active:scale-[0.96]"
-              >
-                {"image" in badge && "optimized" in badge ? (
-                  <Image
-                    src={badge.image.src}
-                    alt={badge.image.alt}
-                    width={badge.image.width}
-                    height={badge.image.height}
-                    loading="lazy"
-                    className="max-h-16 w-auto max-w-full object-contain outline outline-1 -outline-offset-1 outline-black/10"
-                  />
-                ) : "image" in badge ? (
-                  <img
-                    src={badge.image.src}
-                    alt={badge.image.alt}
-                    width={badge.image.width}
-                    height={badge.image.height}
-                    loading="lazy"
-                    decoding="async"
-                    className="max-h-16 w-auto max-w-full object-contain outline outline-1 -outline-offset-1 outline-black/10"
-                  />
-                ) : (
-                  <span className="flex items-center gap-3 rounded-xl bg-[#111] px-5 py-3 text-left text-white shadow-[0_0_0_1px_rgba(0,0,0,0.1)]">
-                    <span>
-                      <span className="block text-base font-semibold">
-                        {badge.name}
-                      </span>
-                      <span className="block text-xs text-zinc-400">
-                        {badge.label}
-                      </span>
-                    </span>
-                    <ExternalLink className="size-4 text-emerald-300" aria-hidden="true" />
-                  </span>
-                )}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <FeaturedBadgeGrid />
       </div>
     </section>
   );

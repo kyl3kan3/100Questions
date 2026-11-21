@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-import { FeaturedOnSection } from "@/components/featured-on-section";
 import { JsonLd } from "@/components/json-ld";
 import { MarketingCheckoutButton } from "@/components/marketing-checkout-button";
 import { MarketingHeader } from "@/components/marketing-header";
@@ -85,17 +84,15 @@ export default function Home() {
       <MarketingHeader />
 
       <section className="page-shell grid gap-14 py-20 md:grid-cols-[1.12fr_0.88fr] md:items-center md:py-28">
-        <div className="animate-enter">
+        <div>
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-            The AI search visibility platform for evidence-backed brand benchmarks.
+            See whether OpenAI, Claude, Gemini and Grok mention your brand when
+            buyers ask.
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-zinc-400 sm:text-xl">
-            <strong className="font-semibold text-zinc-200">100 Questions</strong>{" "}
-            runs a prepaid{" "}
-            <strong className="font-semibold text-zinc-200">AI visibility benchmark</strong>{" "}
-            across OpenAI, Claude, Gemini, and Grok: missed buyer questions,
-            competitors shown instead, sources models trust, and five
-            evidence-backed actions—no subscription.
+            100 Questions runs a prepaid AI visibility benchmark: missed buyer
+            questions, competitors shown instead, sources models trust, and five
+            evidence-backed actions, with no subscription.
           </p>
           <div className="mt-9">
             <MarketingCheckoutButton label="Run an audit — $9" />
@@ -110,7 +107,7 @@ export default function Home() {
           </p>
         </div>
 
-        <Card className="animate-enter relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d] [animation-delay:120ms]">
+        <Card className="relative overflow-hidden border border-white/[0.08] bg-[#0c0f0d]">
           <Link href="/sample-report" className="group block">
             <figure className="relative aspect-[1.85/1] overflow-hidden border-b border-white/[0.07]">
               <Image
@@ -179,13 +176,10 @@ export default function Home() {
         </div>
       </section>
 
-      <FeaturedOnSection />
-
       <section className="border-b border-white/[0.07] bg-white/[0.012]">
         <div className="page-shell grid gap-8 py-14 md:grid-cols-[1fr_auto] md:items-center">
           <div>
-            <p className="eyebrow">Original research</p>
-            <h2 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+            <h2 className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
               25 products, 80 grounded answers, and 210 cited domains
             </h2>
             <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
@@ -219,8 +213,7 @@ export default function Home() {
       <section id="methodology" className="page-shell py-20 md:py-28">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
-            <p className="eyebrow">The benchmark</p>
-            <h2 className="mt-4 max-w-md text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 className="max-w-md text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               A defensible answer to “are we visible?”
             </h2>
             <p className="mt-5 max-w-md text-pretty text-base leading-7 text-zinc-400">
@@ -267,8 +260,7 @@ export default function Home() {
       <div className="border-t border-white/[0.07]">
         <div className="page-shell py-16 md:py-20">
           <div className="max-w-3xl">
-            <p className="eyebrow">Guides and resources</p>
-            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Start with the free checker or the full guide library
             </h2>
             <p className="mt-5 text-pretty leading-7 text-zinc-400">
@@ -334,8 +326,7 @@ export default function Home() {
       <section className="border-t border-white/[0.07]">
         <div className="page-shell py-20 md:py-24">
           <div className="max-w-3xl">
-            <p className="eyebrow">Choose the right measurement model</p>
-            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Best for a controlled benchmark—not an always-on dashboard.
             </h2>
             <p className="mt-5 text-pretty leading-7 text-zinc-400">
@@ -360,8 +351,7 @@ export default function Home() {
       <section className="border-t border-white/[0.07]">
         <div className="page-shell py-20 md:py-24">
           <div className="max-w-3xl">
-            <p className="eyebrow">Product questions</p>
-            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Clear answers before you buy.
             </h2>
           </div>
@@ -386,8 +376,7 @@ export default function Home() {
       <section className="border-t border-white/[0.07]">
         <div id="pricing" className="page-shell scroll-mt-8 py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">Simple, prepaid pricing</p>
-            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               One credit. One complete benchmark.
             </h2>
             <p className="mt-4 text-pretty text-sm leading-6 text-zinc-400">
@@ -449,8 +438,7 @@ export default function Home() {
       <section className="border-t border-white/[0.07]">
         <div className="page-shell flex flex-col gap-8 py-16 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="eyebrow">Prepaid, not a subscription</p>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
+            <h2 className="text-balance text-3xl font-semibold tracking-[-0.035em] text-white">
               Buy one run. Review 30 days of evidence.
             </h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
+import { FooterDirectoryBadges } from "@/components/footer-directory-badges";
 
 const footerGroups = [
   {
@@ -80,6 +81,8 @@ export function GlobalFooter() {
           ))}
         </nav>
       </div>
+
+      <FooterDirectoryBadges />
     </footer>
   );
 }

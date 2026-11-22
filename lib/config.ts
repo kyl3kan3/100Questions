@@ -79,7 +79,7 @@ export function getBenchmarkConfig() {
     prompts: {
       questionVersion: "question-v2",
       providerVersion: "provider-v2",
-      analysisVersion: "analysis-v2",
+      analysisVersion: "analysis-v3",
       scoringVersion: "scoring-v1",
       benchmarkVersion: "benchmark-v2",
     },
@@ -91,9 +91,10 @@ export function getBenchmarkConfig() {
       retentionDays: envInteger("RUN_RETENTION_DAYS", BENCHMARK_RETENTION_DAYS),
     },
     budget: {
-      // One grounded answer request plus, when an entity is mentioned, one
-      // structured-analysis request. Reservation uses the worst case.
+      // A grounded answer and its analysis are the benchmark. Two additional
+      // turns are possible when the answer explicitly chooses another product.
       aiCallsPerProviderJob: 2,
+      firstPickCallsPerCompetingAnswer: 2,
       // Brief generation plus as many as three validation rounds per cohort,
       // each with one tightly scoped malformed-output repair attempt.
       questionGenerationCallAllowance: 14,

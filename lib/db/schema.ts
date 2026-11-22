@@ -126,6 +126,15 @@ export type CompetitorMention = {
   sentiment: "positive" | "neutral" | "negative" | null;
 };
 
+export type CompetingPick = { name: string; quote: string };
+
+export type FirstPickFollowUp = {
+  verdict: string;
+  change: string | null;
+  reason: string;
+  sourceUrls: string[];
+};
+
 export type NormalizedUsage = {
   inputTokens: number | null;
   outputTokens: number | null;
@@ -213,7 +222,7 @@ export const runs = pgTable(
       .default("provider-v2"),
     analysisVersion: varchar("analysis_version", { length: 64 })
       .notNull()
-      .default("analysis-v2"),
+      .default("analysis-v3"),
     scoringVersion: varchar("scoring_version", { length: 64 })
       .notNull()
       .default("scoring-v1"),
@@ -471,6 +480,10 @@ export const results = pgTable(
       .$type<CompetitorMention[]>()
       .notNull()
       .default(sql`'[]'::jsonb`),
+    competingPick: jsonb("competing_pick").$type<CompetingPick>(),
+    firstPickTurns: integer("first_pick_turns").notNull().default(0),
+    firstPickVerdict: text("first_pick_verdict"),
+    firstPickFollowUp: jsonb("first_pick_follow_up").$type<FirstPickFollowUp>(),
     analysisVersion: varchar("analysis_version", { length: 64 }).notNull(),
     usage: jsonb("usage").$type<NormalizedUsage>().notNull(),
     costMicros: bigint("cost_micros", { mode: "number" })
@@ -493,6 +506,7 @@ export const results = pgTable(
     uniqueIndex("results_job_id_unique").on(table.jobId),
     index("results_score_eligible_idx").on(table.scoreEligible),
     check("results_cost_nonnegative_check", sql`${table.costMicros} >= 0`),
+    check("results_first_pick_turns_check", sql`${table.firstPickTurns} between 0 and 2`),
     check("results_latency_nonnegative_check", sql`${table.latencyMs} >= 0`),
   ],
 );

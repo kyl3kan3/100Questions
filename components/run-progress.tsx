@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { trackEvent } from "@/lib/analytics";
+import type { CompetingPick, FirstPickFollowUp } from "@/lib/db/schema";
 import {
   buildCompetitorSignals,
   buildOpportunityThemes,
@@ -83,6 +85,9 @@ type ResultRow = {
   };
   result: null | {
     id: string;
+    competingPick?: CompetingPick | null;
+    firstPickFollowUp?: FirstPickFollowUp | null;
+    partialFirstPickVerdict?: string | null;
     answerText: string;
     sources: Array<{ url: string; title: string | null; publisher: string | null }>;
     requiredAttribution: Array<{
@@ -411,6 +416,18 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
     [category, cohort, questionInsights],
   );
 
+  function openAnswerEvidence(resultId: string) {
+    const anchorId = `evidence-${resultId}`;
+    if (!document.getElementById(anchorId)) {
+      flushSync(() => {
+        setCohort("all");
+        setCategory("all");
+      });
+    }
+    const disclosure = document.getElementById(anchorId)?.closest("details");
+    if (disclosure) disclosure.open = true;
+  }
+
   return (
     <div className="space-y-6">
       <Card className="bg-[#0b0e0c]">
@@ -462,6 +479,7 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
 
       {payload ? (
         <ResultsOverview
+          onOpenEvidence={openAnswerEvidence}
           payload={payload}
           providers={availableProviders}
           comparison={comparison}
@@ -515,11 +533,13 @@ export function RunProgress({ initialRun }: { initialRun: RunState }) {
 }
 
 function ResultsOverview({
+  onOpenEvidence,
   payload,
   providers,
   comparison,
   questionInsights,
 }: {
+  onOpenEvidence: (resultId: string) => void;
   payload: ResultsPayload;
   providers: Provider[];
   comparison: ComparisonPayload | null;
@@ -617,6 +637,9 @@ function ResultsOverview({
       <ActionPlanSection
         evidenceQuestions={evidenceQuestions}
         items={payload.actionPlan}
+        onOpenEvidence={onOpenEvidence}
+        rows={payload.rows}
+        subjectName={payload.run.subjectName}
       />
 
       {comparison ? <BaselineComparison comparison={comparison} /> : null}
@@ -925,12 +948,37 @@ function ReliabilityStat({ label, value }: { label: string; value: number }) {
 function ActionPlanSection({
   evidenceQuestions,
   items,
+  onOpenEvidence,
+  rows,
+  subjectName,
 }: {
   evidenceQuestions: Map<string, QuestionInsight<ResultRow>>;
   items: ResultsPayload["actionPlan"];
+  onOpenEvidence: (resultId: string) => void;
+  rows: ResultRow[];
+  subjectName: string;
 }) {
   const primary = items.slice(0, 3);
   const additional = items.slice(3);
+  const comparisons = rows.flatMap(({ question, job, result }) =>
+    job && result?.competingPick
+      ? [{
+          question: question.text,
+          provider: providerLabels[job.provider],
+          resultId: result.id,
+          pick: result.competingPick,
+          followUp: result.firstPickFollowUp ?? null,
+          partialVerdict: result.partialFirstPickVerdict ?? null,
+        }]
+      : [],
+  );
+  const completed = comparisons.filter(({ followUp }) => followUp !== null);
+  const ordered = [
+    ...completed.filter(({ followUp }) => followUp?.change),
+    ...completed.filter(({ followUp }) => !followUp?.change),
+    ...comparisons.filter(({ partialVerdict }) => partialVerdict),
+    ...comparisons.filter(({ followUp, partialVerdict }) => !followUp && !partialVerdict),
+  ];
 
   return (
     <Card className="border border-emerald-300/15 bg-emerald-300/[0.025]">
@@ -938,10 +986,33 @@ function ActionPlanSection({
         <p className="eyebrow">Prioritized action plan</p>
         <CardTitle as="h2" className="text-xl">What to do next</CardTitle>
         <CardDescription>
-          The three highest-priority actions, linked to distinct buyer questions and their stored evidence. Opportunities do not guarantee ranking gains.
+          Start with the buyer questions and provider answers behind each suggested change.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        {ordered.length > 0 && (
+          <section aria-labelledby="first-pick-heading" className="space-y-3 pb-3">
+            <h3 id="first-pick-heading" className="text-base font-semibold text-zinc-100">
+              What would make {subjectName} the first pick?
+            </h3>
+            <p className="text-sm leading-6 text-zinc-400">
+              Both follow-ups answered for {completed.length} of {ordered.length} {plural(ordered.length, "answer")} where the AI chose another product.
+            </p>
+            <FirstPickComparison comparison={ordered[0]} onOpenEvidence={onOpenEvidence} subjectName={subjectName} />
+            {ordered.length > 1 && (
+              <details className="rounded-xl bg-black/15">
+                <summary className="cursor-pointer rounded-xl px-4 py-3 text-sm font-medium text-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-300">
+                  View {ordered.length - 1} more {plural(ordered.length - 1, "comparison")}
+                </summary>
+                <div className="space-y-3 p-3">
+                  {ordered.slice(1).map((comparison) => (
+                    <FirstPickComparison key={comparison.resultId} comparison={comparison} onOpenEvidence={onOpenEvidence} subjectName={subjectName} />
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
+        )}
         {primary.length ? (
           primary.map((item) => (
             <ActionPlanItem
@@ -950,11 +1021,11 @@ function ActionPlanSection({
               key={item.id}
             />
           ))
-        ) : (
+        ) : ordered.length === 0 ? (
           <p className="rounded-xl bg-white/[0.03] p-4 text-sm text-zinc-400">
             This run did not contain enough stored evidence for a responsible action plan.
           </p>
-        )}
+        ) : null}
         {additional.length ? (
           <details className="group rounded-2xl bg-black/15 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-sm font-medium text-zinc-200 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-300/60">
@@ -974,6 +1045,75 @@ function ActionPlanSection({
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function FirstPickComparison({ comparison, onOpenEvidence, subjectName }: {
+  comparison: {
+    question: string;
+    provider: string;
+    resultId: string;
+    pick: CompetingPick;
+    followUp: FirstPickFollowUp | null;
+    partialVerdict: string | null;
+  };
+  onOpenEvidence: (resultId: string) => void;
+  subjectName: string;
+}) {
+  const { question, provider, resultId, pick, followUp, partialVerdict } = comparison;
+  const verdict = followUp?.verdict ?? partialVerdict;
+  return (
+    <article className="space-y-3 rounded-2xl border border-white/[0.07] bg-black/20 p-4 sm:p-5">
+      <h4 className="break-words text-sm font-semibold leading-6 text-zinc-100">{question}</h4>
+      <p className="text-sm leading-6 text-zinc-300">{provider} chose <strong className="font-semibold text-white">{pick.name}</strong>.</p>
+      <blockquote className="border-l-2 border-zinc-700 pl-3 text-xs leading-5 text-zinc-400">“{pick.quote}”</blockquote>
+      {verdict ? (
+        <dl className="space-y-3 text-sm leading-6">
+          <div>
+            <dt className="font-medium text-zinc-200">Would {provider} recommend {subjectName}?</dt>
+            <dd className="text-zinc-300">{verdict}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-emerald-300">What would change the choice?</dt>
+            <dd className="text-zinc-200">
+              {followUp
+                ? followUp.change ?? `${provider} did not identify a specific change.`
+                : "The second follow-up answer is unavailable."}
+            </dd>
+          </div>
+          {followUp && (
+            <div>
+              <dt className="font-medium text-zinc-200">Why it matters to this buyer</dt>
+              <dd className="text-zinc-300">{followUp.reason}</dd>
+            </div>
+          )}
+        </dl>
+      ) : (
+        <p className="text-sm leading-6 text-zinc-400">A follow-up answer is unavailable for this comparison.</p>
+      )}
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+        <a
+          className="text-emerald-300 underline underline-offset-4 hover:text-emerald-200"
+          href={`#evidence-${resultId}`}
+          onClick={(event) => {
+            if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onOpenEvidence(resultId);
+          }}
+        >
+          Read {provider}’s original answer
+        </a>
+        {followUp?.sourceUrls.filter(isSafeUrl).map((url, index) => (
+          <a
+            className="inline-flex items-center gap-1 text-zinc-300 underline underline-offset-4 hover:text-white"
+            href={url}
+            key={url}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Source {index + 1} · {new URL(url).hostname} <ExternalLink aria-hidden="true" className="size-3" />
+          </a>
+        ))}
+      </div>
+    </article>
   );
 }
 
@@ -1618,7 +1758,7 @@ function statusMessage(status: string) {
     queued: "Waiting for the durable workflow",
     generating: "Generating and validating the frozen question set",
     querying: "Collecting web-grounded provider answers",
-    analyzing: "Normalizing evidence and calculating metrics",
+    analyzing: "Reviewing recommendations and preparing your action plan",
     complete: "Benchmark complete",
     partial: "Benchmark complete with partial provider coverage",
     failed: "Benchmark stopped before completion",

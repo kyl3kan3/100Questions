@@ -44,10 +44,15 @@ export function buildResultsCsv(payload: ExportPayload) {
   const header = [
     "Question", "Cohort", "Category", "Provider", "Status", "Grounding", "Score eligible",
     "Brand mentioned", "Prominence", "Sentiment", "Owned domain cited", "Competitors mentioned",
-    "Source URLs", "Answer",
+    "Source URLs", "Answer", "Competing first pick", "First-pick evidence quote",
+    "Follow-up status", "Would recommend the product?", "Suggested change", "Provider reasoning", "Follow-up source URLs",
   ];
   const records = payload.rows.map(({ question, job, result }) => {
     const analysisAvailable = hasCompletedAnalysis(result);
+    let followUpStatus = "";
+    if (result?.competingPick) {
+      followUpStatus = result.firstPickFollowUp ? "Answered" : result.partialFirstPickVerdict ? "Verdict only" : "Unavailable";
+    }
     return [
       question.text,
       question.cohort,
@@ -63,6 +68,13 @@ export function buildResultsCsv(payload: ExportPayload) {
       analysisAvailable ? result.competitorMentions.map((item) => item.name).join(" | ") : "",
       result?.sources.map((source) => source.url).join(" | ") ?? "",
       result?.answerText ?? job?.errorMessage ?? "",
+      result?.competingPick?.name ?? "",
+      result?.competingPick?.quote ?? "",
+      followUpStatus,
+      result?.firstPickFollowUp?.verdict ?? result?.partialFirstPickVerdict ?? "",
+      result?.firstPickFollowUp?.change ?? "",
+      result?.firstPickFollowUp?.reason ?? "",
+      result?.firstPickFollowUp?.sourceUrls.join(" | ") ?? "",
     ];
   });
 
@@ -95,7 +107,33 @@ export async function buildResultsPdf(payload: ExportPayload) {
   write(`Web-grounded model benchmark | ${payload.run.questionCountPlanned} questions | ${payload.run.providerCallsPlanned} planned answers`, { size: 10, color: rgb(0.35, 0.37, 0.36), gap: 18 });
 
   write("What to do next", { bold: true, size: 15, gap: 8 });
-  if (payload.actionPlan.length === 0) write("No evidence-backed recommendations were available for this run.");
+  const comparisons = payload.rows.flatMap(({ question, job, result }) =>
+    job && result?.competingPick
+      ? [{ question, provider: job.provider, pick: result.competingPick, followUp: result.firstPickFollowUp, partialVerdict: result.partialFirstPickVerdict }]
+      : [],
+  );
+  if (comparisons.length) {
+    write(`What would make ${payload.run.subjectName} the first pick?`, { bold: true, size: 12, gap: 4 });
+    write(`Both follow-ups answered for ${comparisons.filter(({ followUp }) => followUp).length} of ${comparisons.length} provider answers that chose another product.`, { size: 9, gap: 8 });
+    for (const { question, provider, pick, followUp, partialVerdict } of comparisons) {
+      write(`Question ${question.sortOrder}. ${question.text}`, { bold: true, size: 10, gap: 2 });
+      write(`${provider.toUpperCase()} chose ${pick.name}. “${pick.quote}”`, { size: 9, gap: 4 });
+      if (followUp) {
+        write(`Would recommend ${payload.run.subjectName}? ${followUp.verdict}`, { size: 9, gap: 2 });
+        write(followUp.change ? `Suggested change: ${followUp.change}` : "The provider did not identify a specific change.", { size: 9, gap: 2 });
+        write(`Reason: ${followUp.reason}`, { size: 9, gap: 4 });
+        if (followUp.sourceUrls.length) write(`Follow-up sources: ${followUp.sourceUrls.join(" | ")}`, { size: 8, gap: 6 });
+      } else if (partialVerdict) {
+        write(`Would recommend ${payload.run.subjectName}? ${partialVerdict}`, { size: 9, gap: 2 });
+        write("The second follow-up answer is unavailable.", { size: 9, gap: 6 });
+      } else {
+        write("Follow-up answer unavailable.", { size: 9, gap: 6 });
+      }
+    }
+    if (payload.actionPlan.length) write("Other recommended actions", { bold: true, size: 12, gap: 4 });
+  } else if (payload.actionPlan.length === 0) {
+    write("No evidence-backed recommendations were available for this run.");
+  }
   for (const item of payload.actionPlan) {
     write(`${item.rank}. ${item.title}`, { bold: true, size: 11, gap: 2 });
     write(item.action, { size: 9, gap: 2 });

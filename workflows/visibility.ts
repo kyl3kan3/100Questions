@@ -1,9 +1,13 @@
 import {
   and,
   asc,
+  desc,
   eq,
+  exists,
   inArray,
   isNull,
+  isNotNull,
+  or,
   sql,
 } from "drizzle-orm";
 import {
@@ -15,6 +19,7 @@ import {
 } from "workflow";
 
 import { analyzeAnswer, type AnswerAnalysis } from "@/lib/ai/analyze";
+import { askFirstPickChange, askFirstPickVerdict } from "@/lib/ai/first-pick";
 import { buildActionPlan } from "@/lib/action-plan";
 import {
   generateBenchmarkQuestions,
@@ -35,6 +40,7 @@ import {
   queryGroundedProvider,
   type ClassifiedProviderError,
   type CostProvenance,
+  type GenerationAccounting,
   type NormalizedProviderAnswer,
 } from "@/lib/ai/providers";
 import {
@@ -51,7 +57,11 @@ import {
   results,
   runs,
   workflowDispatches,
+  type CompetingPick,
+  type FirstPickFollowUp,
   type FrozenModels,
+  type NormalizedSource,
+  type NormalizedUsage,
 } from "@/lib/db/schema";
 import { sendRunNotificationEmail } from "@/lib/email/send-run-notification";
 import {
@@ -408,6 +418,9 @@ export async function runVisibilityWorkflow(
 
       await markRunAnalyzingStep(context.id);
       try {
+        if (context.analysisVersion === "analysis-v3") {
+          await runFirstPickFollowUps(context);
+        }
         await persistActionPlanStep(context.id);
       } catch (error) {
         await markActionPlanFinalizationRetryStep(
@@ -910,6 +923,7 @@ loadOutstandingJobsStep.maxRetries = 3;
 async function checkRunGuardStep(
   context: WorkflowRunContext,
   nextAiCalls: number,
+  minimumRemainingMs = 0,
 ): Promise<RunGuardResult> {
   "use step";
 
@@ -941,7 +955,8 @@ async function checkRunGuardStep(
 
   const startedAt = run.startedAt ?? run.createdAt;
 
-  if (Date.now() - startedAt.getTime() >= context.maxRunDurationMs) {
+  const remainingMs = context.maxRunDurationMs - (Date.now() - startedAt.getTime());
+  if (remainingMs <= minimumRemainingMs) {
     return {
       allowed: false,
       spentMicros: run.generationCostMicros,
@@ -1355,6 +1370,11 @@ async function analyzeAnswerStep(
       canonicalDomain: context.canonicalDomain,
       aliases: context.aliases,
       competitors: context.competitors,
+      question: job.questionText,
+      findCompetingPick:
+        context.analysisVersion === "analysis-v3" &&
+        answer.groundingStatus === "grounded" &&
+        answer.sources.length > 0,
       answerText: answer.text,
       sources: answer.sources,
       model: context.frozenModels.analysis,
@@ -1565,6 +1585,7 @@ async function persistProviderResultStep(
         prominence = ${analysis.prominence}::prominence,
         sentiment = ${analysis.sentiment}::sentiment,
         competitor_mentions = ${JSON.stringify(analysis.competitorMentions)}::jsonb,
+        competing_pick = ${analysis.competingPick ? JSON.stringify(analysis.competingPick) : null}::jsonb,
         analysis_version = ${context.analysisVersion},
         usage = ${JSON.stringify(combinedUsage)}::jsonb,
         cost_micros = ${completedCost.costMicros},
@@ -1743,6 +1764,279 @@ async function markRunAnalyzingStep(runId: string): Promise<void> {
   console.log(`[markRunAnalyzing] DONE runId=${runId}`);
 }
 markRunAnalyzingStep.maxRetries = 3;
+
+interface FirstPickCandidate {
+  id: string;
+  provider: ProviderKey;
+  model: string;
+  question: string;
+  answerText: string;
+  sources: NormalizedSource[];
+  competingPick: CompetingPick;
+  verdict: string | null;
+  usage: NormalizedUsage;
+  costProvenance: CostProvenance;
+}
+
+interface FirstPickTurnResult {
+  verdict: string;
+  followUp: FirstPickFollowUp | null;
+  costMicros: number;
+  costProvenance: CostProvenance;
+  usage: NormalizedUsage;
+}
+
+// Finish conversations already in progress before opening new ones. The guard
+// leaves enough room for both questions when allocating a new conversation.
+async function runFirstPickFollowUps(
+  context: WorkflowRunContext,
+): Promise<void> {
+  for (;;) {
+    const candidates = await loadFirstPickBatchStep(
+      context.id,
+      context.maxConcurrentJobs,
+    );
+    if (candidates.length === 0) return;
+
+    // Allow the provider timeout and a short persistence window before the
+    // duration cutoff so optional diagnostics yield to benchmark finalization.
+    const guard = await checkRunGuardStep(
+      context,
+      1,
+      65_000 + context.aiCallDelayMs,
+    );
+    if (!guard.allowed) return;
+    const remainingCalls = Math.floor(
+      (context.budgetCeilingMicros - guard.spentMicros) /
+        context.ceilingMicrosPerProviderCall,
+    );
+    const batch = candidates.slice(
+      0,
+      fundedFirstPickCount(candidates, remainingCalls),
+    );
+    if (batch.length === 0) return;
+
+    const settled = await Promise.allSettled(
+      batch.map(async (candidate) => {
+        const turn = await askFirstPickTurnStep(context, candidate);
+        if (turn) await finishFirstPickTurnStep(context, candidate, turn);
+      }),
+    );
+    const failed = settled.find((item) => item.status === "rejected");
+    if (failed?.status === "rejected") throw failed.reason;
+    if (context.aiCallDelayMs > 0) await sleep(context.aiCallDelayMs);
+  }
+}
+
+export function fundedFirstPickCount(
+  candidates: { verdict: string | null }[],
+  remainingCalls: number,
+): number {
+  let count = 0;
+  for (const { verdict } of candidates) {
+    const needed = verdict === null ? 2 : 1;
+    if (needed > remainingCalls) break;
+    remainingCalls -= needed;
+    count++;
+  }
+  return count;
+}
+
+async function loadFirstPickBatchStep(
+  runId: string,
+  limit: number,
+): Promise<FirstPickCandidate[]> {
+  "use step";
+  const rows = await getDb()
+    .select({
+      id: results.id,
+      provider: providerJobs.provider,
+      model: providerJobs.model,
+      question: questions.text,
+      answerText: results.answerText,
+      sources: results.sources,
+      competingPick: results.competingPick,
+      verdict: results.firstPickVerdict,
+      usage: results.usage,
+      costProvenance: results.costProvenance,
+    })
+    .from(results)
+    .innerJoin(providerJobs, eq(results.jobId, providerJobs.id))
+    .innerJoin(questions, eq(providerJobs.questionId, questions.id))
+    .where(
+      and(
+        eq(providerJobs.runId, runId),
+        eq(providerJobs.status, "succeeded"),
+        eq(results.scoreEligible, true),
+        isNotNull(results.competingPick),
+        or(
+          eq(results.firstPickTurns, 0),
+          and(
+            eq(results.firstPickTurns, 1),
+            isNotNull(results.firstPickVerdict),
+          ),
+        ),
+      ),
+    )
+    .orderBy(
+      desc(results.firstPickTurns),
+      asc(questions.sortOrder),
+      asc(providerJobs.provider),
+    )
+    .limit(limit);
+  return rows.flatMap((row) =>
+    row.competingPick ? [{ ...row, competingPick: row.competingPick }] : [],
+  );
+}
+loadFirstPickBatchStep.maxRetries = 3;
+
+async function askFirstPickTurnStep(
+  context: WorkflowRunContext,
+  candidate: FirstPickCandidate,
+): Promise<FirstPickTurnResult | null> {
+  "use step";
+  const db = getDb();
+  const previousTurns = candidate.verdict === null ? 0 : 1;
+  // Claim and conservatively account for the request before contacting the
+  // provider. A replay or finalization repair cannot submit a claimed turn twice.
+  const [, claimed] = await db.batch([
+    db
+      .select({ id: runs.id })
+      .from(runs)
+      .where(eq(runs.id, context.id))
+      .for("update"),
+    db
+      .update(results)
+      .set({
+        firstPickTurns: previousTurns + 1,
+        costMicros: sql`${results.costMicros} + ${context.estimatedMicrosPerProviderCall}`,
+        costProvenance: combineCostProvenance(
+          candidate.costProvenance,
+          "estimated",
+        ),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(results.id, candidate.id),
+          eq(results.firstPickTurns, previousTurns),
+          exists(
+            db
+              .select({ id: runs.id })
+              .from(runs)
+              .where(
+                and(eq(runs.id, context.id), eq(runs.status, "analyzing")),
+              ),
+          ),
+        ),
+      )
+      .returning({ id: results.id }),
+  ]);
+  if (claimed.length === 0) return null;
+  const input = {
+    provider: candidate.provider,
+    model: candidate.model,
+    question: candidate.question,
+    answerText: candidate.answerText,
+    sources: candidate.sources,
+    competingPick: candidate.competingPick,
+    market: context.market,
+    locale: context.locale,
+    subjectName: context.subjectName,
+    canonicalDomain: context.canonicalDomain,
+    description: context.description,
+    runId: context.id,
+    gatewayUserId: context.userId,
+  };
+  try {
+    let verdict = candidate.verdict;
+    let followUp: FirstPickFollowUp | null = null;
+    let accounting: GenerationAccounting;
+    if (verdict === null) {
+      const result = await askFirstPickVerdict(input);
+      verdict = result.verdict;
+      accounting = result.accounting;
+    } else {
+      const { accounting: turnAccounting, ...change } =
+        await askFirstPickChange(input, verdict);
+      accounting = turnAccounting;
+      followUp = { verdict, ...change };
+    }
+    const gatewayCost = await resolveGatewayCostWithoutThrowing(
+      accounting.gatewayGenerationId,
+    );
+    let { costMicros, costProvenance } = accounting;
+    if (gatewayCost !== null) {
+      costMicros = gatewayCost;
+      costProvenance = "gateway_actual";
+    } else if (costProvenance === "unavailable") {
+      costMicros = context.estimatedMicrosPerProviderCall;
+      costProvenance = "estimated";
+    }
+    return {
+      verdict,
+      followUp,
+      costMicros,
+      costProvenance,
+      usage: combineUsage(candidate.usage, accounting.usage),
+    };
+  } catch (error) {
+    // Optional provider/parse failures retain the charged attempt and the
+    // original benchmark evidence. A failed first turn cannot start turn two.
+    console.warn(
+      `[firstPick] runId=${context.id} resultId=${candidate.id} turn=${previousTurns + 1} code=${classifyProviderError(error).code}`,
+    );
+    return null;
+  }
+}
+askFirstPickTurnStep.maxRetries = 0;
+
+async function finishFirstPickTurnStep(
+  context: WorkflowRunContext,
+  candidate: FirstPickCandidate,
+  turn: FirstPickTurnResult,
+): Promise<void> {
+  "use step";
+  const db = getDb();
+  const deltaMicros = turn.costMicros - context.estimatedMicrosPerProviderCall;
+  const actualProvenance = combineCostProvenance(
+    candidate.costProvenance,
+    turn.costProvenance,
+  );
+  const pending = turn.followUp
+    ? sql`first_pick_follow_up is null`
+    : sql`first_pick_verdict is null`;
+  // Cancellation takes the same run lock and snapshots result costs. If it
+  // won the race, apply only the newly reconciled difference to its total.
+  await db.batch([
+    db
+      .select({ id: runs.id })
+      .from(runs)
+      .where(eq(runs.id, context.id))
+      .for("update"),
+    db.execute(sql`
+      with saved as (
+        update results
+        set first_pick_verdict = ${turn.verdict},
+            first_pick_follow_up = ${turn.followUp ? JSON.stringify(turn.followUp) : null}::jsonb,
+            usage = ${JSON.stringify(turn.usage)}::jsonb,
+            cost_micros = cost_micros + ${deltaMicros},
+            cost_provenance = ${actualProvenance}::cost_provenance,
+            updated_at = now()
+        where id = ${candidate.id}::uuid and first_pick_turns = ${turn.followUp ? 2 : 1} and ${pending}
+        returning id
+      )
+      update runs set
+        actual_cost_micros = actual_cost_micros + ${deltaMicros},
+        cost_provenance = case when cost_provenance in ('unavailable', ${actualProvenance}::cost_provenance)
+          then ${actualProvenance}::cost_provenance else 'mixed'::cost_provenance end,
+        updated_at = now()
+      where id = ${context.id}::uuid and status in ('complete','partial','failed','cancelled')
+        and exists (select 1 from saved)
+    `),
+  ]);
+}
+finishFirstPickTurnStep.maxRetries = 3;
 
 async function finalizeRunStep(runId: string): Promise<VisibilityWorkflowResult> {
   "use step";
@@ -2049,6 +2343,7 @@ async function failRunStep(
       actualCostMicros: runs.actualCostMicros,
       costProvenance: runs.costProvenance,
       estimatedCostMicros: runs.estimatedCostMicros,
+      analysisVersion: runs.analysisVersion,
       providerCallsPlanned: runs.providerCallsPlanned,
     })
     .from(runs)
@@ -2388,11 +2683,14 @@ export function estimatedUnpersistedFailureCost(
     : attempts * estimatedCallMicros;
 }
 
-function estimatedMicrosPerCall(run: {
+export function estimatedMicrosPerCall(run: {
+  analysisVersion: string;
   estimatedCostMicros: number;
   providerCallsPlanned: number;
 }): number {
   if (run.providerCallsPlanned > 0 && run.estimatedCostMicros > 0) {
+    const callsPerJob = run.analysisVersion === "analysis-v3" ? 4 : 2;
+    const plannedJobCalls = run.providerCallsPlanned * callsPerJob;
     // The reserved total freezes the per-call estimate, but older benchmark-v2
     // runs reserved seven question calls. Recover the exact integer estimate
     // from either layout so historical runs keep their original accounting.
@@ -2401,7 +2699,7 @@ function estimatedMicrosPerCall(run: {
       LEGACY_QUESTION_GENERATION_CALLS,
     ]) {
       const frozenEstimatedGatewayCalls =
-        run.providerCallsPlanned * 2 + questionCalls;
+        plannedJobCalls + questionCalls;
       if (run.estimatedCostMicros % frozenEstimatedGatewayCalls === 0) {
         return Math.max(
           1,
@@ -2414,7 +2712,7 @@ function estimatedMicrosPerCall(run: {
       1,
       Math.round(
         run.estimatedCostMicros /
-          (run.providerCallsPlanned * 2 + MAX_QUESTION_GENERATION_CALLS),
+          (plannedJobCalls + MAX_QUESTION_GENERATION_CALLS),
       ),
     );
   }

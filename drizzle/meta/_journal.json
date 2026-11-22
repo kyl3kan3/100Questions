@@ -43,6 +43,13 @@
       "when": 1784776055279,
       "tag": "0005_complete_spencer_smythe",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795353300290,
+      "tag": "0006_first_pick_followups",
+      "breakpoints": true
     }
   ]
 }

@@ -22,7 +22,12 @@ import {
   PRODUCT_FEATURES,
   PRODUCT_LIMITATIONS,
 } from "@/lib/product-facts";
-import { absoluteUrl, SITE_NAME, SOCIAL_IMAGE } from "@/lib/site";
+import {
+  absoluteUrl,
+  ANSWER_EVIDENCE_RETENTION_SENTENCE,
+  SITE_NAME,
+  SOCIAL_IMAGE,
+} from "@/lib/site";
 
 const pageUrl = absoluteUrl("/pricing");
 const reviewedAt = "2026-08-28";
@@ -146,8 +151,13 @@ export default function PricingPage() {
               <LockKeyhole className="size-3.5 shrink-0" aria-hidden="true" />
               Private by default · {BENCHMARK_RETENTION_DAYS}-day answer retention on completed benchmarks
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <MarketingCheckoutButton label="Buy my first benchmark — $9" />
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div>
+                <MarketingCheckoutButton label="Buy my first benchmark — $9" />
+                <p className="mt-3 text-base leading-7 text-zinc-400">
+                  {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+                </p>
+              </div>
               <Button asChild size="lg" variant="outline">
                 <Link href="/sample-report">Inspect the complete sample <ArrowRight aria-hidden="true" /></Link>
               </Button>
@@ -181,15 +191,25 @@ export default function PricingPage() {
                         {billingPackage.credits} complete benchmark{billingPackage.credits === 1 ? "" : "s"}
                       </p>
                       {billingPackage.id === "intro" ? (
-                        <MarketingCheckoutButton className="mt-6" label="Buy first benchmark" size="default" variant="secondary" />
+                        <>
+                          <MarketingCheckoutButton className="mt-6" label="Buy first benchmark" size="default" variant="secondary" />
+                          <p className="mt-3 text-base leading-7 text-zinc-400">
+                            {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+                          </p>
+                        </>
                       ) : (
-                        <PackageSignUpButton
-                          className="mt-6 w-full"
-                          packageId={billingPackage.id}
-                          variant={featured ? "default" : "secondary"}
-                        >
-                          Choose package
-                        </PackageSignUpButton>
+                        <>
+                          <PackageSignUpButton
+                            className="mt-6 w-full"
+                            packageId={billingPackage.id}
+                            variant={featured ? "default" : "secondary"}
+                          >
+                            Choose package
+                          </PackageSignUpButton>
+                          <p className="mt-3 text-base leading-7 text-zinc-400">
+                            {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+                          </p>
+                        </>
                       )}
                     </CardContent>
                   </Card>
@@ -293,7 +313,12 @@ export default function PricingPage() {
                 <h2 className="max-w-2xl text-balance text-3xl font-semibold tracking-[-0.035em]">Start with one complete $9 benchmark.</h2>
                 <p className="mt-3 max-w-2xl leading-7 text-zinc-800">Review the evidence, export the report, and decide whether a later rerun is worth buying.</p>
               </div>
-              <MarketingCheckoutButton buttonClassName="bg-zinc-950 text-white hover:bg-zinc-800" label="Buy my first benchmark — $9" variant="secondary" />
+              <div>
+                <MarketingCheckoutButton buttonClassName="bg-zinc-950 text-white hover:bg-zinc-800" label="Buy my first benchmark — $9" variant="secondary" />
+                <p className="mt-3 text-base leading-7 text-zinc-800">
+                  {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+                </p>
+              </div>
             </div>
           </section>
         </div>

@@ -12,7 +12,7 @@ import {
   PRODUCT_UPDATED_AT,
 } from "./product-facts";
 import { PRODUCT_IMAGE } from "./product-image";
-import { absoluteUrl } from "./site";
+import { absoluteUrl, HOMEPAGE_TITLE } from "./site";
 
 export function buildHomeProductStructuredData() {
   const homeUrl = absoluteUrl();
@@ -106,7 +106,7 @@ export function buildHomeStructuredData() {
         "@type": "WebPage",
         "@id": `${homeUrl}#webpage`,
         url: homeUrl,
-        name: "100 Questions — AI search visibility platform",
+        name: HOMEPAGE_TITLE,
         description:
           `Measure brand mentions, prominence, competitor share of voice, citations, and coverage across ${BENCHMARK_PLANNED_ANSWER_COUNT} planned web-grounded AI answers.`,
         isPartOf: { "@id": `${homeUrl}#website` },

@@ -34,12 +34,21 @@ import {
   canonicalUrl,
   HOMEPAGE_META_DESCRIPTION,
   SITE_NAME,
-  SITE_TITLE,
+  HOMEPAGE_TITLE,
   SOCIAL_IMAGE,
+  ANSWER_EVIDENCE_RETENTION_SENTENCE,
 } from "@/lib/site";
 
+const SAMPLE_REPORT_ACTION_TITLES = [
+  "Publish a warehouse-native analytics comparison",
+  "Earn inclusion in two repeatedly cited buyer guides",
+  "Strengthen the implementation page",
+  "Answer privacy and data-residency questions directly",
+  "Clarify the best-fit customer profile",
+] as const;
+
 export const metadata: Metadata = {
-  title: { absolute: SITE_TITLE },
+  title: { absolute: HOMEPAGE_TITLE },
   description: HOMEPAGE_META_DESCRIPTION,
   other: {
     "directree-verify":
@@ -48,7 +57,7 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: canonicalUrl() },
   openGraph: {
-    title: SITE_TITLE,
+    title: HOMEPAGE_TITLE,
     description: HOMEPAGE_META_DESCRIPTION,
     url: canonicalUrl(),
     siteName: SITE_NAME,
@@ -58,7 +67,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_TITLE,
+    title: HOMEPAGE_TITLE,
     description: HOMEPAGE_META_DESCRIPTION,
     images: [SOCIAL_IMAGE],
   },
@@ -96,6 +105,9 @@ export default function Home() {
           </p>
           <div className="mt-9">
             <MarketingCheckoutButton label="Run an audit — $9" />
+            <p className="mt-3 text-base leading-7 text-zinc-400">
+              {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+            </p>
           </div>
           <p className="mt-5 text-sm text-zinc-400">
             <Link
@@ -163,6 +175,34 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+        <div className="col-span-full max-w-2xl rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-7">
+          <p className="text-base leading-7 text-zinc-300">
+            <Link
+              href="/sample-report"
+              className="text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:text-emerald-200"
+            >
+              From the public sample report for Northstar Analytics, a fictional
+              example brand
+            </Link>
+          </p>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-base leading-7 text-zinc-400">
+            {SAMPLE_REPORT_ACTION_TITLES.map((title) => (
+              <li key={title}>
+                <Link
+                  href="/sample-report"
+                  className="text-zinc-300 underline decoration-white/20 underline-offset-4 hover:text-emerald-200"
+                >
+                  {title}
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 text-base leading-7 text-zinc-400">
+            20 questions are built from your category, market, and locale and
+            never name your brand, aliases, or domain; 5 name you directly;
+            competitors are optional, chosen by you, and frozen with the run.
+          </p>
+        </div>
       </section>
 
       <section className="border-y border-white/[0.07] bg-white/[0.018]">
@@ -405,12 +445,17 @@ export default function Home() {
                     {billingPackage.credits} complete benchmark{billingPackage.credits === 1 ? "" : "s"}
                   </p>
                   {billingPackage.id === "intro" ? (
-                    <MarketingCheckoutButton
-                      className="mt-6"
-                      label="Buy first benchmark — $9"
-                      size="default"
-                      variant="secondary"
-                    />
+                    <>
+                      <MarketingCheckoutButton
+                        className="mt-6"
+                        label="Buy first benchmark — $9"
+                        size="default"
+                        variant="secondary"
+                      />
+                      <p className="mt-3 text-base leading-7 text-zinc-400">
+                        {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+                      </p>
+                    </>
                   ) : (
                     <PackageSignUpButton
                       className="mt-6 w-full"
@@ -452,7 +497,12 @@ export default function Home() {
               .
             </p>
           </div>
-          <MarketingCheckoutButton />
+          <div>
+            <MarketingCheckoutButton />
+            <p className="mt-3 text-base leading-7 text-zinc-400">
+              {ANSWER_EVIDENCE_RETENTION_SENTENCE}
+            </p>
+          </div>
         </div>
       </section>
       </main>

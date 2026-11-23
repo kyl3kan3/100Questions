@@ -1,6 +1,10 @@
 export const SITE_NAME = "100 Questions";
 export const SITE_URL = "https://100questionsai.com";
 export const SITE_TITLE = "100 Questions — AI Search Visibility Platform";
+export const HOMEPAGE_TITLE =
+  "100 Questions — One-time AI visibility benchmark, $9 first run";
+export const ANSWER_EVIDENCE_RETENTION_SENTENCE =
+  "Answer evidence from each completed run is kept for 30 days.";
 export const SITE_DESCRIPTION =
   "Prepaid, source-backed AI visibility benchmarks across OpenAI, Claude, Gemini, and Grok—see where AI overlooks your brand and what to fix.";
 /** Homepage meta, Open Graph, and Twitter description (layout default stays SITE_DESCRIPTION). */

@@ -151,13 +151,8 @@ export default function PricingPage() {
               <LockKeyhole className="size-3.5 shrink-0" aria-hidden="true" />
               Private by default · {BENCHMARK_RETENTION_DAYS}-day answer retention on completed benchmarks
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-start">
-              <div>
-                <MarketingCheckoutButton label="Buy my first benchmark — $9" />
-                <p className="mt-3 text-base leading-7 text-zinc-400">
-                  {ANSWER_EVIDENCE_RETENTION_SENTENCE}
-                </p>
-              </div>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <MarketingCheckoutButton label="Buy my first benchmark — $9" />
               <Button asChild size="lg" variant="outline">
                 <Link href="/sample-report">Inspect the complete sample <ArrowRight aria-hidden="true" /></Link>
               </Button>
@@ -198,18 +193,13 @@ export default function PricingPage() {
                           </p>
                         </>
                       ) : (
-                        <>
-                          <PackageSignUpButton
-                            className="mt-6 w-full"
-                            packageId={billingPackage.id}
-                            variant={featured ? "default" : "secondary"}
-                          >
-                            Choose package
-                          </PackageSignUpButton>
-                          <p className="mt-3 text-base leading-7 text-zinc-400">
-                            {ANSWER_EVIDENCE_RETENTION_SENTENCE}
-                          </p>
-                        </>
+                        <PackageSignUpButton
+                          className="mt-6 w-full"
+                          packageId={billingPackage.id}
+                          variant={featured ? "default" : "secondary"}
+                        >
+                          Choose package
+                        </PackageSignUpButton>
                       )}
                     </CardContent>
                   </Card>

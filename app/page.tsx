@@ -457,18 +457,13 @@ export default function Home() {
                       </p>
                     </>
                   ) : (
-                    <>
-                      <PackageSignUpButton
-                        className="mt-6 w-full"
-                        packageId={billingPackage.id}
-                        variant={billingPackage.id === "three" ? "default" : "secondary"}
-                      >
-                        Choose package
-                      </PackageSignUpButton>
-                      <p className="mt-3 text-base leading-7 text-zinc-400">
-                        {ANSWER_EVIDENCE_RETENTION_SENTENCE}
-                      </p>
-                    </>
+                    <PackageSignUpButton
+                      className="mt-6 w-full"
+                      packageId={billingPackage.id}
+                      variant={billingPackage.id === "three" ? "default" : "secondary"}
+                    >
+                      Choose package
+                    </PackageSignUpButton>
                   )}
                 </CardContent>
               </Card>

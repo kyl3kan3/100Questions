@@ -232,18 +232,32 @@ describe("public SEO metadata", () => {
     expect(socialTitle.length).toBeLessThanOrEqual(65);
     expect(pageTitle.toLowerCase()).toContain("answer engine optimization tools");
     expect(source).toContain(`const pageTitle = "${pageTitle}";`);
+    expect(source).toContain(`const pageDescription =\n  "${description}";`);
     expect(source).toContain("title: pageTitle,");
-    expect(source).toContain(`description: pageDescription,`);
+    expect(
+      source.match(
+        /export const metadata:\s*Metadata\s*=\s*\{[\s\S]*?description:\s*pageDescription,/u,
+      ),
+    ).not.toBeNull();
     const openGraphTitlePattern =
       /openGraph:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+    const openGraphDescriptionPattern =
+      /openGraph:\s*\{[\s\S]*?description:\s*pageDescription,/u;
     const twitterTitlePattern =
       /twitter:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+    const twitterDescriptionPattern =
+      /twitter:\s*\{[\s\S]*?description:\s*pageDescription,/u;
 
     expect(source).toMatch(openGraphTitlePattern);
+    expect(source).toMatch(openGraphDescriptionPattern);
     expect(source).toMatch(twitterTitlePattern);
+    expect(source).toMatch(twitterDescriptionPattern);
     expect(source).toContain("headline: pageTitle,");
-    expect(source).toContain("description: pageDescription,");
-    expect(source).toContain(`"${description}"`);
+    expect(
+      source.match(
+        /"@type":\s*"Article"[\s\S]*?description:\s*pageDescription,/u,
+      ),
+    ).not.toBeNull();
     expect(source).not.toContain(
       "Best AEO Tools for 2026: Six Different Jobs Compared",
     );

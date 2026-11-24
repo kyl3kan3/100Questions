@@ -335,13 +335,14 @@ export default function AnswerEngineOptimizationToolsPage() {
                 What is an AEO checking tool?
               </h2>
               <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
-                An AEO checking tool shows whether answer engines mention, cite,
-                or skip your brand, either by running buyer questions or by
-                checking the site signals those engines read. Useful results keep
-                the prompts, answers, source URLs, and timestamps inspectable.
-                100 Questions checks AEO with one frozen set of 25 web-grounded
-                questions across OpenAI, Claude, Gemini, and Grok and stores
-                answer and citation evidence with PDF and CSV exports.
+                An AEO checking tool tests whether answer engines mention, cite,
+                or skip your brand by running buyer questions and recording the
+                answers. Some tools only check the site signals those engines
+                read, such as structured data and crawler access, which shows
+                readiness but not whether you are cited. 100 Questions checks AEO
+                with one frozen set of 25 web-grounded questions across OpenAI,
+                Claude, Gemini, and Grok and stores answer and citation evidence
+                with PDF and CSV exports.
               </p>
             </section>
 

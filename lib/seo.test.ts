@@ -224,26 +224,14 @@ describe("public SEO metadata", () => {
       ),
       "utf8",
     );
+    const pageTitle = "AEO Checking Tools: Answer Engine Optimization (2026)";
     const description =
-      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.";
-    const socialTitle =
-      "Answer Engine Optimization Tools (2026) · 100 Questions";
-
-    expect(source).toContain(
-      'title: "Answer Engine Optimization Tools (2026)"',
-    );
-    expect(source).toContain(`description:\n      "${description}"`);
-    expect(source).toContain(`title: "${socialTitle}"`);
-    expect(
-      source.match(/openGraph:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
-    ).toBe(socialTitle);
-    expect(
-      source.match(/twitter:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
-    ).toBe(socialTitle);
-    expect(source).toContain(
-      'headline: "Answer Engine Optimization Tools (2026)"',
-    );
-    expect(source).toContain(`description:\n          "${description}"`);
+      "Compare AEO checking tools and answer engine optimization software by job, evidence, and cadence. See when a frozen benchmark fits better than a monitor.";
+    expect(source).toContain(`const pageTitle = "${pageTitle}";`);
+    expect(source).toContain(`const pageDescription =\n  "${description}";`);
+    expect(source).toContain(`title: \`\${pageTitle} · 100 Questions\``);
+    expect(source).toContain(`headline: pageTitle,`);
+    expect(source).toContain(`description: pageDescription,`);
     expect(source).not.toContain(
       "Best AEO Tools for 2026: Six Different Jobs Compared",
     );

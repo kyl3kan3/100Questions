@@ -224,14 +224,26 @@ describe("public SEO metadata", () => {
       ),
       "utf8",
     );
-    const pageTitle = "AEO Checking Tools: Answer Engine Optimization (2026)";
+    const pageTitle = "AEO Checking & Answer Engine Optimization Tools";
     const description =
       "Compare AEO checking tools and answer engine optimization software by job, evidence, and cadence. See when a frozen benchmark fits better than a monitor.";
+    const socialTitle = `${pageTitle} · 100 Questions`;
+
+    expect(socialTitle.length).toBeLessThanOrEqual(65);
+    expect(pageTitle.toLowerCase()).toContain("answer engine optimization tools");
     expect(source).toContain(`const pageTitle = "${pageTitle}";`);
-    expect(source).toContain(`const pageDescription =\n  "${description}";`);
-    expect(source).toContain(`title: \`\${pageTitle} · 100 Questions\``);
-    expect(source).toContain(`headline: pageTitle,`);
+    expect(source).toContain("title: pageTitle,");
     expect(source).toContain(`description: pageDescription,`);
+    const openGraphTitlePattern =
+      /openGraph:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+    const twitterTitlePattern =
+      /twitter:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+
+    expect(source).toMatch(openGraphTitlePattern);
+    expect(source).toMatch(twitterTitlePattern);
+    expect(source).toContain("headline: pageTitle,");
+    expect(source).toContain("description: pageDescription,");
+    expect(source).toContain(`"${description}"`);
     expect(source).not.toContain(
       "Best AEO Tools for 2026: Six Different Jobs Compared",
     );

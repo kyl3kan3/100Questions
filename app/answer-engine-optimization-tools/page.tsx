@@ -23,8 +23,8 @@ import {
 
 const pageUrl = absoluteUrl("/answer-engine-optimization-tools");
 const publishedAt = "2026-07-24T00:00:00.000Z";
-const reviewedAt = "2026-11-24T00:00:00.000Z";
-const pageTitle = "AEO Checking Tools: Answer Engine Optimization (2026)";
+const pageUpdatedAt = "2026-11-24T00:00:00.000Z";
+const pageTitle = "AEO Checking & Answer Engine Optimization Tools";
 const pageDescription =
   "Compare AEO checking tools and answer engine optimization software by job, evidence, and cadence. See when a frozen benchmark fits better than a monitor.";
 
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "en_US",
     publishedTime: publishedAt,
-    modifiedTime: reviewedAt,
+    modifiedTime: pageUpdatedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
@@ -246,7 +246,7 @@ export default function AnswerEngineOptimizationToolsPage() {
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: publishedAt,
-        dateModified: reviewedAt,
+        dateModified: pageUpdatedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": EDITORIAL_AUTHOR_ID },
         reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
@@ -308,7 +308,8 @@ export default function AnswerEngineOptimizationToolsPage() {
                 AEO tools comparison
               </Badge>
               <h1 className="mt-6 max-w-5xl text-balance text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-6xl">
-                {pageTitle}
+                Six answer engine optimization tools, compared by the job they
+                actually do
               </h1>
               <p className="mt-6 max-w-3xl text-pretty text-lg leading-8 text-zinc-400">
                 AEO software spans technical SEO, prompt monitoring, citation
@@ -318,9 +319,9 @@ export default function AnswerEngineOptimizationToolsPage() {
               <ContentByline
                 publishedAt={publishedAt}
                 publishedLabel="July 24, 2026"
-                modifiedAt={reviewedAt}
+                modifiedAt={pageUpdatedAt}
                 modifiedLabel="November 24, 2026"
-                note="First-party documentation review"
+                modifiedKind="updated"
               />
             </div>
           </header>
@@ -334,13 +335,13 @@ export default function AnswerEngineOptimizationToolsPage() {
                 What is an AEO checking tool?
               </h2>
               <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
-                An AEO checking tool runs buyer questions against answer engines
-                and records whether your brand is mentioned, cited, or absent.
-                Useful results keep the prompts, answers, source URLs, and
-                timestamps inspectable. 100 Questions checks AEO by running one
-                frozen set of 25 web-grounded questions across OpenAI, Claude,
-                Gemini, and Grok, then stores the answer and citation evidence
-                for review, PDF export, and CSV export.
+                An AEO checking tool shows whether answer engines mention, cite,
+                or skip your brand, either by running buyer questions or by
+                checking the site signals those engines read. Useful results keep
+                the prompts, answers, source URLs, and timestamps inspectable.
+                100 Questions checks AEO with one frozen set of 25 web-grounded
+                questions across OpenAI, Claude, Gemini, and Grok and stores
+                answer and citation evidence with PDF and CSV exports.
               </p>
             </section>
 

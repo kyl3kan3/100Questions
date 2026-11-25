@@ -23,31 +23,31 @@ import {
 
 const pageUrl = absoluteUrl("/answer-engine-optimization-tools");
 const publishedAt = "2026-07-24T00:00:00.000Z";
-const reviewedAt = "2026-08-13T00:00:00.000Z";
+const pageUpdatedAt = "2026-11-24T00:00:00.000Z";
+const pageTitle = "AEO Checking & Answer Engine Optimization Tools";
+const pageDescription =
+  "Compare AEO checking tools and answer engine optimization software by job, evidence, and cadence. See when a frozen benchmark fits better than a monitor.";
 
 export const metadata: Metadata = {
   // Layout appends " · 100 Questions" (target ≤60 full).
-  title: "Answer Engine Optimization Tools (2026)",
-  description:
-    "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: pageUrl },
   openGraph: {
-    title: "Answer Engine Optimization Tools (2026) · 100 Questions",
-    description:
-      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
+    title: `${pageTitle} · 100 Questions`,
+    description: pageDescription,
     url: pageUrl,
     siteName: SITE_NAME,
     type: "article",
     locale: "en_US",
     publishedTime: publishedAt,
-    modifiedTime: reviewedAt,
+    modifiedTime: pageUpdatedAt,
     images: [SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Answer Engine Optimization Tools (2026) · 100 Questions",
-    description:
-      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
+    title: `${pageTitle} · 100 Questions`,
+    description: pageDescription,
     images: [SOCIAL_IMAGE],
   },
 };
@@ -241,13 +241,12 @@ export default function AnswerEngineOptimizationToolsPage() {
       {
         "@type": "Article",
         "@id": `${pageUrl}#article`,
-        headline: "Answer Engine Optimization Tools (2026)",
-        description:
-          "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.",
+        headline: pageTitle,
+        description: pageDescription,
         url: pageUrl,
         mainEntityOfPage: pageUrl,
         datePublished: publishedAt,
-        dateModified: reviewedAt,
+        dateModified: pageUpdatedAt,
         image: absoluteUrl("/hero-ai-visibility.png"),
         author: { "@id": EDITORIAL_AUTHOR_ID },
         reviewedBy: { "@id": EDITORIAL_AUTHOR_ID },
@@ -257,7 +256,7 @@ export default function AnswerEngineOptimizationToolsPage() {
       {
         "@type": "ItemList",
         "@id": `${pageUrl}#tools`,
-        name: "Answer engine optimization tools",
+        name: "AEO checking tools and answer engine optimization tools",
         numberOfItems: tools.length,
         itemListElement: tools.map((tool, index) => ({
           "@type": "ListItem",
@@ -320,14 +319,33 @@ export default function AnswerEngineOptimizationToolsPage() {
               <ContentByline
                 publishedAt={publishedAt}
                 publishedLabel="July 24, 2026"
-                modifiedAt={reviewedAt}
-                modifiedLabel="August 13, 2026"
-                note="First-party documentation review"
+                modifiedAt={pageUpdatedAt}
+                modifiedLabel="November 24, 2026"
+                modifiedKind="updated"
               />
             </div>
           </header>
 
           <div className="page-shell space-y-20 py-16 sm:py-20 lg:py-24">
+            <section aria-labelledby="aeo-checking-tool-heading">
+              <h2
+                id="aeo-checking-tool-heading"
+                className="max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
+                What is an AEO checking tool?
+              </h2>
+              <p className="mt-4 max-w-3xl text-pretty leading-7 text-zinc-400">
+                An AEO checking tool tests whether answer engines mention, cite,
+                or skip your brand by running buyer questions and recording the
+                answers. Some tools only check the site signals those engines
+                read, such as structured data and crawler access, which shows
+                readiness but not whether you are cited. 100 Questions checks AEO
+                with one frozen set of 25 web-grounded questions across OpenAI,
+                Claude, Gemini, and Grok and stores answer and citation evidence
+                with PDF and CSV exports.
+              </p>
+            </section>
+
             <section
               className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start"
               aria-labelledby="comparison-method-heading"
@@ -412,7 +430,7 @@ export default function AnswerEngineOptimizationToolsPage() {
                 id="tools-heading"
                 className="mt-4 max-w-3xl text-balance text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
               >
-                Match the tool to the decision
+                Best AEO checking tools
               </h2>
               <div className="mt-8 space-y-4">
                 {tools.map((tool) => (

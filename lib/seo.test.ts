@@ -224,26 +224,40 @@ describe("public SEO metadata", () => {
       ),
       "utf8",
     );
+    const pageTitle = "AEO Checking & Answer Engine Optimization Tools";
     const description =
-      "Compare six answer engine optimization tools by job, evidence, and cadence. See when a frozen benchmark beats a monitor, and when it does not.";
-    const socialTitle =
-      "Answer Engine Optimization Tools (2026) · 100 Questions";
+      "Compare AEO checking tools and answer engine optimization software by job, evidence, and cadence. See when a frozen benchmark fits better than a monitor.";
+    const socialTitle = `${pageTitle} · 100 Questions`;
 
-    expect(source).toContain(
-      'title: "Answer Engine Optimization Tools (2026)"',
-    );
-    expect(source).toContain(`description:\n      "${description}"`);
-    expect(source).toContain(`title: "${socialTitle}"`);
+    expect(socialTitle.length).toBeLessThanOrEqual(65);
+    expect(pageTitle.toLowerCase()).toContain("answer engine optimization tools");
+    expect(source).toContain(`const pageTitle = "${pageTitle}";`);
+    expect(source).toContain(`const pageDescription =\n  "${description}";`);
+    expect(source).toContain("title: pageTitle,");
     expect(
-      source.match(/openGraph:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
-    ).toBe(socialTitle);
+      source.match(
+        /export const metadata:\s*Metadata\s*=\s*\{[\s\S]*?description:\s*pageDescription,/u,
+      ),
+    ).not.toBeNull();
+    const openGraphTitlePattern =
+      /openGraph:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+    const openGraphDescriptionPattern =
+      /openGraph:\s*\{[\s\S]*?description:\s*pageDescription,/u;
+    const twitterTitlePattern =
+      /twitter:\s*\{[\s\S]*?title:\s*`\$\{pageTitle\} · 100 Questions`/u;
+    const twitterDescriptionPattern =
+      /twitter:\s*\{[\s\S]*?description:\s*pageDescription,/u;
+
+    expect(source).toMatch(openGraphTitlePattern);
+    expect(source).toMatch(openGraphDescriptionPattern);
+    expect(source).toMatch(twitterTitlePattern);
+    expect(source).toMatch(twitterDescriptionPattern);
+    expect(source).toContain("headline: pageTitle,");
     expect(
-      source.match(/twitter:\s*\{[\s\S]*?title: "([^"]+)"/)?.[1],
-    ).toBe(socialTitle);
-    expect(source).toContain(
-      'headline: "Answer Engine Optimization Tools (2026)"',
-    );
-    expect(source).toContain(`description:\n          "${description}"`);
+      source.match(
+        /"@type":\s*"Article"[\s\S]*?description:\s*pageDescription,/u,
+      ),
+    ).not.toBeNull();
     expect(source).not.toContain(
       "Best AEO Tools for 2026: Six Different Jobs Compared",
     );

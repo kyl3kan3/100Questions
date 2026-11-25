@@ -131,9 +131,9 @@ export const RESOURCE_GROUPS = [
       },
       {
         href: "/ai-visibility-checker",
-        title: "AI visibility readiness checker",
+        title: "FAQ schema and AI visibility checker",
         description:
-          "Check crawl access, canonicals, structured data, sitemaps, and AI crawler availability.",
+          "Check FAQ and other structured data, crawl access, canonicals, sitemaps, and AI crawler availability.",
       },
       {
         href: "/llms-txt-checker",

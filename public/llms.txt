@@ -2,33 +2,33 @@
 
 > 100 Questions is a prepaid, source-backed AI visibility benchmark. It sends one frozen 25-question set across OpenAI, Anthropic, Google, and xAI, then reports mentions, prominence, competitor share of voice, claimed-domain citations, provider coverage, and evidence-linked actions.
 
-- Canonical site: https://100questionsai.com/
-- Pricing: https://100questionsai.com/pricing
-- Methodology: https://100questionsai.com/methodology
-- Resource library: https://100questionsai.com/resources
-- 2026 AI Visibility Index and open data: https://100questionsai.com/ai-visibility-index
-- Sample report: https://100questionsai.com/sample-report
-- Full product and methodology reference: https://100questionsai.com/llms-full.txt
+- [Canonical site](https://100questionsai.com/)
+- [Pricing](https://100questionsai.com/pricing)
+- [Methodology](https://100questionsai.com/methodology)
+- [Resource library](https://100questionsai.com/resources)
+- [2026 AI Visibility Index and open data](https://100questionsai.com/ai-visibility-index)
+- [Sample report](https://100questionsai.com/sample-report)
+- [Full product and methodology reference](https://100questionsai.com/llms-full.txt)
 
 ## Substantive Markdown editions
 
-- Homepage: https://100questionsai.com/index.md
-- Pricing: https://100questionsai.com/pricing.md
-- AI visibility guide: https://100questionsai.com/ai-visibility.md
-- Free AI visibility checker: https://100questionsai.com/ai-visibility-checker.md
-- Best AI visibility tools: https://100questionsai.com/ai-seo-tools.md
-- Answer engine optimization tools: https://100questionsai.com/answer-engine-optimization-tools.md
-- ChatGPT recommendation guide: https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md
-- OAI-SearchBot blocking guide: https://100questionsai.com/how-to-check-if-oai-searchbot-is-blocked.md
-- MCP documentation: https://100questionsai.com/mcp.md
+- [Homepage](https://100questionsai.com/index.md)
+- [Pricing](https://100questionsai.com/pricing.md)
+- [AI visibility guide](https://100questionsai.com/ai-visibility.md)
+- [Free AI visibility checker](https://100questionsai.com/ai-visibility-checker.md)
+- [Best AI visibility tools](https://100questionsai.com/ai-seo-tools.md)
+- [Answer engine optimization tools](https://100questionsai.com/answer-engine-optimization-tools.md)
+- [ChatGPT recommendation guide](https://100questionsai.com/how-to-get-chatgpt-to-recommend-your-business.md)
+- [OAI-SearchBot blocking guide](https://100questionsai.com/how-to-check-if-oai-searchbot-is-blocked.md)
+- [MCP documentation](https://100questionsai.com/mcp.md)
 
 ## Public machine interfaces
 
-- API catalog: https://100questionsai.com/.well-known/api-catalog
-- OpenAPI description: https://100questionsai.com/openapi.json
-- MCP server card: https://100questionsai.com/.well-known/mcp/server-card.json
-- Read-only readiness MCP endpoint: https://100questionsai.com/mcp
-- Agent authentication guidance: https://100questionsai.com/auth.md
+- [API catalog](https://100questionsai.com/.well-known/api-catalog)
+- [OpenAPI description](https://100questionsai.com/openapi.json)
+- [MCP server card](https://100questionsai.com/.well-known/mcp/server-card.json)
+- [Read-only readiness MCP endpoint](https://100questionsai.com/mcp)
+- [Agent authentication guidance](https://100questionsai.com/auth.md)
 
 ## Limits
 

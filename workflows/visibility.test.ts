@@ -15,6 +15,10 @@ const { workflowBatch, workflowExecute, workflowGetDb } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/ai/analyze", () => ({ analyzeAnswer: vi.fn() }));
+vi.mock("@/lib/ai/first-pick", () => ({
+  askFirstPickChange: vi.fn(),
+  askFirstPickVerdict: vi.fn(),
+}));
 vi.mock("@/lib/action-plan", () => ({ buildActionPlan: vi.fn() }));
 vi.mock("@/lib/ai/generate-questions", () => ({
   generateBenchmarkQuestions: vi.fn(),
@@ -67,11 +71,43 @@ import {
   calculateAnalysisFailureAttempts,
   calculateCompletedJobCost,
   estimatedUnpersistedFailureCost,
+  estimatedMicrosPerCall,
+  fundedFirstPickCount,
   persistAnalysisFailureAttempt,
 } from "./visibility";
 
 describe("visibility workflow cost accounting", () => {
   const estimate = 1_000;
+
+  it.each([
+    ["analysis-v3", 414],
+    ["analysis-v2", 214],
+    ["analysis-v2", 207],
+  ] as const)(
+    "recovers the frozen per-call estimate from %s with %i reserved calls",
+    (analysisVersion, calls) => {
+      expect(
+        estimatedMicrosPerCall({
+          analysisVersion,
+          estimatedCostMicros: calls * estimate,
+          providerCallsPlanned: 100,
+        }),
+      ).toBe(estimate);
+    },
+  );
+
+  it("funds a pending second turn before starting another two-turn conversation", () => {
+    const pending = [
+      { verdict: "Second choice" },
+      { verdict: null },
+      { verdict: null },
+    ];
+    expect(fundedFirstPickCount(pending, 0)).toBe(0);
+    expect(fundedFirstPickCount(pending, 2)).toBe(1);
+    expect(fundedFirstPickCount(pending, 3)).toBe(2);
+    expect(fundedFirstPickCount(pending, 5)).toBe(3);
+    expect(fundedFirstPickCount([{ verdict: null }], 1)).toBe(0);
+  });
 
   it("falls back independently for every unpriced successful call", () => {
     expect(

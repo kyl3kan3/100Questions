@@ -71,11 +71,18 @@ export async function createReservedRun(
   );
   const diagnosticCount = input.questionCount - discoveryCount;
   const providerCalls = input.questionCount * PROVIDERS.length;
-  const plannedAiCalls =
+  const benchmarkAiCalls =
     providerCalls * config.budget.aiCallsPerProviderJob +
     config.budget.questionGenerationCallAllowance;
+  const plannedAiCalls =
+    benchmarkAiCalls +
+    providerCalls * config.budget.firstPickCallsPerCompetingAnswer;
   const estimatedCost =
     plannedAiCalls * config.budget.estimatedMicrosPerProviderCall;
+  // Admit a run when the remaining daily budget can cover the benchmark.
+  // Allocate the optional conversations only the additional capacity available.
+  const benchmarkCeiling =
+    benchmarkAiCalls * config.budget.ceilingMicrosPerProviderCall;
   const budgetCeiling =
     plannedAiCalls * config.budget.ceilingMicrosPerProviderCall;
   const retentionExpiresAt = new Date(
@@ -122,7 +129,10 @@ export async function createReservedRun(
         ${config.prompts.questionVersion}, ${config.prompts.providerVersion},
         ${config.prompts.analysisVersion}, ${config.prompts.scoringVersion},
         ${JSON.stringify(models)}::jsonb, 'web_grounded'::grounding_mode,
-        now(), ${budgetCeiling}::bigint, ${estimatedCost}::bigint,
+        now(), CASE WHEN ${unlimitedAccess} THEN ${budgetCeiling}::bigint
+          ELSE LEAST(${budgetCeiling}::bigint,
+            ${config.budget.dailyCostLimitMicros}::bigint - COALESCE(usage.cost_reserved_micros, 0))
+          END, ${estimatedCost}::bigint,
         ${retentionExpiresAt.toISOString()}::timestamptz
       FROM credit
       LEFT JOIN usage ON true
@@ -133,11 +143,11 @@ export async function createReservedRun(
         )
         AND (
           ${unlimitedAccess}
-          OR COALESCE(usage.cost_reserved_micros, 0) + ${budgetCeiling}::bigint
+          OR COALESCE(usage.cost_reserved_micros, 0) + ${benchmarkCeiling}::bigint
             <= ${config.budget.dailyCostLimitMicros}::bigint
         )
         AND NOT EXISTS (SELECT 1 FROM existing)
-      RETURNING id
+      RETURNING id, budget_ceiling_micros
     ),
     reserved_credit AS (
       INSERT INTO credit_ledger (
@@ -170,7 +180,7 @@ export async function createReservedRun(
         user_id, usage_date, runs_reserved, provider_calls_reserved,
         cost_reserved_micros
       )
-      SELECT ${userId}, ${today}::date, 1, ${providerCalls}, ${budgetCeiling}
+      SELECT ${userId}, ${today}::date, 1, ${providerCalls}, budget_ceiling_micros
       FROM created_run
       ON CONFLICT (user_id, usage_date) DO UPDATE SET
         runs_reserved = daily_usage.runs_reserved + 1,
@@ -278,7 +288,7 @@ export async function createReservedRun(
   if (
     !unlimitedAccess &&
     (usedToday >= config.budget.dailyRunLimit ||
-      costReservedToday + budgetCeiling > config.budget.dailyCostLimitMicros)
+      costReservedToday + benchmarkCeiling > config.budget.dailyCostLimitMicros)
   ) {
     return { state: "daily_limit" };
   }
@@ -359,11 +369,14 @@ export async function getRunResultsForUser(runId: string, userId: string) {
         return { question, job, result };
       }
 
-      const { costMicros, costProvenance, ...publicResult } = result;
+      const { costMicros, costProvenance, firstPickTurns, firstPickVerdict, ...publicResult } = result;
       void costMicros;
       void costProvenance;
-
-      return { question, job, result: publicResult };
+      void firstPickTurns;
+      const partialFirstPickVerdict = publicResult.competingPick && !publicResult.firstPickFollowUp
+        ? firstPickVerdict
+        : null;
+      return { question, job, result: { ...publicResult, partialFirstPickVerdict } };
     }),
   };
 }

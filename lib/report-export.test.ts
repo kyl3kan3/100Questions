@@ -30,6 +30,32 @@ describe("report exports", () => {
     expect(csv).toContain('"Line one\nLine two"');
   });
 
+  it("exports each competing pick with the follow-up from its own provider", () => {
+    const base = payload.rows[0];
+    const pick = { name: "Rival", quote: "Rival is my first pick." };
+    const followUp = {
+      verdict: "Only for smaller teams.",
+      change: "Publish your tested team-size limit.",
+      reason: "This buyer needs 300 seats.",
+      sourceUrls: ["https://example.com/limits"],
+    };
+    const csv = buildResultsCsv({
+      ...payload,
+      rows: [
+        { ...base, result: { ...base.result, competingPick: pick, firstPickFollowUp: followUp } },
+        { ...base, job: { ...base.job, provider: "anthropic" }, result: { ...base.result, competingPick: pick, firstPickFollowUp: null } },
+        { ...base, job: { ...base.job, provider: "xai" }, result: { ...base.result, competingPick: pick, partialFirstPickVerdict: "Possibly." } },
+        base,
+      ],
+    } as never);
+
+    const [, answered, unavailable, partial, legacy] = csv.split("\r\n");
+    expect(answered).toContain("Rival,Rival is my first pick.,Answered,Only for smaller teams.,Publish your tested team-size limit.,This buyer needs 300 seats.,https://example.com/limits");
+    expect(unavailable).toContain("Rival,Rival is my first pick.,Unavailable,,,,");
+    expect(partial).toContain("Rival,Rival is my first pick.,Verdict only,Possibly.,,,");
+    expect(legacy.endsWith(",,,,,,,")).toBe(true);
+  });
+
   it("neutralizes spreadsheet formulas in every CSV text field", () => {
     const malicious = {
       ...payload,

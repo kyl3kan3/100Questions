@@ -172,7 +172,7 @@ async function executeGroundedSearch(input: ProviderQueryInput) {
     `cohort:${input.cohort}`,
     `prompt:${input.promptVersion}`,
   ];
-  const common = {
+  return generateText({
     model: input.model,
     system: GROUNDED_SYSTEM_PROMPT,
     prompt,
@@ -189,54 +189,28 @@ async function executeGroundedSearch(input: ProviderQueryInput) {
         },
       }),
     },
-    providerOptions: {
-      gateway: {
-        user: input.gatewayUserId,
-        tags,
-      },
-    },
-  };
+    providerOptions: answerProviderOptions(input.provider, input.gatewayUserId, tags),
+  });
+}
 
-  switch (input.provider) {
+export function answerProviderOptions(
+  provider: ProviderKey,
+  user: string,
+  tags: string[],
+): NonNullable<Parameters<typeof generateText>[0]["providerOptions"]> {
+  const gateway = { user, tags };
+  switch (provider) {
     case "openai":
-      return generateText(common);
+      return { gateway };
     case "anthropic":
-      return generateText({
-        ...common,
-        providerOptions: {
-          gateway: {
-            ...common.providerOptions.gateway,
-            // Sonnet 5 is available from all three providers. Prefer the
-            // lowest-latency route while allowing Gateway to fail over before
-            // a transient provider outage reaches the workflow retry layer.
-            order: ["vertex", "bedrock", "anthropic"],
-          },
-        },
-      });
+      return { gateway: { ...gateway, order: ["vertex", "bedrock", "anthropic"] } };
     case "google":
-      return generateText({
-        ...common,
-        providerOptions: {
-          ...common.providerOptions,
-          google: {
-            thinkingConfig: { thinkingLevel: "minimal" },
-          },
-        },
-      });
+      return { gateway, google: { thinkingConfig: { thinkingLevel: "minimal" } } };
     case "xai":
-      return generateText({
-        ...common,
-        providerOptions: {
-          gateway: {
-            ...common.providerOptions.gateway,
-            only: ["xai"],
-          },
-          xai: {
-            reasoningEffort: "low",
-            store: false,
-          },
-        },
-      });
+      return {
+        gateway: { ...gateway, only: ["xai"] },
+        xai: { reasoningEffort: "low", store: false },
+      };
   }
 }
 
@@ -348,7 +322,14 @@ function normalizeSources(
   for (const candidate of candidates) {
     const url = normalizeHttpUrl(candidate.url);
 
-    if (!url || normalized.has(url)) continue;
+    if (!url) continue;
+    const existing = normalized.get(url);
+    if (existing) {
+      // SDK citations may precede the search result containing the excerpt.
+      existing.snippet ??= cleanOptionalText(candidate.snippet, 1_500);
+      continue;
+    }
+    if (normalized.size >= MAX_SOURCES) continue;
 
     normalized.set(url, {
       url,
@@ -357,8 +338,6 @@ function normalizeSources(
       publisher: safeHostname(url),
       publishedAt: cleanOptionalText(candidate.publishedAt, 100),
     });
-
-    if (normalized.size >= MAX_SOURCES) break;
   }
 
   return [...normalized.values()];
@@ -398,7 +377,10 @@ function collectSourceCandidates(
       snippet:
         readString(record.snippet) ??
         readString(record.text) ??
-        readString(record.excerpt),
+        readString(record.excerpt) ??
+        (Array.isArray(record.highlights)
+          ? record.highlights.filter((item): item is string => typeof item === "string").join(" ")
+          : null),
       publishedAt:
         readString(record.publishedAt) ??
         readString(record.publishedDate),

@@ -16,6 +16,7 @@ The product is an API-grounded benchmark, not a claim of parity with the provide
 - A fixed 20-question neutral discovery / 5-question target-named diagnostic split
 - Versioned visibility, prominence, share-of-voice, citation, sentiment, and coverage calculations
 - Evidence-linked, versioned action plans with owner-only PDF and CSV exports
+- When a grounded answer explicitly picks another product, the same model explains whether it would recommend the audited product to this buyer and what one change could make it the first pick. The report shows the original choice, the model's reasoning, and any change it can support. Only the original answers count toward benchmark scores.
 - Exact-question reruns with owner-only baseline comparisons
 - Owner-only dashboard, progress, evidence, rerun, export, and deletion routes
 
